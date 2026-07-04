@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MULTI-TAC | Catálogo de Equipamiento Táctico</title>
+
+<!-- ============================================================
+     FUENTES: Rajdhani (titulares tipo panel operativo),
+     Share Tech Mono (SKU / precios estilo lectura instrumental),
+     Inter (texto general)
+============================================================ -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- Tailwind CSS (CDN) -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- FontAwesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<script>
+  // Configuración de tema Tailwind — paleta "instrumental militar"
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          carbon: {
+            950: '#0a0c0d',
+            900: '#111416',
+            800: '#191d20',
+            700: '#22272a',
+            600: '#343b3f',
+            500: '#4a5257'
+          },
+          amber: {
+            300: '#ffd166',
+            400: '#ffc233',
+            500: '#ffb000',
+            600: '#e0960a'
+          },
+          ink: {
+            100: '#ececea',
+            400: '#9ba1a4',
+            600: '#6b7276'
+          }
+        },
+        fontFamily: {
+          display: ['Rajdhani', 'sans-serif'],
+          mono: ['"Share Tech Mono"', 'monospace'],
+          body: ['Inter', 'sans-serif']
+        }
+      }
+    }
+  }
+</script>
+
+<style>
+  html, body { background-color: #0a0c0d; overscroll-behavior-y: contain; }
+  body { font-family: 'Inter', sans-serif; }
+
+  /* Textura sutil tipo pantalla óptica / visión nocturna sobre el fondo */
+  .scan-overlay {
+    background-image: repeating-linear-gradient(
+      to bottom,
+      rgba(255,176,0,0.025) 0px,
+      rgba(255,176,0,0.025) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+  }
+
+  /* Oculta scrollbar en carrusel de categorías sin perder el scroll */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* Resplandor ámbar tipo display de instrumento */
+  .glow-amber { text-shadow: 0 0 8px rgba(255,176,0,0.45); }
+
+  /* Marco tipo "reticula óptica" en las esquinas de la foto del producto */
+  .reticle { position: relative; }
+  .reticle::before, .reticle::after,
+  .reticle .c-tr, .reticle .c-bl {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-color: #ffb000;
+    z-index: 10;
+  }
+  .reticle::before { top: -1px; left: -1px; border-top: 2px solid; border-left: 2px solid; }
+  .reticle::after  { bottom: -1px; right: -1px; border-bottom: 2px solid; border-right: 2px solid; }
+  .reticle .c-tr { top: -1px; right: -1px; border-top: 2px solid #ffb000; border-right: 2px solid #ffb000; }
+  .reticle .c-bl { bottom: -1px; left: -1px; border-bottom: 2px solid #ffb000; border-left: 2px solid #ffb000; }
+
+  /* Transición del bottom-sheet del carrito */
+  #cartSheet { transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1); }
+  #cartBackdrop { transition: opacity 0.28s ease; }
+
+  /* Cursor parpadeante en el placeholder del buscador (detalle de terminal) */
+  @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+  .blink-cursor { animation: blink 1s step-start infinite; }
+
+  input:focus { outline: none; }
+</style>
+</head>
+
+<body class="bg-carbon-950 text-ink-100 font-body min-h-screen scan-overlay pb-24">
+
+<!-- ======================================================================
+     ENCABEZADO
+====================================================================== -->
+<header class="sticky top-0 z-30 bg-carbon-950/95 backdrop-blur border-b border-carbon-700">
+  <div class="px-4 pt-4 pb-3">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="font-display font-700 text-2xl tracking-wide text-ink-100 leading-none">
+          MULTI<span class="text-amber-500 glow-amber">-TAC</span>
+        </h1>
+        <p class="font-mono text-[10px] text-ink-400 tracking-[0.2em] mt-1">EQUIPAMIENTO&nbsp;TÁCTICO&nbsp;/&nbsp;OPERATIVO</p>
+      </div>
+      <div class="w-9 h-9 rounded-sm border border-amber-500/40 flex items-center justify-center">
+        <i class="fa-solid fa-crosshairs text-amber-500 text-sm"></i>
+      </div>
+    </div>
+
+    <!-- Buscador -->
+    <div class="mt-3 relative">
+      <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-ink-600 text-sm"></i>
+      <input
+        id="searchInput"
+        type="text"
+        placeholder="Buscar por nombre o SKU..."
+        class="w-full bg-carbon-800 border border-carbon-600 rounded-sm py-2.5 pl-9 pr-3 text-sm font-mono text-ink-100 placeholder:text-ink-600"
+        autocomplete="off"
+      >
+    </div>
+
+    <!-- Filtros de categoría -->
+    <div id="categoryBar" class="mt-3 flex gap-2 overflow-x-auto no-scrollbar">
+      <!-- Se renderiza dinámicamente vía JS -->
+    </div>
+  </div>
+</header>
+
+<!-- ======================================================================
+     ESTADOS DE CARGA / ERROR
+====================================================================== -->
+<div id="loadingState" class="flex flex-col items-center justify-center py-20 text-ink-400">
+  <i class="fa-solid fa-satellite-dish fa-spin text-amber-500 text-2xl mb-3"></i>
+  <p class="font-mono text-xs tracking-wider">CONECTANDO CON BASE DE DATOS...</p>
+</div>
+
+<div id="errorState" class="hidden flex-col items-center justify-center py-20 px-6 text-center text-ink-400">
+  <i class="fa-solid fa-triangle-exclamation text-amber-500 text-2xl mb-3"></i>
+  <p class="font-mono text-xs tracking-wider mb-1">NO SE PUDO ESTABLECER CONEXIÓN</p>
+  <p class="text-xs text-ink-600 mb-4">Verificá el SHEET_ID / SHEET_NAME configurados.</p>
+  <button onclick="init()" class="border border-amber-500/50 text-amber-500 text-xs font-mono px-4 py-2 rounded-sm">
+    REINTENTAR
+  </button>
+</div>
+
+<div id="emptyState" class="hidden flex-col items-center justify-center py-20 text-ink-400">
+  <i class="fa-solid fa-box-open text-ink-600 text-2xl mb-3"></i>
+  <p class="font-mono text-xs tracking-wider">SIN RESULTADOS PARA ESTE FILTRO</p>
+</div>
+
+<!-- ======================================================================
+     GRILLA DE PRODUCTOS
+====================================================================== -->
+<main id="productGrid" class="hidden grid grid-cols-2 gap-3 px-4 pt-4"></main>
+
+<!-- ======================================================================
+     BARRA INFERIOR FIJA — RESUMEN DE CARRITO
+====================================================================== -->
+<div id="cartBar" class="hidden fixed bottom-0 left-0 right-0 z-30 bg-carbon-900 border-t border-amber-500/30 px-4 py-3">
+  <button onclick="openCart()" class="w-full flex items-center justify-between bg-carbon-800 border border-carbon-600 rounded-sm px-4 py-3">
+    <div class="flex items-center gap-3">
+      <div class="relative">
+        <i class="fa-solid fa-cart-shopping text-amber-500"></i>
+        <span id="cartCount" class="absolute -top-2 -right-2 bg-amber-500 text-carbon-950 text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</span>
+      </div>
+      <span class="font-display font-600 text-sm tracking-wide">VER PEDIDO</span>
+    </div>
+    <span id="cartSubtotalBar" class="font-mono text-amber-500 text-sm glow-amber">$0</span>
+  </button>
+</div>
+
+<!-- ======================================================================
+     MODAL DEL CARRITO (bottom sheet)
+====================================================================== -->
+<div id="cartBackdrop" onclick="closeCart()" class="hidden fixed inset-0 bg-black/70 z-40 opacity-0"></div>
+
+<div id="cartSheet" class="fixed bottom-0 left-0 right-0 z-50 bg-carbon-900 border-t border-amber-500/40 rounded-t-xl translate-y-full max-h-[85vh] flex flex-col">
+
+  <div class="flex items-center justify-between px-5 pt-4 pb-3 border-b border-carbon-700">
+    <div>
+      <h2 class="font-display font-700 text-xl text-ink-100">Carrito</h2>
+      <p class="text-xs text-ink-400 font-mono">Listado de artículos</p>
+    </div>
+    <button onclick="closeCart()" class="w-8 h-8 flex items-center justify-center text-ink-400">
+      <i class="fa-solid fa-xmark text-lg"></i>
+    </button>
+  </div>
+
+  <div id="cartItemsList" class="overflow-y-auto flex-1 px-5 py-3 space-y-3">
+    <!-- Renderizado dinámico -->
+  </div>
+
+  <div class="px-5 py-4 border-t border-carbon-700 bg-carbon-900">
+    <div class="flex items-center justify-between mb-3">
+      <span class="font-display text-sm text-ink-400 tracking-wide">TOTAL GENERAL</span>
+      <span id="cartTotal" class="font-mono text-xl text-amber-500 glow-amber font-bold">$0</span>
+    </div>
+    <button onclick="sendToWhatsApp()" class="w-full bg-amber-500 hover:bg-amber-600 text-carbon-950 font-display font-700 tracking-wide py-3.5 rounded-sm flex items-center justify-center gap-2 text-sm">
+      <i class="fa-brands fa-whatsapp text-lg"></i>
+      ENVIAR PEDIDO POR WHATSAPP
+    </button>
+    <p class="text-center text-[10px] text-ink-600 font-mono mt-2 tracking-wide">PARA COORDINAR PAGO Y ENVÍO</p>
+  </div>
+</div>
+
+<script>
+/* ============================================================================
+   CONFIGURACIÓN — REEMPLAZAR ANTES DE PUBLICAR
+============================================================================ */
+
+const SHEET_ID = "1_odj6wFfsVmf7cADgHY5mHeGxvrxCA80ELHOlSDC_58";
+const SHEET_NAME = "Hoja 1";
+const WHATSAPP_NUMERO = "5491150432518"
+
+/* ============================================================================
+   ESTADO GLOBAL
+============================================================================ */
+let allProducts = [];      // Productos crudos leídos del Sheet
+let activeCategory = "TODO";
+let searchTerm = "";
+let cart = [];              // { id, sku, name, price, image, category, note, qty }
+
+const CATEGORIES = ["TODO", "CUCHILLERÍA", "CAMPING", "INDUMENTARIA", "ACCESORIOS"];
+
+/* ============================================================================
+   DATOS DE RESPALDO (solo para previsualizar el diseño si falla la conexión
+   con el Google Sheet — reemplazar/eliminar en producción)
+============================================================================ */
+const FALLBACK_PRODUCTS = [
+  { sku: "CUC-101", name: "Cuchillo Táctico Ka-Bar Full Tang", category: "CUCHILLERÍA", price: 45000, image: "https://placehold.co/400x400/191d20/ffb000?text=CUC-101", inStock: true },
+  { sku: "CAM-204", name: "Carpa Iglú 2 Personas 4 Estaciones", category: "CAMPING", price: 89000, image: "https://placehold.co/400x400/191d20/ffb000?text=CAM-204", inStock: true },
+  { sku: "IND-330", name: "Campera Softshell Ripstop", category: "INDUMENTARIA", price: 62000, image: "https://placehold.co/400x400/191d20/ffb000?text=IND-330", inStock: false },
+  { sku: "ACC-410", name: "Chaleco Porta Cargadores Modular", category: "ACCESORIOS", price: 38000, image: "https://placehold.co/400x400/191d20/ffb000?text=ACC-410", inStock: true },
+  { sku: "CUC-105", name: "Multiherramienta Acero Inoxidable", category: "CUCHILLERÍA", price: 27000, image: "https://placehold.co/400x400/191d20/ffb000?text=CUC-105", inStock: true },
+  { sku: "CAM-210", name: "Bolsa de Dormir Momia -5°C", category: "CAMPING", price: 54000, image: "https://placehold.co/400x400/191d20/ffb000?text=CAM-210", inStock: true }
+];
+
+/* ============================================================================
+   CARGA DE DATOS DESDE GOOGLE SHEETS (API pública de visualización GViz)
+============================================================================ */
+async function fetchSheetData() {
+
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+
+  const res = await fetch(url);
+
+  if (!res.ok) {
+    throw new Error("No se pudo leer el Google Sheet");
+  }
+
+  const text = await res.text();
+
+  const jsonStr = text.substring(
+    text.indexOf('{'),
+    text.lastIndexOf('}') + 1
+  );
+
+  const data = JSON.parse(jsonStr);
+
+  const rows = data.table.rows || [];
+
+  const products = rows
+    .map(row => {
+      const c = row.c || [];
+
+      const disponibleRaw =
+        (c[7] && c[7].v)
+          ? String(c[7].v).trim().toUpperCase()
+          : "SI";
+
+      return {
+        sku: (c[0] && c[0].v) ? String(c[0].v).trim() : "",
+        name: (c[1] && c[1].v) ? String(c[1].v).trim() : "",
+        category: (c[2] && c[2].v)
+          ? String(c[2].v).trim().toUpperCase()
+          : "",
+        price: (c[5] && c[5].v)
+          ? Number(c[5].v)
+          : 0,
+        image: (c[6] && c[6].v)
+          ? String(c[6].v).trim()
+          : "",
+        inStock: disponibleRaw !== "NO"
+      };
+    })
+    .filter(p => p.name && p.sku);
+
+  console.log("PRODUCTOS:", products);
+
+  return products;
+}
+ 
+/* ============================================================================
+   INICIALIZACIÓN
+============================================================================ */
+async function init() {
+  setState("loading");
+
+  try {
+    allProducts = await fetchSheetData();
+    console.log("PRODUCTOS:", allProducts);
+
+  } catch (err) {
+    console.error("ERROR GOOGLE SHEETS:", err);
+    alert("ERROR GOOGLE SHEETS");
+  }
+
+  renderCategoryBar();
+  applyFilters();
+  updateCartUI();
+}
+
+function setState(state) {
+  document.getElementById('loadingState').classList.toggle('hidden', state !== 'loading');
+  document.getElementById('errorState').classList.toggle('hidden', state !== 'error');
+  document.getElementById('productGrid').classList.toggle('hidden', state !== 'ready');
+}
+
+/* ============================================================================
+   RENDER — BARRA DE CATEGORÍAS
+============================================================================ */
+function renderCategoryBar() {
+  const bar = document.getElementById('categoryBar');
+  bar.innerHTML = CATEGORIES.map(cat => {
+    const active = cat === activeCategory;
+    return `
+      <button
+        data-cat="${cat}"
+        onclick="selectCategory('${cat}')"
+        class="shrink-0 font-mono text-xs px-3 py-1.5 rounded-sm border transition-colors
+        ${active
+          ? 'bg-amber-500 text-carbon-950 border-amber-500 font-bold'
+          : 'bg-carbon-800 text-ink-400 border-carbon-600'}"
+      >${active ? '● ' : ''}${cat}</button>
+    `;
+  }).join('');
+}
+
+function selectCategory(cat) {
+  activeCategory = cat;
+  renderCategoryBar();
+  applyFilters();
+}
+
+/* ============================================================================
+   FILTRO + BÚSQUEDA
+============================================================================ */
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  searchTerm = e.target.value.trim().toLowerCase();
+  applyFilters();
+});
+
+function applyFilters() {
+  let list = allProducts;
+
+  if (activeCategory !== "TODO") {
+    list = list.filter(p => p.category === activeCategory);
+  }
+
+  if (searchTerm) {
+    list = list.filter(p =>
+      p.name.toLowerCase().includes(searchTerm) ||
+      p.sku.toLowerCase().includes(searchTerm)
+    );
+  }
+
+  renderProducts(list);
+}
+
+/* ============================================================================
+   RENDER — GRILLA DE PRODUCTOS
+============================================================================ */
+function renderProducts(list) {
+  const grid = document.getElementById('productGrid');
+  const empty = document.getElementById('emptyState');
+
+  if (list.length === 0) {
+    setState('ready');
+    grid.classList.add('hidden');
+    empty.classList.remove('hidden');
+    empty.classList.add('flex');
+    return;
+  }
+
+  setState('ready');
+  empty.classList.add('hidden');
+  empty.classList.remove('flex');
+  grid.classList.remove('hidden');
+
+  grid.innerHTML = list.map((p, idx) => {
+    const safeIdx = `p${idx}_${p.sku.replace(/[^a-zA-Z0-9]/g, '')}`;
+    const outOfStock = p.inStock === false;
+    return `
+    <div class="bg-carbon-800 border border-carbon-700 rounded-sm overflow-hidden flex flex-col ${outOfStock ? 'opacity-60' : ''}">
+
+      <div class="reticle m-2 mb-0 aspect-square bg-carbon-900 overflow-hidden">
+        <span class="c-tr"></span><span class="c-bl"></span>
+        <img src="${p.image}" alt="${escapeHtml(p.name)}" class="w-full h-full object-cover ${outOfStock ? 'grayscale' : ''}" loading="lazy"
+             onerror="this.src='https://placehold.co/400x400/191d20/4a5257?text=SIN+IMAGEN'">
+        ${outOfStock ? `
+          <div class="absolute inset-0 flex items-center justify-center bg-carbon-950/50">
+            <span class="border border-amber-500 text-amber-500 font-display font-700 text-xs tracking-[0.15em] px-3 py-1 bg-carbon-950/80">AGOTADO</span>
+          </div>` : ''
+        }
+      </div>
+
+      <div class="p-3 flex flex-col gap-1.5 flex-1">
+        <span class="font-mono text-[9px] text-amber-500/80 tracking-wider">${escapeHtml(p.category)}</span>
+        <span class="font-mono text-[10px] text-ink-600">SKU ${escapeHtml(p.sku)}</span>
+        <h3 class="font-display font-600 text-sm leading-tight text-ink-100 min-h-[2.2em]">${escapeHtml(p.name)}</h3>
+        <span class="font-mono text-amber-500 font-bold text-base glow-amber mt-1">${formatPrice(p.price)}</span>
+
+        <input
+          id="note_${safeIdx}"
+          type="text"
+          placeholder="Talle, color o aclaración aquí..."
+          ${outOfStock ? 'disabled' : ''}
+          class="mt-2 w-full bg-carbon-900 border border-carbon-600 rounded-sm px-2 py-2 text-xs text-ink-100 placeholder:text-ink-600 font-body ${outOfStock ? 'cursor-not-allowed' : ''}"
+        >
+
+        <button
+          ${outOfStock ? 'disabled' : `onclick='addToCart(${JSON.stringify(p)}, "note_${safeIdx}")'`}
+          class="mt-2 w-full ${outOfStock
+            ? 'bg-carbon-900 border border-carbon-600 text-ink-600 cursor-not-allowed'
+            : 'bg-carbon-700 hover:bg-amber-500 hover:text-carbon-950 border border-amber-500/40 text-amber-500'} text-xs font-display font-700 tracking-wide py-2.5 rounded-sm transition-colors flex items-center justify-center gap-1.5"
+        >
+          ${outOfStock
+            ? '<i class="fa-solid fa-ban text-[10px]"></i> SIN STOCK'
+            : '<i class="fa-solid fa-plus text-[10px]"></i> AGREGAR'}
+        </button>
+      </div>
+    </div>
+    `;
+  }).join('');
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
+
+function formatPrice(n) {
+  return Number(n).toLocaleString('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 });
+}
+
+/* ============================================================================
+   LÓGICA DE CARRITO
+============================================================================ */
+function addToCart(product, noteInputId) {
+  const noteInput = document.getElementById(noteInputId);
+  const note = noteInput ? noteInput.value.trim() : "";
+
+  // El identificador combina SKU + nota (normalizada) para separar variantes distintas
+  const itemId = `${product.sku}::${note.toLowerCase()}`;
+
+  const existing = cart.find(i => i.id === itemId);
+  if (existing) {
+    existing.qty += 1;
+  } else {
+    cart.push({
+      id: itemId,
+      sku: product.sku,
+      name: product.name,
+      category: product.category,
+      price: product.price,
+      image: product.image,
+      note: note,
+      qty: 1
+    });
+  }
+
+  if (noteInput) noteInput.value = "";
+  updateCartUI();
+  flashAdded(noteInputId);
+}
+
+function flashAdded(noteInputId) {
+  const btn = document.getElementById(noteInputId)?.nextElementSibling;
+  if (!btn) return;
+  const original = btn.innerHTML;
+  btn.innerHTML = '<i class="fa-solid fa-check text-[10px]"></i> AGREGADO';
+  setTimeout(() => { btn.innerHTML = original; }, 900);
+}
+
+function changeQty(itemId, delta) {
+  const item = cart.find(i => i.id === itemId);
+  if (!item) return;
+  item.qty += delta;
+  if (item.qty <= 0) {
+    cart = cart.filter(i => i.id !== itemId);
+  }
+  updateCartUI();
+}
+
+// Permite editar o agregar la nota/observación de un ítem directamente desde el carrito.
+// Si la nueva nota coincide con la de otro ítem del mismo SKU, se fusionan las cantidades
+// en vez de dejar dos filas separadas con el mismo texto.
+function updateCartNote(itemId, newNoteRaw) {
+  const item = cart.find(i => i.id === itemId);
+  if (!item) return;
+
+  const newNote = newNoteRaw.trim();
+  const newId = `${item.sku}::${newNote.toLowerCase()}`;
+
+  if (newId === item.id) {
+    item.note = newNote;
+    updateCartUI();
+    return;
+  }
+
+  const duplicate = cart.find(i => i.id === newId && i !== item);
+  if (duplicate) {
+    duplicate.qty += item.qty;
+    cart = cart.filter(i => i !== item);
+  } else {
+    item.note = newNote;
+    item.id = newId;
+  }
+  updateCartUI();
+}
+
+function removeItem(itemId) {
+  cart = cart.filter(i => i.id !== itemId);
+  updateCartUI();
+}
+
+function cartTotal() {
+  return cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+}
+
+function cartCount() {
+  return cart.reduce((sum, i) => sum + i.qty, 0);
+}
+
+/* ============================================================================
+   RENDER — UI DEL CARRITO (barra inferior + modal)
+============================================================================ */
+function updateCartUI() {
+  const count = cartCount();
+  const total = cartTotal();
+
+  document.getElementById('cartCount').textContent = count;
+  document.getElementById('cartSubtotalBar').textContent = formatPrice(total);
+  document.getElementById('cartTotal').textContent = formatPrice(total);
+
+  const cartBar = document.getElementById('cartBar');
+  cartBar.classList.toggle('hidden', count === 0);
+
+  renderCartItems();
+}
+
+function renderCartItems() {
+  const list = document.getElementById('cartItemsList');
+
+  if (cart.length === 0) {
+    list.innerHTML = `
+      <div class="flex flex-col items-center justify-center py-10 text-ink-400">
+        <i class="fa-solid fa-box-open text-2xl mb-2 text-ink-600"></i>
+        <p class="font-mono text-xs">EL CARRITO ESTÁ VACÍO</p>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = cart.map(item => `
+    <div class="bg-carbon-800 border border-carbon-700 rounded-sm p-3 flex gap-3">
+      <img src="${item.image}" class="w-16 h-16 object-cover rounded-sm border border-carbon-600 shrink-0"
+           onerror="this.src='https://placehold.co/100x100/191d20/4a5257?text=--'">
+
+      <div class="flex-1 min-w-0">
+        <div class="flex justify-between items-start gap-2">
+          <div class="min-w-0">
+            <p class="font-display font-600 text-sm text-ink-100 truncate">${escapeHtml(item.name)}</p>
+            <p class="font-mono text-[10px] text-ink-600">SKU ${escapeHtml(item.sku)}</p>
+          </div>
+          <button onclick="removeItem('${item.id}')" class="text-ink-600 hover:text-amber-500 shrink-0">
+            <i class="fa-solid fa-trash-can text-xs"></i>
+          </button>
+        </div>
+
+        <div class="mt-1.5 relative">
+          <i class="fa-solid fa-note-sticky absolute left-2 top-1/2 -translate-y-1/2 text-amber-500/70 text-[10px]"></i>
+          <input
+            type="text"
+            value="${escapeHtml(item.note)}"
+            placeholder="Sin observación — agregar aquí..."
+            onchange="updateCartNote('${item.id}', this.value)"
+            class="w-full bg-carbon-900 border border-carbon-600 rounded-sm pl-6 pr-2 py-1.5 text-xs text-amber-500 placeholder:text-ink-600 font-body"
+          >
+        </div>
+
+        <div class="flex items-center justify-between mt-2">
+          <div class="flex items-center gap-2 bg-carbon-900 border border-carbon-600 rounded-sm">
+            <button onclick="changeQty('${item.id}', -1)" class="w-7 h-7 flex items-center justify-center text-amber-500">
+              <i class="fa-solid fa-minus text-[10px]"></i>
+            </button>
+            <span class="font-mono text-sm w-5 text-center">${item.qty}</span>
+            <button onclick="changeQty('${item.id}', 1)" class="w-7 h-7 flex items-center justify-center text-amber-500">
+              <i class="fa-solid fa-plus text-[10px]"></i>
+            </button>
+          </div>
+          <span class="font-mono text-amber-500 font-bold text-sm">${formatPrice(item.price * item.qty)}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ============================================================================
+   APERTURA / CIERRE DEL MODAL
+============================================================================ */
+function openCart() {
+  document.getElementById('cartBackdrop').classList.remove('hidden');
+  requestAnimationFrame(() => {
+    document.getElementById('cartBackdrop').classList.remove('opacity-0');
+    document.getElementById('cartSheet').classList.remove('translate-y-full');
+  });
+}
+
+function closeCart() {
+  document.getElementById('cartBackdrop').classList.add('opacity-0');
+  document.getElementById('cartSheet').classList.add('translate-y-full');
+  setTimeout(() => document.getElementById('cartBackdrop').classList.add('hidden'), 280);
+}
+
+/* ============================================================================
+   DESPACHO A WHATSAPP
+============================================================================ */
+function sendToWhatsApp() {
+  if (cart.length === 0) return;
+
+  let msg = `*🛒 NUEVO PEDIDO - MULTI-TAC*\n\n`;
+  msg += `*Listado de artículos:*\n\n`;
+
+  cart.forEach((item, idx) => {
+    const subtotal = item.price * item.qty;
+    msg += `*${idx + 1}. ${item.name}*\n`;
+    msg += `SKU: ${item.sku}\n`;
+    if (item.note) msg += `Observación: ${item.note}\n`;
+    msg += `Cantidad: ${item.qty} x ${formatPrice(item.price)} = *${formatPrice(subtotal)}*\n\n`;
+  });
+
+  msg += `*TOTAL GENERAL: ${formatPrice(cartTotal())}*\n\n`;
+  msg += `Quedo a la espera para coordinar *forma de pago* y *envío*. ¡Gracias!`;
+
+  const url = `https://wa.me/${WHATSAPP_NUMERO}?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+}
+
+/* ============================================================================
+   ARRANQUE
+============================================================================ */
+init();
+</script>
+
+</body>
+</html>
