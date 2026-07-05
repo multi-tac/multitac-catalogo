@@ -723,8 +723,6 @@ function closeCart() {
 ============================================================================ */
 async function guardarPedido(nombre, telefono) {
 
-  alert("Entró a guardarPedido");
-
   const detalle = cart.map(item => ({
     sku: item.sku,
     producto: item.name,
@@ -743,18 +741,12 @@ async function guardarPedido(nombre, telefono) {
 
   try {
 
-    console.log("URL:", PEDIDOS_API_URL);
-    console.log("Pedido:", pedido);
-
     await fetch(PEDIDOS_API_URL, {
       method: "POST",
       mode: "no-cors",
       redirect: "follow",
       body: JSON.stringify(pedido)
     });
-
-    console.log("Pedido enviado");
-    alert("Pedido enviado");
 
   } catch (err) {
 
