@@ -95,6 +95,70 @@ while True:
 
             if "AGOTADO" in texto_card:
                 disponible = "NO"
+            nombre_upper = nombre.upper()
+
+            if any(x in nombre_upper for x in [
+                "CUCHILLO",
+                "NAVAJA",
+                "MACHETE",
+                "KATANA",
+                "KERAMBIT",
+                "MARIPOSA"
+            ]):
+                categoria = "CUCHILLERIA"
+
+            elif any(x in nombre_upper for x in [
+                "CARPA",
+                "MOSQUETON",
+                "SOGA",
+                "PULSERA",
+                "SET CUBIERTO",
+                "PANEL SOLAR"
+            ]):
+                categoria = "CAMPING"
+
+            elif any(x in nombre_upper for x in [
+                "CHALECO",
+                "GUANTE",
+                "CAMPERA",
+                "REMERA",
+                "PANTALON",
+                "GORRA"
+            ]):
+                categoria = "INDUMENTARIA"
+
+            elif "LINTERNA" in nombre_upper:
+                categoria = "LINTERNA"
+
+            elif any(x in nombre_upper for x in [
+                "PINZA",
+                "LLAVE",
+                "DESTORNILLADOR",
+                "HERRAMIENTA"
+            ]):
+                categoria = "HERRAMIENTA"
+
+            elif any(x in nombre_upper for x in [
+                "LED",
+                "CABLE",
+                "CARGADOR",
+                "ELECTRICO",
+                "ELECTRICA"
+            ]):
+                categoria = "ELECTRICOS"
+
+            elif any(x in nombre_upper for x in [
+                "TERMO",
+                "MATE",
+                "VASO",
+                "TAZA",
+                "JARRA"
+            ]):
+                categoria = "BAZAR"
+
+            else:
+                categoria = "ACCESORIOS"
+
 
             productos.append({
                 "SKU": sku,
@@ -104,8 +168,9 @@ while True:
                 "%Ganancia": GANANCIA,
                 "PrecioReventa": precio_reventa,
                 "Imagen": imagen,
-                "Disponible": disponible,
+                "Disponible": disponible
             })
+
 
         except Exception as e:
             print("Error:", e)
