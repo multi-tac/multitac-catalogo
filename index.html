@@ -740,27 +740,24 @@ async function guardarPedido(nombre, telefono) {
     observaciones: "",
     detalle: detalle
   };
+try {
 
-  try {
+  console.log("URL:", PEDIDOS_API_URL);
+  console.log("Pedido:", pedido);
 
-    console.log("URL:", PEDIDOS_API_URL);
-    console.log("Pedido:", pedido);
+  await fetch(PEDIDOS_API_URL, {
+    method: "POST",
+    mode: "no-cors",
+    body: JSON.stringify(pedido)
+  });
 
-    await fetch(PEDIDOS_API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(pedido)
-    });
+  console.log("Pedido enviado");
 
-    console.log("Pedido guardado correctamente");
+} catch (err) {
 
-  } catch (err) {
+  console.error("Error al guardar pedido:", err);
 
-    console.error("Error al guardar pedido:", err);
-
-  }
+}
 }
 
 async function sendToWhatsApp() {
