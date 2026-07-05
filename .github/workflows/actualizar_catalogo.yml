@@ -1,6 +1,9 @@
 name: Actualizar Catalogo
 
 on:
+  schedule:
+    - cron: '0 3 * * *'
+
   workflow_dispatch:
 
 jobs:
@@ -18,5 +21,19 @@ jobs:
         run: |
           pip install pandas gspread google-auth openpyxl requests beautifulsoup4
 
+      - name: Crear credenciales
+        run: |
+          mkdir -p scraper
+          echo '${{ secrets.GOOGLE_CREDENTIALS }}' > scraper/credenciales.json
+
       - name: Ejecutar Pasteur
         run: python scraper/scraper_pasteur86.py
+
+      - name: Ejecutar VenirVos
+        run: python scraper/scraper_venirvos.py
+
+      - name: Unificar catalogo
+        run: python scraper/comparar_proveedores.py
+
+      - name: Subir a Google Sheets
+        run: python scraper/subir_unificados.py
