@@ -1,5 +1,6 @@
 import requests
 import csv
+import re
 from bs4 import BeautifulSoup
 
 categorias = {
@@ -80,7 +81,9 @@ with open(
                         ".woocommerce-Price-amount"
                     )
 
-                    imagen = producto.select_one("img")
+                    imagen = producto.select_one(
+                        "img"
+                    )
 
                     link = producto.select_one(
                         "a[href]"
@@ -94,6 +97,25 @@ with open(
                     precio_txt = (
                         precio.get_text(strip=True)
                         if precio else ""
+                    )
+
+                    precio_numerico = 0
+
+                    if precio_txt:
+
+                        solo_numeros = re.sub(
+                            r"[^\d]",
+                            "",
+                            precio_txt
+                        )
+
+                        if solo_numeros:
+                            precio_numerico = int(
+                                solo_numeros
+                            )
+
+                    precio_reventa = round(
+                        precio_numerico * 1.35
                     )
 
                     imagen_txt = (
@@ -123,6 +145,7 @@ with open(
                         pos = texto.find("SKU:")
 
                         if pos != -1:
+
                             sku = texto[
                                 pos + 4:pos + 20
                             ].strip().split()[0]
@@ -134,16 +157,25 @@ with open(
                         sku,
                         nombre_txt,
                         categoria,
-                        precio_txt,
-                        "50",
-                        "",
+                        precio_numerico,
+                        "35",
+                        precio_reventa,
                         imagen_txt,
                         "SI"
                     ])
 
-                    print(sku, nombre_txt)
+                    print(
+                        sku,
+                        nombre_txt,
+                        precio_numerico,
+                        precio_reventa
+                    )
 
             except Exception as e:
-                print("ERROR:", e)
+
+                print(
+                    "ERROR:",
+                    e
+                )
 
 print("FINALIZADO")
