@@ -1,13 +1,41 @@
 name: Actualizar Catalogo
 
 on:
+  schedule:
+    - cron: '0 3 * * *'
+
   workflow_dispatch:
 
 jobs:
-  test:
+  actualizar:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Descargar repo
+        uses: actions/checkout@v4
 
-      - run: echo "GitHub Actions funcionando"
+      - name: Instalar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependencias
+        run: |
+          pip install pandas gspread google-auth openpyxl requests beautifulsoup4
+
+      - name: Crear credenciales
+        run: |
+          mkdir -p scraper
+          echo '${{ secrets.GOOGLE_CREDENTIALS }}' > scraper/credenciales.json
+
+      - name: Ejecutar scraper Pasteur
+        run: python scraper/scraper_pasteur86.py
+
+      - name: Ejecutar scraper VenirVos
+        run: python scraper/scraper_venirvos.py
+
+      - name: Unificar catalogo
+        run: python scraper/comparar_proveedores.py
+
+      - name: Subir a Google Sheets
+        run: python scraper/subir_unificados.py
