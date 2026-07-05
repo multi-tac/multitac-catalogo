@@ -760,20 +760,22 @@ async function guardarPedido(nombre, telefono) {
 }
 
 async function sendToWhatsApp() {
-    const nombre = document.getElementById('customerName').value.trim();
-const telefono = document.getElementById('customerPhone').value.trim();
 
-if (!nombre) {
-  alert("Debe ingresar su nombre.");
-  return;
-}
+  const nombre = document.getElementById("customerName").value.trim();
+  const telefono = document.getElementById("customerPhone").value.trim();
 
-if (!telefono) {
-  alert("Debe ingresar su teléfono.");
-  return;
-}
+  if (!nombre) {
+    alert("Debe ingresar su nombre.");
+    return;
+  }
 
-await guardarPedido(nombre, telefono);
+  if (!telefono) {
+    alert("Debe ingresar su teléfono.");
+    return;
+  }
+
+  await guardarPedido(nombre, telefono);
+
   if (cart.length === 0) return;
 
   let msg = `*🛒 NUEVO PEDIDO - MULTI-TAC*\n\n`;
@@ -782,25 +784,33 @@ await guardarPedido(nombre, telefono);
   msg += `*Listado de artículos:*\n\n`;
 
   cart.forEach((item, idx) => {
+
     const subtotal = item.price * item.qty;
+
     msg += `*${idx + 1}. ${item.name}*\n`;
     msg += `SKU: ${item.sku}\n`;
-    if (item.note) msg += `Observación: ${item.note}\n`;
+
+    if (item.note) {
+      msg += `Observación: ${item.note}\n`;
+    }
+
     msg += `Cantidad: ${item.qty} x ${formatPrice(item.price)} = *${formatPrice(subtotal)}*\n\n`;
+
   });
 
   msg += `*TOTAL GENERAL: ${formatPrice(cartTotal())}*\n\n`;
   msg += `Quedo a la espera para coordinar *forma de pago* y *envío*. ¡Gracias!`;
 
   const url = `https://wa.me/${WHATSAPP_NUMERO}?text=${encodeURIComponent(msg)}`;
-  window.open(url, '_blank');
+
+  window.open(url, "_blank");
 }
 
 /* ============================================================================
    ARRANQUE
 ============================================================================ */
 init();
-</script>
 
+</script>
 </body>
 </html>
