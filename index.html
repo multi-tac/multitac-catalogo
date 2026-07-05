@@ -249,6 +249,8 @@ const SHEET_NAME = "Hoja 1";
 
 // Número de WhatsApp de atención (formato internacional, sin + ni espacios. Ej: 5491122334455)
 const WHATSAPP_NUMERO = "5491150432518";
+const PEDIDOS_API_URL = "https://script.google.com/macros/s/AKfycbwu8TneQNvyiucyyIkDrOUPjv0iGB-bI5b2hzD2dJTOm1WNgg-pIpi7OXp5rBR4xUOeGQ/exe
+
 
 /* ============================================================================
    ESTADO GLOBAL
@@ -721,7 +723,44 @@ function closeCart() {
 /* ============================================================================
    DESPACHO A WHATSAPP
 ============================================================================ */
-function sendToWhatsApp() {
+async function guardarPedido(nombre, telefono) {
+
+  const detalle = cart.map(item => ({
+    sku: item.sku,
+    producto: item.name,
+    cantidad: item.qty,
+    precio: item.price,
+    observacion: item.note || ""
+  }));
+
+  const pedido = {
+    nombre: nombre,
+    telefono: telefono,
+    total: cartTotal(),
+    observaciones: "",
+    detalle: detalle
+  };
+
+  try {
+
+    await fetch(PEDIDOS_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(pedido)
+    });
+
+    console.log("Pedido guardado correctamente");
+
+  } catch (err) {
+
+    console.error("Error al guardar pedido:", err);
+
+  }
+}
+
+async function sendToWhatsApp() {
     const nombre = document.getElementById('customerName').value.trim();
 const telefono = document.getElementById('customerPhone').value.trim();
 
@@ -734,6 +773,8 @@ if (!telefono) {
   alert("Debe ingresar su teléfono.");
   return;
 }
+
+await guardarPedido(nombre, telefono);
   if (cart.length === 0) return;
 
   let msg = `*🛒 NUEVO PEDIDO - MULTI-TAC*\n\n`;
