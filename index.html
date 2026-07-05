@@ -261,7 +261,17 @@ let cart = [];              // { id, sku, name, price, image, category, note, qt
 let currentPage = 1;
 const PRODUCTS_PER_PAGE = 24; // Igual que Pasteur86: 24 productos por página
 
-const CATEGORIES = ["TODO", "CUCHILLERÍA", "CAMPING", "INDUMENTARIA", "ACCESORIOS"];
+const CATEGORIES = [
+  "TODO",
+  "CUCHILLERIA",
+  "CAMPING",
+  "INDUMENTARIA",
+  "ACCESORIOS",
+  "LINTERNA",
+  "HERRAMIENTA",
+  "ELECTRICOS",
+  "BAZAR"
+];
 
 // Quita tildes y pasa a mayúsculas para poder comparar categorías sin que
 // importe si en el Sheet se escribió "CUCHILLERIA" o "CUCHILLERÍA".
