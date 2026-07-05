@@ -170,6 +170,7 @@
      GRILLA DE PRODUCTOS
 ====================================================================== -->
 <main id="productGrid" class="hidden grid grid-cols-2 gap-3 px-4 pt-4"></main>
+<div id="pagination" class="hidden flex justify-center items-center gap-2 py-6"></div>
 
 <!-- ======================================================================
      BARRA INFERIOR FIJA — RESUMEN DE CARRITO
@@ -236,7 +237,9 @@ const WHATSAPP_NUMERO = "5491150432518"
 let allProducts = [];      // Productos crudos leídos del Sheet
 let activeCategory = "TODO";
 let searchTerm = "";
-let cart = [];              // { id, sku, name, price, image, category, note, qty }
+let cart = [];
+let currentPage = 1;
+const PRODUCTS_PER_PAGE = 24;          // { id, sku, name, price, image, category, note, qty }
 
 const CATEGORIES = ["TODO", "CUCHILLERÍA", "CAMPING", "INDUMENTARIA", "ACCESORIOS"];
 
@@ -355,16 +358,21 @@ function renderCategoryBar() {
 }
 
 function selectCategory(cat) {
+
   activeCategory = cat;
+  currentPage = 1;
+
   renderCategoryBar();
   applyFilters();
 }
-
 /* ============================================================================
    FILTRO + BÚSQUEDA
 ============================================================================ */
 document.getElementById('searchInput').addEventListener('input', (e) => {
+
   searchTerm = e.target.value.trim().toLowerCase();
+  currentPage = 1;
+
   applyFilters();
 });
 
@@ -383,73 +391,53 @@ function applyFilters() {
   }
 
   renderProducts(list);
+  renderPagination(list)
 }
 
 /* ============================================================================
    RENDER — GRILLA DE PRODUCTOS
 ============================================================================ */
-function renderProducts(list) {
-  const grid = document.getElementById('productGrid');
-  const empty = document.getElementById('emptyState');
+function renderPagination(list) {
 
-  if (list.length === 0) {
-    setState('ready');
-    grid.classList.add('hidden');
-    empty.classList.remove('hidden');
-    empty.classList.add('flex');
+  const totalPages = Math.ceil(list.length / PRODUCTS_PER_PAGE);
+
+  const container = document.getElementById('pagination');
+
+  if (totalPages <= 1) {
+    container.classList.add('hidden');
     return;
   }
 
-  setState('ready');
-  empty.classList.add('hidden');
-  empty.classList.remove('flex');
-  grid.classList.remove('hidden');
+  container.classList.remove('hidden');
 
-  grid.innerHTML = list.map((p, idx) => {
-    const safeIdx = `p${idx}_${p.sku.replace(/[^a-zA-Z0-9]/g, '')}`;
-    const outOfStock = p.inStock === false;
-    return `
-    <div class="bg-carbon-800 border border-carbon-700 rounded-sm overflow-hidden flex flex-col ${outOfStock ? 'opacity-60' : ''}">
+  let html = '';
 
-      <div class="reticle m-2 mb-0 aspect-square bg-carbon-900 overflow-hidden">
-        <span class="c-tr"></span><span class="c-bl"></span>
-        <img src="${p.image}" alt="${escapeHtml(p.name)}" class="w-full h-full object-cover ${outOfStock ? 'grayscale' : ''}" loading="lazy"
-             onerror="this.src='https://placehold.co/400x400/191d20/4a5257?text=SIN+IMAGEN'">
-        ${outOfStock ? `
-          <div class="absolute inset-0 flex items-center justify-center bg-carbon-950/50">
-            <span class="border border-amber-500 text-amber-500 font-display font-700 text-xs tracking-[0.15em] px-3 py-1 bg-carbon-950/80">AGOTADO</span>
-          </div>` : ''
-        }
-      </div>
+  for (let i = 1; i <= totalPages; i++) {
 
-      <div class="p-3 flex flex-col gap-1.5 flex-1">
-        <span class="font-mono text-[9px] text-amber-500/80 tracking-wider">${escapeHtml(p.category)}</span>
-        <span class="font-mono text-[10px] text-ink-600">SKU ${escapeHtml(p.sku)}</span>
-        <h3 class="font-display font-600 text-sm leading-tight text-ink-100 min-h-[2.2em]">${escapeHtml(p.name)}</h3>
-        <span class="font-mono text-amber-500 font-bold text-base glow-amber mt-1">${formatPrice(p.price)}</span>
-
-        <input
-          id="note_${safeIdx}"
-          type="text"
-          placeholder="Talle, color o aclaración aquí..."
-          ${outOfStock ? 'disabled' : ''}
-          class="mt-2 w-full bg-carbon-900 border border-carbon-600 rounded-sm px-2 py-2 text-xs text-ink-100 placeholder:text-ink-600 font-body ${outOfStock ? 'cursor-not-allowed' : ''}"
-        >
-
-        <button
-          ${outOfStock ? 'disabled' : `onclick='addToCart(${JSON.stringify(p)}, "note_${safeIdx}")'`}
-          class="mt-2 w-full ${outOfStock
-            ? 'bg-carbon-900 border border-carbon-600 text-ink-600 cursor-not-allowed'
-            : 'bg-carbon-700 hover:bg-amber-500 hover:text-carbon-950 border border-amber-500/40 text-amber-500'} text-xs font-display font-700 tracking-wide py-2.5 rounded-sm transition-colors flex items-center justify-center gap-1.5"
-        >
-          ${outOfStock
-            ? '<i class="fa-solid fa-ban text-[10px]"></i> SIN STOCK'
-            : '<i class="fa-solid fa-plus text-[10px]"></i> AGREGAR'}
-        </button>
-      </div>
-    </div>
+    html += `
+      <button
+        onclick="goToPage(${i})"
+        class="px-3 py-1 rounded-sm border ${
+          currentPage === i
+            ? 'bg-amber-500 text-carbon-950 border-amber-500'
+            : 'bg-carbon-800 text-ink-100 border-carbon-600'
+        }">
+        ${i}
+      </button>
     `;
-  }).join('');
+  }
+
+  container.innerHTML = html;
+}
+
+function goToPage(page) {
+  currentPage = page;
+  applyFilters();
+
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
 }
 
 function escapeHtml(str) {
@@ -461,6 +449,50 @@ function escapeHtml(str) {
 function formatPrice(n) {
   return Number(n).toLocaleString('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 });
 }
+
+function renderPagination(list) {
+
+  const totalPages = Math.ceil(list.length / PRODUCTS_PER_PAGE);
+
+  const container = document.getElementById('pagination');
+
+  if (totalPages <= 1) {
+    container.classList.add('hidden');
+    return;
+  }
+
+  container.classList.remove('hidden');
+
+  let html = '';
+
+  for (let i = 1; i <= totalPages; i++) {
+
+    html += `
+      <button
+        onclick="goToPage(${i})"
+        class="px-3 py-1 rounded-sm border ${
+          currentPage === i
+            ? 'bg-amber-500 text-carbon-950 border-amber-500'
+            : 'bg-carbon-800 text-ink-100 border-carbon-600'
+        }">
+        ${i}
+      </button>
+    `;
+  }
+
+  container.innerHTML = html;
+}
+
+function goToPage(page) {
+  currentPage = page;
+  applyFilters();
+
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+}
+
 
 /* ============================================================================
    LÓGICA DE CARRITO
