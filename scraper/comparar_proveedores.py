@@ -89,10 +89,8 @@ def obtener_subcategoria(nombre):
 
     return ""
 
-# Completar Subcategoria
-unificados["Subcategoria"] = unificados["Producto"].apply(
-    obtener_subcategoria
-)
+# No completar automáticamente
+unificados["Subcategoria"] = ""
 
 # Reordenar columnas
 columnas = [
