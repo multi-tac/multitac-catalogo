@@ -444,11 +444,17 @@ function renderList(){
     });
     card.querySelector("select").addEventListener("change", async (e)=>{
 
+  alert("CAMBIO DETECTADO");
+
   const order = ORDERS.find(
     x=>x.id===e.target.getAttribute("data-id")
   );
 
+  alert("ID: " + order.id);
+
   const nuevoEstado = e.target.value;
+
+  alert("ESTADO: " + nuevoEstado);
 
   try{
 
