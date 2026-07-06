@@ -251,8 +251,11 @@ const SHEET_ID =
   "1_odj6wFfsVmf7cADgHY5mHeGxvrxCA80ELHOlSDC_58";
 
 const PEDIDOS_URL =
-  `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=PEDIDOS`;
+`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=PEDIDOS`;
 
+const API_URL =
+  "https://script.google.com/macros/s/AKfycbzgT298ZzkzzjBau9ueX2ASkYQ97jYFfcVJTeOdCpc1H6X0YgCNzHelS7RG7pv5Ph1vxQ/exec";
+  
 async function cargarPedidos() {
 
   const res = await fetch(PEDIDOS_URL);
@@ -431,15 +434,80 @@ function renderList(){
       card.appendChild(renderDetail(o));
       card.querySelector(".chevron").style.transform = "rotate(180deg)";
     }
-    card.querySelector(".order-head").addEventListener("click", (e)=>{
-      if(e.target.closest("select") || e.target.closest(".wa-btn")) return;
-      expandedId = expandedId===o.id ? null : o.id;
-      renderList();
+    card.querySelector("select").addEventListener("change", async (e)=>{
+
+  const order = ORDERS.find(
+    x => x.id === e.target.getAttribute("data-id")
+  );
+
+  const nuevoEstado = e.target.value;
+
+  try {
+
+    await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        id: order.id,
+        estado: nuevoEstado
+      })
     });
+
+    order.estado = nuevoEstado;
+
+    await cargarPedidos();
+
+  } catch(error){
+
+    console.error(error);
+    alert("Error actualizando estado");
+
+  }
+
+});
+
+list.appendChild(card);
+
+    card.querySelector("select").addEventListener("change", async (e)=>{
+
+  const order = ORDERS.find(
+    x => x.id === e.target.getAttribute("data-id")
+  );
+
+  const nuevoEstado = e.target.value;
+
+  try {
+
+    await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        id: order.id,
+        estado: nuevoEstado
+      })
+    });
+
+    order.estado = nuevoEstado;
+
+    await cargarPedidos();
+
+  } catch(error){
+
+    console.error(error);
+    alert("Error actualizando estado");
+
+  }
+
+});
+``
     card.querySelector("select").addEventListener("change", (e)=>{
       const order = ORDERS.find(x=>x.id===e.target.getAttribute("data-id"));
       order.estado = e.target.value;
-      computeCounts(); computeStats(); renderChart(); renderTopClientes(); renderTopProductos(); renderList();
+      cargarPedidos(); renderList();
     });
     list.appendChild(card);
   });
@@ -515,7 +583,7 @@ overlay.addEventListener("click", ()=>{
   drawer.classList.remove("open"); overlay.classList.remove("open");
 });
 
-computeStats(); computeCounts(); renderChart(); renderList(); renderTopClientes(); renderTopProductos();
+cargarPedidos();
 </script>
 </body>
 </html>
