@@ -354,7 +354,6 @@ function inRange(d){
 
   return true;
 }
-
 function computeStats(){
 
   const now = new Date();
@@ -382,14 +381,21 @@ function computeStats(){
     const d = new Date(o.fecha);
 
     if(d >= startToday) hoy += o.total;
+
     if(d >= sw) semana += o.total;
+
     if(d >= sm) mes += o.total;
 
   });
 
-  document.getElementById("stat-hoy").textContent = fmtMoney(hoy);
-  document.getElementById("stat-semana").textContent = fmtMoney(semana);
-  document.getElementById("stat-mes").textContent = fmtMoney(mes);
+  document.getElementById("stat-hoy").textContent =
+    fmtMoney(hoy);
+
+  document.getElementById("stat-semana").textContent =
+    fmtMoney(semana);
+
+  document.getElementById("stat-mes").textContent =
+    fmtMoney(mes);
 
 }
 
