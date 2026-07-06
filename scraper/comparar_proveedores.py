@@ -237,3 +237,4 @@ sin_subcategoria = (
 print(
     f"✅ Productos sin subcategoría: {sin_subcategoria}"
 )
+print("VERSION NUEVA SUBCATEGORIAS")
