@@ -382,9 +382,7 @@ function computeStats(){
     const d = new Date(o.fecha);
 
     if(d >= startToday) hoy += o.total;
-
     if(d >= sw) semana += o.total;
-
     if(d >= sm) mes += o.total;
 
   });
@@ -394,6 +392,7 @@ function computeStats(){
   document.getElementById("stat-mes").textContent = fmtMoney(mes);
 
 }
+
 
 function computeCounts(){
   STATE_ORDER.forEach(s=>{
