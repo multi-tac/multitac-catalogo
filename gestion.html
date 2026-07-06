@@ -243,17 +243,71 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+
 <script>
-const ORDERS = [
-{id:"1783225491937",fecha:"2026-07-04T21:24:52",nombre:"Aldo Tula",tel:"2622386861",total:10125,estado:"REALIZADO",obs:"",prod:[{n:"NAVAJA BK",c:1,p:10125}]},
-{id:"1783227353344",fecha:"2026-07-04T21:55:53",nombre:"Rosa",tel:"1136784217",total:63450,estado:"REALIZADO",obs:"",prod:[{n:"NAVAJA S&W",c:1,p:13500},{n:"CUCHILLO LABRADO",c:1,p:17550},{n:"CUCHILLO CAMOUFLAGE",c:1,p:16200},{n:"CUCHILLO CAMOUFLAGE",c:1,p:16200}]},
-{id:"1783227796219",fecha:"2026-07-04T22:03:16",nombre:"Jazmin",tel:"1540815266",total:59400,estado:"REALIZADO",obs:"",prod:[{n:"CUCHILLO RATIO",c:1,p:18900},{n:"NAVAJA RAPTOR",c:1,p:40500}]},
-{id:"1783254850189",fecha:"2026-07-05T05:34:10",nombre:"Lucas",tel:"1125209854",total:12150,estado:"REALIZADO",obs:"",prod:[{n:"NAVAJA BK SKULL",c:1,p:12150}]},
-{id:"1783262066423",fecha:"2026-07-05T07:34:26",nombre:"Lucas",tel:"1125209854",total:84375,estado:"PAGADO",obs:"",prod:[{n:"NAVAJA BK SKULL",c:1,p:12150},{n:"NAVAJA BK",c:1,p:10125},{n:"CUCHILLO K-BAR",c:1,p:29700},{n:"CUCHILLO MADERA",c:1,p:32400}]},
-{id:"1783272749370",fecha:"2026-07-05T10:32:29",nombre:"Aldo Tula",tel:"2622386861",total:32927,estado:"ENVIADO",obs:"",prod:[{n:"NAVAJA S&W",c:1,p:13500},{n:"CUCHILLO LABRADO",c:1,p:17550},{n:"SILBATO FUTBOL METAL",c:1,p:1877}]},
-{id:"1783285318032",fecha:"2026-07-05T14:01:58",nombre:"Jazmín Tuka",tel:"2122238685",total:152550,estado:"ENTREGADO",obs:"",prod:[{n:"CUCHILLO PORTLAND",c:1,p:29700},{n:"CINTURÓN CUCHILLO",c:1,p:16200},{n:"CUCHILLO RATIO",c:1,p:32400},{n:"CUCHILLO COLD SRK",c:1,p:29700},{n:"CUCHILLO COLD SRK",c:1,p:29700},{n:"NAVAJA BR",c:1,p:14850}]},
-{id:"1783285320912",fecha:"2026-07-05T14:02:01",nombre:"Jazmín Tuka",tel:"2122238685",total:152550,estado:"CANCELADO",obs:"El cliente pidió cancelar",prod:[{n:"CUCHILLO PORTLAND",c:1,p:29700},{n:"CINTURÓN CUCHILLO",c:1,p:16200},{n:"CUCHILLO RATIO",c:1,p:32400},{n:"CUCHILLO COLD SRK",c:1,p:29700},{n:"CUCHILLO COLD SRK",c:1,p:29700},{n:"NAVAJA BR",c:1,p:14850}]}
-];
+
+let ORDERS = [];
+
+const API_URL =
+  "https://script.google.com/macros/s/AKfycbzgT298ZzkzzjBau9ueX2ASkYQ97jYFfcVJTeOdCpc1H6X0YgCNzHelS7RG7pv5Ph1vxQ/exec";
+
+const SHEET_ID =
+  "1_odj6wFfsVmf7cADgHY5mHeGxvrxCA80ELHOlSDC_58";
+
+const PEDIDOS_URL =
+  `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=PEDIDOS`;
+async function cargarPedidos() {
+
+  const res = await fetch(PEDIDOS_URL);
+  const txt = await res.text();
+
+  const json = JSON.parse(
+    txt.substring(47).slice(0, -2)
+  );
+
+  const rows = json.table.rows;
+
+  ORDERS = rows.map(r => {
+
+    let productos = [];
+
+    try {
+
+      productos = JSON.parse(
+        r.c[7]?.v || "[]"
+      ).map(p => ({
+        n: p.producto || "",
+        c: Number(p.cantidad || 0),
+        p: Number(p.precio || 0)
+      }));
+
+    } catch {
+
+      productos = [];
+
+    }
+
+    return {
+      id: String(r.c[0]?.v || ""),
+      fecha: r.c[1]?.f || r.c[1]?.v || "",
+      nombre: r.c[2]?.v || "",
+      tel: String(r.c[3]?.v || ""),
+      total: Number(r.c[4]?.v || 0),
+      estado: r.c[5]?.v || "REALIZADO",
+      obs: r.c[6]?.v || "",
+      prod: productos
+    };
+
+  });
+
+  computeStats();
+  computeCounts();
+  renderChart();
+  renderList();
+  renderTopClientes();
+  renderTopProductos();
+
+}
 
 const STATE_ORDER = ["REALIZADO","PAGADO","ENVIADO","ENTREGADO","CANCELADO"];
 const STATE_LABEL = {REALIZADO:"Realizado",PAGADO:"Pagado",ENVIADO:"Enviado",ENTREGADO:"Entregado",CANCELADO:"Cancelado"};
@@ -388,13 +442,45 @@ function renderList(){
       expandedId = expandedId===o.id ? null : o.id;
       renderList();
     });
-    card.querySelector("select").addEventListener("change", (e)=>{
-      const order = ORDERS.find(x=>x.id===e.target.getAttribute("data-id"));
-      order.estado = e.target.value;
-      computeCounts(); computeStats(); renderChart(); renderTopClientes(); renderTopProductos(); renderList();
-    });
-    list.appendChild(card);
+    card.querySelector("select").addEventListener("change", async (e)=>{
+
+  const order = ORDERS.find(
+    x=>x.id===e.target.getAttribute("data-id")
+  );
+
+  const nuevoEstado = e.target.value;
+
+  try{
+
+    await fetch(
+      `${API_URL}?id=${order.id}&estado=${encodeURIComponent(nuevoEstado)}`,
+      {
+        method:"GET",
+        mode:"no-cors"
+      }
+    );
+
+    order.estado = nuevoEstado;
+
+    computeCounts();
+    computeStats();
+    renderChart();
+    renderTopClientes();
+    renderTopProductos();
+    renderList();
+
+  }catch(error){
+
+    console.error(error);
+    alert("Error actualizando estado");
+
+  }
+});
+
+list.appendChild(card);
+
   });
+
 }
 
 function renderTopClientes(){
@@ -467,7 +553,7 @@ overlay.addEventListener("click", ()=>{
   drawer.classList.remove("open"); overlay.classList.remove("open");
 });
 
-computeStats(); computeCounts(); renderChart(); renderList(); renderTopClientes(); renderTopProductos();
+cargarPedidos();
 </script>
 </body>
 </html>
