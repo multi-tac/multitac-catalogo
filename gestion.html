@@ -286,7 +286,11 @@ async function cargarPedidos() {
       productos = [];
 
     }
-    console.log("FECHA RAW:", r.c[1]?.v);
+    console.log(
+  "FECHA",
+  r.c[1]?.v,
+  typeof r.c[1]?.v
+);
     return {
       id: String(r.c[0]?.v || ""),
       fecha: String(r.c[1]?.v || ""),
