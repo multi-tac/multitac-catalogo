@@ -293,7 +293,7 @@ async function cargarPedidos() {
 );
 
 const fechaRaw = r.c[1]?.v || "";
-
+console.log("Fecha cruda:", fechaRaw);
 const m = String(fechaRaw).match(
   /Date\((\d+),(\d+),(\d+),(\d+),(\d+),(\d+)\)/
 );
@@ -310,6 +310,7 @@ if (m) {
     Number(m[6])
   );
 }
+console.log("Fecha convertida:", fechaPedido);
 console.log("Fecha hoja:", fechaRaw);
 console.log("Fecha JS:", fechaPedido);
 console.log("Hora mostrada:", fmtTime(fechaPedido));
