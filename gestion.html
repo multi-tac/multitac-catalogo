@@ -291,9 +291,28 @@ async function cargarPedidos() {
   r.c[1]?.v,
   typeof r.c[1]?.v
 );
+
+let fechaPedido = null;
+
+const fechaRaw = r.c[1]?.v || "";
+
+const m = String(fechaRaw).match(
+  /Date\((\d+),(\d+),(\d+),(\d+),(\d+),(\d+)\)/
+);
+
+if(m){
+  fechaPedido = new Date(
+    Number(m[1]),
+    Number(m[2]),
+    Number(m[3]),
+    Number(m[4]),
+    Number(m[5]),
+    Number(m[6])
+  );
+}
     return {
       id: String(r.c[0]?.v || ""),
-      fecha: String(r.c[1]?.v || ""),
+      fecha: fechaPedido,
       nombre: r.c[2]?.v || "",
       tel: String(r.c[3]?.v || ""),
       total: Number(r.c[4]?.v || 0),
