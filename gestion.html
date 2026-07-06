@@ -354,6 +354,8 @@ function inRange(d){
 
 function computeStats(){
 
+  const now = new Date();
+
   const startToday = new Date(now);
   startToday.setHours(0,0,0,0);
 
@@ -384,14 +386,9 @@ function computeStats(){
 
   });
 
-  document.getElementById("stat-hoy").textContent =
-    fmtMoney(hoy);
-
-  document.getElementById("stat-semana").textContent =
-    fmtMoney(semana);
-
-  document.getElementById("stat-mes").textContent =
-    fmtMoney(mes);
+  document.getElementById("stat-hoy").textContent = fmtMoney(hoy);
+  document.getElementById("stat-semana").textContent = fmtMoney(semana);
+  document.getElementById("stat-mes").textContent = fmtMoney(mes);
 
 }
 
