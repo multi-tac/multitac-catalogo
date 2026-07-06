@@ -479,16 +479,13 @@ list.appendChild(card);
 
   try {
 
-    await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        id: order.id,
-        estado: nuevoEstado
-      })
-    });
+    await fetch(
+  `${API_URL}?id=${order.id}&estado=${encodeURIComponent(nuevoEstado)}`,
+  {
+    method: "GET",
+    mode: "no-cors"
+  }
+);
 
     order.estado = nuevoEstado;
 
