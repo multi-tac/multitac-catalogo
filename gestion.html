@@ -175,16 +175,21 @@ window.OneSignalDeferred = window.OneSignalDeferred || [];
 OneSignalDeferred.push(async function (OneSignal) {
 
   await OneSignal.init({
-    appId: "b5d404fd-61f5-4991-8e5b-6b9b23e6e86c",
+  appId: "b5d404fd-61f5-4991-8e5b-6b9b23e6e86c",
 
-    serviceWorkerPath: "/multitac-catalogo/OneSignalSDKWorker.js",
+  serviceWorkerPath: "/multitac-catalogo/OneSignalSDKWorker.js",
 
-    serviceWorkerUpdaterPath: "/multitac-catalogo/OneSignalSDKUpdaterWorker.js",
+  serviceWorkerUpdaterPath:
+    "/multitac-catalogo/OneSignalSDKUpdaterWorker.js",
 
-    notifyButton: {
-      enable: true
-    }
-  });
+  serviceWorkerParam: {
+    scope: "/multitac-catalogo/"
+  },
+
+  notifyButton: {
+    enable: true
+  }
+});
 
   console.log("✅ ONESIGNAL OK");
 });
