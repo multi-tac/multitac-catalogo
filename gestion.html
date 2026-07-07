@@ -167,7 +167,7 @@
   .rank-sub{ font-size:11px; color:var(--text-secondary); }
   .rank-value{ font-size:13px; font-weight:700; white-space:nowrap; }
 </style>
-<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js
 
 <script>
 window.OneSignalDeferred = window.OneSignalDeferred || [];
@@ -177,9 +177,9 @@ OneSignalDeferred.push(async function (OneSignal) {
   await OneSignal.init({
     appId: "b5d404fd-61f5-4991-8e5b-6b9b23e6e86c",
 
-    serviceWorkerPath: "OneSignalSDKWorker.js",
+    serviceWorkerPath: "/multitac-catalogo/OneSignalSDKWorker.js",
 
-    serviceWorkerUpdaterPath: "OneSignalSDKUpdaterWorker.js",
+    serviceWorkerUpdaterPath: "/multitac-catalogo/OneSignalSDKUpdaterWorker.js",
 
     notifyButton: {
       enable: true
@@ -187,7 +187,6 @@ OneSignalDeferred.push(async function (OneSignal) {
   });
 
   console.log("✅ ONESIGNAL OK");
-
 });
 </script>
 
