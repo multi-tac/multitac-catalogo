@@ -167,6 +167,38 @@
   .rank-sub{ font-size:11px; color:var(--text-secondary); }
   .rank-value{ font-size:13px; font-weight:700; white-space:nowrap; }
 </style>
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+
+<script>
+window.OneSignalDeferred = window.OneSignalDeferred || [];
+
+OneSignalDeferred.push(async function(OneSignal) {
+
+  await OneSignal.init({
+    appId: "b5d404fd-61f5-4991-8e5b-6b9b23e6e86c"
+  });
+
+  try {
+
+    await OneSignal.User.addTag(
+      "rol",
+      "admin"
+    );
+
+    console.log("✅ Admin registrado en OneSignal");
+
+  } catch(error) {
+
+    console.error(error);
+
+  }
+
+});
+</script>
+<script>
+console.log("VERSION TEST MULTITAC");
+</script>
+
 </head>
 <body>
 <div class="app">
