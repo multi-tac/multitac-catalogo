@@ -515,37 +515,25 @@ function renderDetail(o){
 
     rows += `
       <tr>
-
-        <td style="width:55px">
+        <td class="img-cell">
           ${
             p.img
-              ? `${p.img}`
+              ? `<img src="${p.img}" class="miniatura" alt="${p.n}" onerror="this.replaceWith('📦')">`
               : "📦"
           }
         </td>
 
-        <td style="font-size:11px">
-          <div style="font-weight:700">
-            ${p.sku || "-"}
-          </div>
+        <td style="font-size:11px">${p.sku || "-"}</td>
 
-          <div style="color:#a8a59c">
-            ${p.prov || "-"}
-          </div>
-        </td>
+        <td style="font-size:11px;color:var(--text-secondary)">${p.prov || "-"}</td>
 
-        <td>
-          ${p.n}
-        </td>
+        <td>${p.n}</td>
 
-        <td class="qty">
-          x${p.c}
-        </td>
+        <td class="qty">x${p.c}</td>
 
-        <td class="sub">
-          ${fmtMoney(p.c * p.p)}
-        </td>
+        <td class="price">${fmtMoney(p.p)}</td>
 
+        <td class="sub">${fmtMoney(p.c * p.p)}</td>
       </tr>
     `;
 
@@ -563,9 +551,11 @@ function renderDetail(o){
       <thead>
         <tr style="font-size:11px;color:#a8a59c">
           <th></th>
-          <th>SKU / Prov.</th>
+          <th>SKU</th>
+          <th>Proveedor</th>
           <th>Producto</th>
           <th>Cant.</th>
+          <th>Precio</th>
           <th>Total</th>
         </tr>
       </thead>
