@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 # ======================
 # PASTEUR
@@ -193,16 +194,68 @@ unificados["Subcategoria"] = unificados["Producto"].apply(
 )
 
 # ======================
-# APLICAR % DE GANANCIA
+# APLICAR GANANCIA POR TRAMOS
 # ======================
 
-PORCENTAJE_GANANCIA = 70
+def calcular_suma(precio):
 
-unificados["%Ganancia"] = PORCENTAJE_GANANCIA
+    if precio < 5000:
+        return 3000
+
+    elif precio < 10000:
+        return 4000
+
+    elif precio < 20000:
+        return 5000
+
+    elif precio < 30000:
+        return 7000
+
+    elif precio < 50000:
+        return 11000
+
+    elif precio < 70000:
+        return 14000
+
+    elif precio < 80000:
+        return 16000
+
+    elif precio < 90000:
+        return 17000
+
+    elif precio < 200000:
+        return 20000
+
+    else:
+        return 40000
+
 
 unificados["PrecioReventa"] = (
-    unificados["PrecioProveedor"] * (1 + PORCENTAJE_GANANCIA / 100)
-).round(2)
+    unificados["PrecioProveedor"]
+    + unificados["PrecioProveedor"].apply(calcular_suma)
+)
+
+unificados["%Ganancia"] = (
+    (
+        (unificados["PrecioReventa"] - unificados["PrecioProveedor"])
+        / unificados["PrecioProveedor"].replace(0, np.nan)
+        * 100
+    )
+).round(1)
+
+# ======================
+# MARCAR PRODUCTOS SIN PRECIO VALIDO
+# ======================
+
+sin_precio = unificados["PrecioProveedor"] <= 0
+
+unificados.loc[sin_precio, "PrecioReventa"] = 0
+unificados.loc[sin_precio, "%Ganancia"] = 0
+unificados.loc[sin_precio, "Usar"] = "NO"
+
+print(
+    f"⚠️ Productos sin precio de proveedor (marcados Usar=NO): {sin_precio.sum()}"
+)
 
 # ======================
 # ORDENAR COLUMNAS
@@ -249,4 +302,4 @@ sin_subcategoria = (
 print(
     f"✅ Productos sin subcategoría: {sin_subcategoria}"
 )
-print("VERSION NUEVA SUBCATEGORIAS - 70% GANANCIA")
+print("VERSION NUEVA SUBCATEGORIAS - TRAMOS AJUSTADOS V2")
