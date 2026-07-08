@@ -193,6 +193,18 @@ unificados["Subcategoria"] = unificados["Producto"].apply(
 )
 
 # ======================
+# APLICAR % DE GANANCIA
+# ======================
+
+PORCENTAJE_GANANCIA = 70
+
+unificados["%Ganancia"] = PORCENTAJE_GANANCIA
+
+unificados["PrecioReventa"] = (
+    unificados["PrecioProveedor"] * (1 + PORCENTAJE_GANANCIA / 100)
+).round(2)
+
+# ======================
 # ORDENAR COLUMNAS
 # ======================
 
@@ -237,4 +249,4 @@ sin_subcategoria = (
 print(
     f"✅ Productos sin subcategoría: {sin_subcategoria}"
 )
-print("VERSION NUEVA SUBCATEGORIAS")
+print("VERSION NUEVA SUBCATEGORIAS - 70% GANANCIA")
