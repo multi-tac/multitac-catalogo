@@ -393,13 +393,23 @@ async function procesarTrackQueue() {
 
 function trackEvent(params) {
 
+  console.log("PARAMS:", params);
+
   try {
 
-    const query = new URLSearchParams({
+    const payload = {
       accion: "track",
       sid: getSessionId(),
       ...params
-    }).toString();
+    };
+
+    console.log("PAYLOAD:", payload);
+
+    const query =
+      new URLSearchParams(payload)
+      .toString();
+
+    console.log("QUERY:", query);
 
     trackQueue.push(
       `${STATS_API_URL}?${query}`
@@ -409,10 +419,7 @@ function trackEvent(params) {
 
   } catch (err) {
 
-    console.warn(
-      "Error tracking:",
-      err
-    );
+    console.warn(err);
 
   }
 
