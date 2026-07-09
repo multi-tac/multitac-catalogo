@@ -611,7 +611,11 @@ const costoTotal = o.prod.reduce(
   (a,p)=>a + (p.c * (p.costo || 0)),
   0
 );
+console.log("PRODUCTOS DEL PEDIDO");
+console.log(o.prod);
 
+console.log("TOTAL VENTA:", sum);
+console.log("TOTAL COSTO:", costoTotal);
 const gananciaNeta = sum - costoTotal;
 
 const porcentajeGanancia =
