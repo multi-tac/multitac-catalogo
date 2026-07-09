@@ -744,16 +744,10 @@ function renderList(){
   e.stopPropagation();
 
   const confirmar = confirm(
-    `¿Eliminar el pedido de ${o.nombre}?`
+    `¿Eliminar definitivamente el pedido de ${o.nombre} por ${fmtMoney(o.total)}?`
   );
 
   if (!confirmar) return;
-
-  console.log("ID A ELIMINAR:", o.id);
-
-  console.log(
-    `${API_URL}?accion=eliminar&id=${o.id}`
-  );
 
   await fetch(
     `${API_URL}?accion=eliminar&id=${o.id}`,
