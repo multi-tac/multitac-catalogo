@@ -779,10 +779,9 @@ function renderList(){
 
   if (!confirmar) return;
 
- await fetch(
+const r = await fetch(
   `${API_URL}?accion=eliminar&id=${o.id}`
 );
-
 
 const txt = await r.text();
 
@@ -936,18 +935,79 @@ function renderVisitsChart(data){
 }
 
   async function cargarEstadisticasSitio(){
-    const res =
-      await fetch(
-        `${API_URL}?accion=stats`
-      );
 
-    const stats =
-      await res.json();
+  try{
+
+    const res = await fetch(
+      `${API_URL}?accion=stats`
+    );
+
+    const stats = await res.json();
 
     console.log(
       "ESTADISTICAS:",
       stats
     );
+
+    renderVisitsChart(
+      stats.visitasPorDia || {}
+    );
+
+    document.getElementById(
+      "stat-visitantes"
+    ).textContent =
+      stats.totalVisitantes || 0;
+
+    document.getElementById(
+      "stat-tiempo"
+    ).textContent =
+      formatDuracion(
+        stats.duracionPromedio || 0
+      );
+
+    const pctAbandono =
+      stats.sesionesConCarrito > 0
+        ? Math.round(
+            (
+              stats.carritosAbandonados /
+              stats.sesionesConCarrito
+            ) * 100
+          )
+        : 0;
+
+    document.getElementById(
+      "stat-abandono"
+    ).textContent =
+      pctAbandono + "%";
+
+    renderRankGeneric(
+      "top-paises",
+      stats.topPaises || [],
+      "visitas"
+    );
+
+    renderRankGeneric(
+      "top-provincias",
+      stats.topProvincias || [],
+      "visitas"
+    );
+
+    renderRankGeneric(
+      "top-vistos",
+      stats.topProductosVistos || [],
+      "vistas"
+    );
+
+    siteStatsLoaded = true;
+
+  } catch(err) {
+
+    console.error(
+      "Error cargando estadísticas:",
+      err
+    );
+
+  }
 
   try{
     const res = await fetch(`${API_URL}?accion=stats`);
