@@ -425,6 +425,95 @@ function trackEvent(params) {
 
 }
 
+let sessionStartTime = Date.now();
+
+async function initTracking() {
+
+  let geo = {
+    pais: "",
+    prov: "",
+    ciudad: ""
+  };
+
+  try {
+
+    const res = await fetch(
+      "https://ipwho.is/"
+    );
+
+    const data = await res.json();
+
+    if (data && data.success !== false) {
+
+      geo = {
+        pais: data.country || "",
+        prov: data.region || "",
+        ciudad: data.city || ""
+      };
+
+    }
+
+  } catch (err) {
+
+    console.warn(
+      "No se pudo geolocalizar:",
+      err
+    );
+
+  }
+
+  const dispositivo =
+    /Mobi|Android/i.test(navigator.userAgent)
+      ? "MOBILE"
+      : "DESKTOP";
+
+  trackEvent({
+    evt: "visita",
+    pais: geo.pais,
+    prov: geo.prov,
+    ciudad: geo.ciudad,
+    ref: document.referrer || "directo",
+    dev: dispositivo
+  });
+
+  setInterval(() => {
+
+    const seg = Math.round(
+      (Date.now() - sessionStartTime) / 1000
+    );
+
+    trackEvent({
+      evt: "duracion",
+      seg: seg
+    });
+
+  }, 20000);
+
+  document.addEventListener(
+    "visibilitychange",
+    () => {
+
+      if (
+        document.visibilityState === "hidden"
+      ) {
+
+        const seg = Math.round(
+          (Date.now() - sessionStartTime) / 1000
+        );
+
+        trackEvent({
+          evt: "duracion",
+          seg: seg
+        });
+
+      }
+
+    }
+  );
+
+}
+
+
 // Registra cada SKU visto una sola vez por sesion
 const vistosEnSesion = new Set();
 function trackProductoVisto(sku, nombre) {
@@ -1109,8 +1198,11 @@ async function sendToWhatsApp() {
    ARRANQUE
 ============================================================================ */
 document.addEventListener("DOMContentLoaded", async () => {
-  initTracking();
+
   await init();
+
+  initTracking();
+
 });
 
 </script>
