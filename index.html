@@ -359,6 +359,7 @@ async function procesarTrackQueue() {
   while (trackQueue.length > 0) {
 
     const url = trackQueue.shift();
+    console.log("URL TRACK:", url);
 
     try {
 
@@ -480,9 +481,15 @@ async function initTracking() {
       ? "MOBILE"
       : "DESKTOP";
 
+  setTimeout(() => {
+
+  console.log("ENVIANDO VISITA");
+
   trackEvent({
-  evt: "visita"
-});
+    evt: "visita"
+  });
+
+}, 3000);
 
   setInterval(() => {
 
