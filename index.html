@@ -424,7 +424,6 @@ function trackEvent(params) {
   }
 
 }
-
 let sessionStartTime = Date.now();
 
 async function initTracking() {
@@ -484,36 +483,12 @@ async function initTracking() {
 
     trackEvent({
       evt: "duracion",
-      seg: seg
+      seg
     });
 
   }, 20000);
 
-  document.addEventListener(
-    "visibilitychange",
-    () => {
-
-      if (
-        document.visibilityState === "hidden"
-      ) {
-
-        const seg = Math.round(
-          (Date.now() - sessionStartTime) / 1000
-        );
-
-        trackEvent({
-          evt: "duracion",
-          seg: seg
-        });
-
-      }
-
-    }
-  );
-
 }
-
-
 // Registra cada SKU visto una sola vez por sesion
 const vistosEnSesion = new Set();
 function trackProductoVisto(sku, nombre) {
