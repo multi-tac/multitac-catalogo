@@ -360,14 +360,29 @@ async function procesarTrackQueue() {
 
     const url = trackQueue.shift();
 
+    console.log(
+      "URL TRACK:",
+      url
+    );
+
     try {
 
       const img = new Image();
+
+      img.onload = () =>
+        console.log("TRACK OK");
+
+      img.onerror = () =>
+        console.error("TRACK ERROR");
+
       img.src = url;
 
     } catch (err) {
 
-      console.warn("Error tracking:", err);
+      console.warn(
+        "Error tracking:",
+        err
+      );
 
     }
 
@@ -381,7 +396,10 @@ async function procesarTrackQueue() {
 
 function trackEvent(params) {
 
-  console.log("TRACK ENVIADO:", params);
+  console.log(
+    "TRACK ENVIADO:",
+    params
+  );
 
   try {
 
@@ -399,7 +417,10 @@ function trackEvent(params) {
 
   } catch (err) {
 
-    console.warn(err);
+    console.warn(
+      "No se pudo registrar evento:",
+      err
+    );
 
   }
 }
