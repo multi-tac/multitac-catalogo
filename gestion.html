@@ -324,6 +324,13 @@ async function cargarProductos(){
   proveedor: r.c[9]?.v || "",
   costo: Number(r.c[4]?.v || 0)
 };
+
+console.log(
+  "PRODUCTO",
+  sku,
+  "COSTO",
+  Number(r.c[4]?.v || 0)
+);
   });
 }
 
