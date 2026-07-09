@@ -468,10 +468,20 @@ function setupViewObserver() {
   viewObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
-        const sku = entry.target.getAttribute("data-sku");
-        const nombre = entry.target.getAttribute("data-name");
-        trackProductoVisto(sku, nombre);
-      }
+
+  const sku = entry.target.getAttribute("data-sku");
+  const nombre = entry.target.getAttribute("data-name");
+
+  trackProductoVisto(
+    sku,
+    nombre
+  );
+
+  viewObserver.unobserve(
+    entry.target
+  );
+
+}
     });
   }, { threshold: 0.5 });
 
