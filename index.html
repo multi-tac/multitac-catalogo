@@ -398,10 +398,24 @@ function trackEvent(params) {
   try {
 
     const payload = {
-      accion: "track",
-      sid: getSessionId(),
-      ...params
-    };
+  accion: "track",
+  evt: params.evt || ""
+};
+
+if (params.sku) payload.sku = params.sku;
+if (params.prod) payload.prod = params.prod;
+if (params.seg) payload.seg = params.seg;
+
+if (params.evt === "visita") {
+
+  payload.sid = getSessionId();
+
+  payload.pais = params.pais || "";
+  payload.prov = params.prov || "";
+  payload.ciudad = params.ciudad || "";
+  payload.ref = params.ref || "";
+  payload.dev = params.dev || "";
+}
 
     console.log("PAYLOAD:", payload);
 
