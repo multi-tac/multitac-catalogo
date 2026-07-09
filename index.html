@@ -446,61 +446,30 @@ async function initTracking() {
     ciudad: ""
   };
 
-  try {
-
-    const res = await fetch(
-      "https://ipwho.is/"
-    );
-
-    const data = await res.json();
-
-    if (data && data.success !== false) {
-
-      geo = {
-        pais: data.country || "",
-        prov: data.region || "",
-        ciudad: data.city || ""
-      };
-
-    }
-
-  } catch (err) {
-
-    console.warn(
-      "No se pudo geolocalizar:",
-      err
-    );
-
-  }
-
-  const dispositivo =
-    /Mobi|Android/i.test(navigator.userAgent)
-      ? "MOBILE"
-      : "DESKTOP";
+  console.log("INIT TRACKING");
 
   setTimeout(() => {
 
-  console.log("ENVIANDO VISITA");
+    console.log("ENVIANDO VISITA");
 
-  trackEvent({
-  evt: "visita",
-  pais: geo.pais
-});
+    trackEvent({
+      evt: "visita"
+    });
 
-}, 3000);
+  }, 3000);
 
-setInterval(() => {
+  setInterval(() => {
 
-  const seg = Math.round(
-    (Date.now() - sessionStartTime) / 1000
-  );
+    const seg = Math.round(
+      (Date.now() - sessionStartTime) / 1000
+    );
 
-  trackEvent({
-    evt: "duracion",
-    seg
-  });
+    trackEvent({
+      evt: "duracion",
+      seg
+    });
 
-}, 20000);
+  }, 20000);
 
 }
 // Registra cada SKU visto una sola vez por sesion
