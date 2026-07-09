@@ -409,13 +409,13 @@ if (params.seg) payload.seg = params.seg;
 
 if (params.evt === "visita") {
 
-  payload.sid = getSessionId();
+  if (params.sid) payload.sid = params.sid;
+  if (params.pais) payload.pais = params.pais;
+  if (params.prov) payload.prov = params.prov;
+  if (params.ciudad) payload.ciudad = params.ciudad;
+  if (params.ref) payload.ref = params.ref;
+  if (params.dev) payload.dev = params.dev;
 
-  payload.pais = params.pais || "";
-  payload.prov = params.prov || "";
-  payload.ciudad = params.ciudad || "";
-  payload.ref = params.ref || "";
-  payload.dev = params.dev || "";
 }
 
     console.log("PAYLOAD:", payload);
@@ -491,18 +491,18 @@ async function initTracking() {
 
 }, 3000);
 
-  setInterval(() => {
+setInterval(() => {
 
-    const seg = Math.round(
-      (Date.now() - sessionStartTime) / 1000
-    );
+  const seg = Math.round(
+    (Date.now() - sessionStartTime) / 1000
+  );
 
-    trackEvent({
-      evt: "duracion",
-      seg
-    });
+  trackEvent({
+    evt: "duracion",
+    seg
+  });
 
-  }, 20000);
+}, 20000);
 
 }
 // Registra cada SKU visto una sola vez por sesion
