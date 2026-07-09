@@ -749,7 +749,16 @@ function renderList(){
 
     if (!confirmar) return;
 
-    alert("Botón funcionando ✅");
+    ORDERS = ORDERS.filter(
+  x => x.id !== o.id
+);
+
+computeCounts();
+computeStats();
+renderChart();
+renderTopClientes();
+renderTopProductos();
+renderList();
 
 });
     card.querySelector("select").addEventListener("change", async (e)=>{
