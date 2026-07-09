@@ -347,16 +347,63 @@ function getSessionId() {
   return sid;
 }
 
+const trackQueue = [];
+let trackProcessing = false;
+
+async function procesarTrackQueue() {
+
+  if (trackProcessing) return;
+
+  trackProcessing = true;
+
+  while (trackQueue.length > 0) {
+
+    const url = trackQueue.shift();
+
+    try {
+
+      await fetch(url, {
+        method: "GET",
+        mode: "no-cors"
+      });
+
+    } catch (err) {
+
+      console.warn("Error tracking:", err);
+
+    }
+
+    await new Promise(resolve =>
+      setTimeout(resolve, 300)
+    );
+  }
+
+  trackProcessing = false;
+}
+
 function trackEvent(params) {
+
   try {
+
     const query = new URLSearchParams({
       accion: "track",
       sid: getSessionId(),
       ...params
     }).toString();
-    fetch(`${STATS_API_URL}?${query}`, { method: "GET", mode: "no-cors" }).catch(() => {});
+
+    trackQueue.push(
+      `${STATS_API_URL}?${query}`
+    );
+
+    procesarTrackQueue();
+
   } catch (err) {
-    console.warn("No se pudo registrar evento:", err);
+
+    console.warn(
+      "No se pudo registrar evento:",
+      err
+    );
+
   }
 }
 
