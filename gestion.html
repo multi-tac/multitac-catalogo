@@ -749,9 +749,10 @@ function renderList(){
 
   if (!confirmar) return;
 
-  const r = await fetch(
+ await fetch(
   `${API_URL}?accion=eliminar&id=${o.id}`
 );
+
 
 const txt = await r.text();
 
