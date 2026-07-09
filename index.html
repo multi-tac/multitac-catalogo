@@ -409,28 +409,8 @@ if (params.seg) payload.seg = params.seg;
 
 if (params.evt === "visita") {
 
-  if (params.sid) {
-    payload.sid = params.sid;
-  }
-
   if (params.pais) {
     payload.pais = params.pais;
-  }
-
-  if (params.prov) {
-    payload.prov = params.prov;
-  }
-
-  if (params.ciudad) {
-    payload.ciudad = params.ciudad;
-  }
-
-  if (params.ref) {
-    payload.ref = params.ref;
-  }
-
-  if (params.dev) {
-    payload.dev = params.dev;
   }
 
 }
@@ -503,8 +483,9 @@ async function initTracking() {
   console.log("ENVIANDO VISITA");
 
   trackEvent({
-    evt: "visita"
-  });
+  evt: "visita",
+  pais: geo.pais
+});
 
 }, 3000);
 
