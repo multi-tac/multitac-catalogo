@@ -333,6 +333,105 @@ const FALLBACK_PRODUCTS = [
 ];
 
 /* ============================================================================
+   TRACKING / ESTADISTICAS — visitas, tiempo en sitio, geolocalizacion,
+   productos vistos y carrito. Reutiliza el mismo Apps Script de PEDIDOS_API_URL.
+============================================================================ */
+const STATS_API_URL = PEDIDOS_API_URL;
+
+function getSessionId() {
+  let sid = sessionStorage.getItem("mt_sid");
+  if (!sid) {
+    sid = 'sid_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9);
+    sessionStorage.setItem("mt_sid", sid);
+  }
+  return sid;
+}
+
+function trackEvent(params) {
+  try {
+    const query = new URLSearchParams({
+      accion: "track",
+      sid: getSessionId(),
+      ...params
+    }).toString();
+    fetch(`${STATS_API_URL}?${query}`, { method: "GET", mode: "no-cors" }).catch(() => {});
+  } catch (err) {
+    console.warn("No se pudo registrar evento:", err);
+  }
+}
+
+let sessionStartTime = Date.now();
+
+async function initTracking() {
+  let geo = { pais: "", prov: "", ciudad: "" };
+
+  try {
+    const res = await fetch("https://ipwho.is/");
+    const data = await res.json();
+    if (data && data.success !== false) {
+      geo = {
+        pais: data.country || "",
+        prov: data.region || "",
+        ciudad: data.city || ""
+      };
+    }
+  } catch (err) {
+    console.warn("No se pudo geolocalizar la visita:", err);
+  }
+
+  const dispositivo = /Mobi|Android/i.test(navigator.userAgent) ? "MOBILE" : "DESKTOP";
+
+  trackEvent({
+    evt: "visita",
+    pais: geo.pais,
+    prov: geo.prov,
+    ciudad: geo.ciudad,
+    ref: document.referrer || "directo",
+    dev: dispositivo
+  });
+
+  // Heartbeat de duracion cada 20s mientras la pagina sigue abierta
+  setInterval(() => {
+    const seg = Math.round((Date.now() - sessionStartTime) / 1000);
+    trackEvent({ evt: "duracion", seg });
+  }, 20000);
+
+  // Ultimo heartbeat al salir de la pagina (mejor esfuerzo, no siempre dispara en mobile)
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") {
+      const seg = Math.round((Date.now() - sessionStartTime) / 1000);
+      trackEvent({ evt: "duracion", seg });
+    }
+  });
+}
+
+// Registra cada SKU visto una sola vez por sesion
+const vistosEnSesion = new Set();
+function trackProductoVisto(sku, nombre) {
+  if (!sku || vistosEnSesion.has(sku)) return;
+  vistosEnSesion.add(sku);
+  trackEvent({ evt: "producto_visto", sku, prod: nombre });
+}
+
+// Observa las tarjetas de producto renderizadas y dispara trackProductoVisto
+// cuando realmente entran en el viewport (no solo por estar en el DOM)
+let viewObserver = null;
+function setupViewObserver() {
+  if (viewObserver) viewObserver.disconnect();
+  viewObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const sku = entry.target.getAttribute("data-sku");
+        const nombre = entry.target.getAttribute("data-name");
+        trackProductoVisto(sku, nombre);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  document.querySelectorAll("[data-sku]").forEach(el => viewObserver.observe(el));
+}
+
+/* ============================================================================
    CARGA DE DATOS DESDE GOOGLE SHEETS (API pública de visualización GViz)
 ============================================================================ */
 async function fetchSheetData() {
@@ -644,7 +743,7 @@ function renderProducts(list) {
     const safeIdx = `p${idx}_${p.sku.replace(/[^a-zA-Z0-9]/g, '')}`;
     const outOfStock = p.inStock === false;
     return `
-    <div class="bg-carbon-800 border border-carbon-700 rounded-sm overflow-hidden flex flex-col ${outOfStock ? 'opacity-60' : ''}">
+    <div class="bg-carbon-800 border border-carbon-700 rounded-sm overflow-hidden flex flex-col ${outOfStock ? 'opacity-60' : ''}" data-sku="${escapeAttr(p.sku)}" data-name="${escapeAttr(p.name)}">
 
       <div class="reticle m-2 mb-0 aspect-square bg-carbon-900 overflow-hidden">
         <span class="c-tr"></span><span class="c-bl"></span>
@@ -685,6 +784,8 @@ function renderProducts(list) {
     </div>
     `;
   }).join('');
+
+  setupViewObserver();
 }
 
 function escapeHtml(str) {
@@ -726,6 +827,8 @@ function addToCart(product, noteInputId) {
       qty: 1
     });
   }
+
+  trackEvent({ evt: "carrito", sku: product.sku, prod: product.name });
 
   if (noteInput) noteInput.value = "";
   updateCartUI();
@@ -936,6 +1039,8 @@ async function sendToWhatsApp() {
 
   if (cart.length === 0) return;
 
+  trackEvent({ evt: "pedido_enviado" });
+
   let msg = `*🛒 NUEVO PEDIDO - MULTI-TAC*\n\n`;
   msg += `*Cliente:* ${nombre}\n`;
   msg += `*Teléfono:* ${telefono}\n\n`;
@@ -968,6 +1073,7 @@ async function sendToWhatsApp() {
    ARRANQUE
 ============================================================================ */
 document.addEventListener("DOMContentLoaded", async () => {
+  initTracking();
   await init();
 });
 
