@@ -360,20 +360,15 @@ async function procesarTrackQueue() {
 
     const url = trackQueue.shift();
 
+    window.lastTrackUrl = url;
+
     console.log(
-      "URL TRACK:",
-      url
+      "URL TRACK COMPLETA:\n" + url
     );
 
     try {
 
       const img = new Image();
-
-      img.onload = () =>
-        console.log("TRACK OK");
-
-      img.onerror = () =>
-        console.error("TRACK ERROR");
 
       img.src = url;
 
@@ -389,10 +384,13 @@ async function procesarTrackQueue() {
     await new Promise(resolve =>
       setTimeout(resolve, 500)
     );
+
   }
 
   trackProcessing = false;
+
 }
+
 
 function trackEvent(params) {
 
