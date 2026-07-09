@@ -339,12 +339,29 @@ const FALLBACK_PRODUCTS = [
 const STATS_API_URL = PEDIDOS_API_URL;
 
 function getSessionId() {
-  let sid = sessionStorage.getItem("mt_sid");
+
+  let sid =
+    localStorage.getItem("mt_sid");
+
   if (!sid) {
-    sid = 'sid_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9);
-    sessionStorage.setItem("mt_sid", sid);
+
+    sid =
+      "sid_" +
+      Date.now() +
+      "_" +
+      Math.random()
+        .toString(36)
+        .slice(2, 9);
+
+    localStorage.setItem(
+      "mt_sid",
+      sid
+    );
+
   }
+
   return sid;
+
 }
 
 const trackQueue = [];
@@ -399,9 +416,11 @@ function trackEvent(params) {
   try {
 
     const payload = {
-  accion: "track",
-  evt: params.evt || ""
-};
+      accion: "track",
+      sid: getSessionId(),
+      evt: params.evt || ""
+    };
+  console.log("SID:", getSessionId());
 
 if (params.sku) payload.sku = params.sku;
 if (params.prod) payload.prod = params.prod;
