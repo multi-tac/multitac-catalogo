@@ -381,6 +381,8 @@ async function procesarTrackQueue() {
 
 function trackEvent(params) {
 
+  console.log("TRACK ENVIADO:", params);
+
   try {
 
     const query = new URLSearchParams({
@@ -397,10 +399,7 @@ function trackEvent(params) {
 
   } catch (err) {
 
-    console.warn(
-      "No se pudo registrar evento:",
-      err
-    );
+    console.warn(err);
 
   }
 }
