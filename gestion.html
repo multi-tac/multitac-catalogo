@@ -284,6 +284,36 @@ console.log("VERSION TEST MULTITAC");
       <span>Productos más vendidos</span>
     </div>
     <div id="top-productos"></div>
+
+    <div class="section-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+      <span>Visitantes por día</span>
+    </div>
+    <div class="chart-wrap"><canvas id="visitsChart" role="img" aria-label="Gráfico de barras de visitantes por día"></canvas></div>
+
+    <div class="stats-row" style="margin-top:12px;">
+      <div class="stat-card"><p class="label">Visitantes</p><p class="value" id="stat-visitantes">-</p></div>
+      <div class="stat-card"><p class="label">Tiempo prom.</p><p class="value" id="stat-tiempo">-</p></div>
+      <div class="stat-card"><p class="label">Carrito abandon.</p><p class="value" id="stat-abandono">-</p></div>
+    </div>
+
+    <div class="section-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <span>Visitantes por país</span>
+    </div>
+    <div id="top-paises"></div>
+
+    <div class="section-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <span>Visitantes por provincia</span>
+    </div>
+    <div id="top-provincias"></div>
+
+    <div class="section-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      <span>Productos más vistos</span>
+    </div>
+    <div id="top-vistos"></div>
   </div>
 
   </div>
@@ -858,6 +888,91 @@ function renderTopProductos(){
   });
 }
 
+/* ============================================================================
+   ESTADISTICAS DEL SITIO — visitas, tiempo, pais/provincia, productos vistos
+============================================================================ */
+const medalsGeo = ["#D9A62E","#a8a59c","#8a6c22","#565349","#565349"];
+let visitsChartInstance = null;
+let siteStatsLoaded = false;
+
+function formatDuracion(seg){
+  const m = Math.floor(seg/60);
+  const s = seg%60;
+  return `${m}m ${s}s`;
+}
+
+function renderRankGeneric(elId, entries, suffix){
+  const el = document.getElementById(elId);
+  el.innerHTML = "";
+  if(!entries || entries.length === 0){
+    el.innerHTML = '<p class="empty">Sin datos aún.</p>';
+    return;
+  }
+  entries.forEach((entry,i)=>{
+    const [nombre, valor] = entry;
+    const row = document.createElement("div");
+    row.className = "rank-row";
+    row.innerHTML = `<div class="rank-num" style="background:${medalsGeo[i]}">${i+1}</div>
+      <div class="rank-info"><p class="rank-name">${nombre}</p></div>
+      <p class="rank-value">${valor} ${suffix}</p>`;
+    el.appendChild(row);
+  });
+}
+
+function renderVisitsChart(data){
+  const labels = Object.keys(data);
+  const values = Object.values(data);
+  if(visitsChartInstance) visitsChartInstance.destroy();
+  visitsChartInstance = new Chart(document.getElementById("visitsChart"), {
+    type:"bar",
+    data:{ labels, datasets:[{ data:values, backgroundColor:"#4a90d9", borderRadius:4, maxBarThickness:32 }] },
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false} },
+      scales:{
+        y:{ ticks:{ color:"#a8a59c" }, grid:{ color:"#2c2c28" } },
+        x:{ ticks:{ color:"#a8a59c" }, grid:{ display:false } }
+      } }
+  });
+}
+
+  async function cargarEstadisticasSitio(){
+    const res =
+      await fetch(
+        `${API_URL}?accion=stats`
+      );
+
+    const stats =
+      await res.json();
+
+    console.log(
+      "ESTADISTICAS:",
+      stats
+    );
+
+  try{
+    const res = await fetch(`${API_URL}?accion=stats`);
+    const stats = await res.json();
+
+    renderVisitsChart(stats.visitasPorDia || {});
+
+    document.getElementById("stat-visitantes").textContent = stats.totalVisitantes ?? 0;
+    document.getElementById("stat-tiempo").textContent = formatDuracion(stats.duracionPromedio || 0);
+
+    const pctAbandono = stats.sesionesConCarrito > 0
+      ? Math.round((stats.carritosAbandonados / stats.sesionesConCarrito) * 100)
+      : 0;
+    document.getElementById("stat-abandono").textContent = pctAbandono + "%";
+
+    renderRankGeneric("top-paises", stats.topPaises, "visitas");
+    renderRankGeneric("top-provincias", stats.topProvincias, "visitas");
+    renderRankGeneric("top-vistos", stats.topProductosVistos, "vistas");
+
+    siteStatsLoaded = true;
+  }catch(err){
+    console.error("Error cargando estadisticas del sitio:", err);
+  }
+}
+
 document.querySelectorAll("#state-chips .chip").forEach(btn=>{
   btn.addEventListener("click", ()=>{
     activeState = btn.getAttribute("data-state");
@@ -884,6 +999,7 @@ const drawer = document.getElementById("drawer");
 const overlay = document.getElementById("overlay");
 document.getElementById("menu-toggle").addEventListener("click", ()=>{
   drawer.classList.add("open"); overlay.classList.add("open");
+  if(!siteStatsLoaded) cargarEstadisticasSitio();
 });
 document.getElementById("drawer-close").addEventListener("click", ()=>{
   drawer.classList.remove("open"); overlay.classList.remove("open");
