@@ -777,6 +777,11 @@ console.log("ESTADO:", nuevoEstado);
 console.log(
   `${API_URL}?id=${order.id}&estado=${encodeURIComponent(nuevoEstado)}`
 );
+console.log("ID A ELIMINAR:", o.id);
+
+console.log(
+  `${API_URL}?accion=eliminar&id=${o.id}`
+);
     await fetch(
       `${API_URL}?id=${order.id}&estado=${encodeURIComponent(nuevoEstado)}`,
       {
