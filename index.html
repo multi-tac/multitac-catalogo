@@ -423,7 +423,7 @@ if (params.evt === "visita") {
       new URLSearchParams(payload)
       .toString();
 
-    console.log("QUERY:", query);
+    console.log("QUERY FINAL:", query);
 
     trackQueue.push(
       `${STATS_API_URL}?${query}`
