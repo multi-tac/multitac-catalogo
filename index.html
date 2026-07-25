@@ -564,41 +564,299 @@ function setupViewObserver() {
    CARGA DE DATOS DESDE GOOGLE SHEETS (API pública de visualización GViz)
 ============================================================================ */
 async function fetchSheetData() {
+
   const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+
   const res = await fetch(url);
-  if (!res.ok) throw new Error("No se pudo leer el Google Sheet");
+
+  if (!res.ok) {
+    throw new Error("No se pudo leer el Google Sheet");
+  }
+
   const text = await res.text();
 
-  // La respuesta viene envuelta en "google.visualization.Query.setResponse(...)"
-  const jsonStr = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
+  const jsonStr =
+    text.substring(
+      text.indexOf('{'),
+      text.lastIndexOf('}') + 1
+    );
+
   const data = JSON.parse(jsonStr);
 
   const rows = data.table.rows || [];
 
-  // Columnas del Sheet: A SKU | B Producto | C Categoría | D Subcategoría
-  // | E PrecioProveedor | F %Ganancia | G PrecioReventa (la que se muestra en la web)
-  // | H Imagen | I Disponible (SI/NO — si está vacío se toma como disponible)
   const products = rows
     .map(row => {
-      const c = row.c;
-      const disponibleRaw = (c[8] && c[8].v) ? String(c[8].v).trim().toUpperCase() : "SI";
-      return {
-        sku: (c[0] && c[0].v) ? String(c[0].v).trim() : "",
-        name: (c[1] && c[1].v) ? String(c[1].v).trim() : "",
-        category: (c[2] && c[2].v) ? String(c[2].v).trim().toUpperCase() : "",
-        subcategory: (c[3] && c[3].v) ? String(c[3].v).trim().toUpperCase() : "",
-        price: (c[6] && c[6].v) ? Number(c[6].v) : 0,
-        image: (c[7] && c[7].v) ? String(c[7].v).trim() : "",
-        inStock: disponibleRaw !== "NO"
-      };
-    })
-    // Descarta filas vacías o la fila de encabezado si viene incluida
-    .filter(p => p.name && p.sku.toUpperCase() !== "SKU");
 
-  if (products.length === 0) throw new Error("Sheet sin productos válidos");
+      const c = row.c;
+
+      const disponibleRaw =
+        (c[8] && c[8].v)
+          ? String(c[8].v).trim().toUpperCase()
+          : "SI";
+
+      const nombre =
+        (c[1] && c[1].v)
+          ? String(c[1].v).trim().toUpperCase()
+          : "";
+
+      const categoria =
+        (c[2] && c[2].v)
+          ? String(c[2].v).trim().toUpperCase()
+          : "";
+
+      let subcategoria =
+        (c[3] && c[3].v)
+          ? String(c[3].v).trim().toUpperCase()
+          : "";
+
+      // =====================================================
+      // COMPLETAR SUBCATEGORÍAS SI EL SCRAPING NO LAS TRAE
+      // =====================================================
+
+      if (!subcategoria) {
+
+        // =====================
+        // CUCHILLERIA
+        // =====================
+        if (categoria === "CUCHILLERIA") {
+
+          if (
+            nombre.includes("NAVAJA") ||
+            nombre.includes("KERSHA") ||
+            nombre.includes("BENCH") ||
+            nombre.includes("PRETORIAN") ||
+            nombre.includes("QUANTUM") ||
+            nombre.includes("MANTIS") ||
+            nombre.includes("S&W") ||
+            nombre.includes("SKULL") ||
+            nombre.includes("LEVER")
+          ) {
+            subcategoria = "NAVAJAS";
+          }
+
+          else if (nombre.includes("MACHETE")) {
+            subcategoria = "MACHETES";
+          }
+
+          else if (
+            nombre.includes("HACHA") ||
+            nombre.includes("HACHUELA") ||
+            nombre.includes("TOMAHAWK")
+          ) {
+            subcategoria = "HACHAS";
+          }
+
+          else if (nombre.includes("KERAMBIT")) {
+            subcategoria = "KERAMBIT";
+          }
+
+          else if (nombre.includes("MARIPOSA")) {
+            subcategoria = "MARIPOSAS";
+          }
+
+          else if (
+            nombre.includes("MULTITOOL") ||
+            nombre.includes("MULTIUSO") ||
+            nombre.includes("MULTIHERRAMIENTA")
+          ) {
+            subcategoria = "MULTIHERRAMIENTAS";
+          }
+
+          else {
+            subcategoria = "CUCHILLOS";
+          }
+        }
+
+        // =====================
+        // CAMPING
+        // =====================
+        else if (categoria === "CAMPING") {
+
+          if (
+            nombre.includes("CARPA") ||
+            nombre.includes("IGLU")
+          ) {
+            subcategoria = "CARPAS";
+          }
+
+          else if (
+            nombre.includes("LINTERNA") ||
+            nombre.includes("FAROL") ||
+            nombre.includes("FRONTAL") ||
+            nombre.includes("MINERA")
+          ) {
+            subcategoria = "LINTERNAS";
+          }
+
+          else if (
+            nombre.includes("ENCENDEDOR") ||
+            nombre.includes("PEDERNAL") ||
+            nombre.includes("SOPLETE")
+          ) {
+            subcategoria = "ENCENDEDORES";
+          }
+
+          else if (
+            nombre.includes("PINZA") ||
+            nombre.includes("MARTILLO") ||
+            nombre.includes("MULTIHERRAMIENTA")
+          ) {
+            subcategoria = "HERRAMIENTAS";
+          }
+
+          else {
+            subcategoria = "SUPERVIVENCIA";
+          }
+        }
+
+        // =====================
+        // INDUMENTARIA
+        // =====================
+        else if (categoria === "INDUMENTARIA") {
+
+          if (
+            nombre.includes("MOCHILA") ||
+            nombre.includes("MORRAL") ||
+            nombre.includes("RIÑONERA") ||
+            nombre.includes("BANDOLERA") ||
+            nombre.includes("BOLSO")
+          ) {
+            subcategoria = "MOCHILAS";
+          }
+
+          else if (
+            nombre.includes("CHALECO") ||
+            nombre.includes("PECHERA")
+          ) {
+            subcategoria = "CHALECOS";
+          }
+
+          else if (
+            nombre.includes("GUANTE")
+          ) {
+            subcategoria = "GUANTES";
+          }
+
+          else if (
+            nombre.includes("GORRA") ||
+            nombre.includes("GORRO") ||
+            nombre.includes("BALACLAVA") ||
+            nombre.includes("BOONIE")
+          ) {
+            subcategoria = "GORROS";
+          }
+
+          else if (
+            nombre.includes("RELOJ")
+          ) {
+            subcategoria = "RELOJES";
+          }
+
+          else if (
+            nombre.includes("CINTURON") ||
+            nombre.includes("CORREA")
+          ) {
+            subcategoria = "CINTURONES";
+          }
+
+          else if (
+            nombre.includes("BORCEGO") ||
+            nombre.includes("BOTA") ||
+            nombre.includes("ZAPATILLA")
+          ) {
+            subcategoria = "CALZADO";
+          }
+
+          else {
+            subcategoria = "EQUIPAMIENTO";
+          }
+        }
+
+        // =====================
+        // ACCESORIOS
+        // =====================
+        else if (categoria === "ACCESORIOS") {
+
+          if (
+            nombre.includes("MOSQUETON")
+          ) {
+            subcategoria = "MOSQUETONES";
+          }
+
+          else if (
+            nombre.includes("LLAVERO")
+          ) {
+            subcategoria = "LLAVEROS";
+          }
+
+          else if (
+            nombre.includes("ENCENDEDOR")
+          ) {
+            subcategoria = "ENCENDEDORES";
+          }
+
+          else if (
+            nombre.includes("KUBOTAN") ||
+            nombre.includes("MANOPLA") ||
+            nombre.includes("GAS")
+          ) {
+            subcategoria = "DEFENSA";
+          }
+
+          else {
+            subcategoria = "HERRAMIENTAS";
+          }
+        }
+
+        else {
+          subcategoria = "GENERAL";
+        }
+      }
+
+      return {
+
+        sku:
+          (c[0] && c[0].v)
+            ? String(c[0].v).trim()
+            : "",
+
+        name:
+          (c[1] && c[1].v)
+            ? String(c[1].v).trim()
+            : "",
+
+        category: categoria,
+
+        subcategory: subcategoria,
+
+        price:
+          (c[6] && c[6].v)
+            ? Number(c[6].v)
+            : 0,
+
+        image:
+          (c[7] && c[7].v)
+            ? String(c[7].v).trim()
+            : "",
+
+        inStock:
+          disponibleRaw !== "NO"
+
+      };
+
+    })
+    .filter(
+      p => p.name &&
+      p.sku.toUpperCase() !== "SKU"
+    );
+
+  if (products.length === 0) {
+    throw new Error("Sheet sin productos válidos");
+  }
+
   return products;
 }
-
 /* ============================================================================
    INICIALIZACIÓN
 ============================================================================ */
@@ -633,8 +891,8 @@ function buildCategoryTree() {
     const cat = (p.category || "SIN CATEGORÍA").trim();
     if (!cat) return;
     if (!tree[cat]) tree[cat] = new Set();
-    const sub = (p.subcategory || "").trim();
-    if (sub) tree[cat].add(sub);
+    const sub = (p.subcategory || "GENERAL").trim();
+tree[cat].add(sub);
   });
   return tree;
 }
