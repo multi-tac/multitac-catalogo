@@ -6,6 +6,10 @@ import time
 
 BASE_URL = "https://venirvosj.com.ar"
 GANANCIA = 35
+PRODUCTOS_POR_PAGINA = 32
+TOTAL_PRODUCTOS = 1186
+
+TOTAL_PAGINAS = (TOTAL_PRODUCTOS // PRODUCTOS_POR_PAGINA) + 1
 
 productos = []
 
@@ -17,16 +21,14 @@ headers = {
     )
 }
 
-page = 1
-
-while True:
+for page in range(1, TOTAL_PAGINAS + 1):
 
     if page == 1:
         url = BASE_URL
     else:
         url = f"{BASE_URL}/page/{page}/"
 
-    print(f"\nProcesando página {page}")
+    print(f"Procesando página {page}/{TOTAL_PAGINAS}")
 
     try:
 
@@ -36,34 +38,16 @@ while True:
             timeout=30
         )
 
-        print("URL:", url)
         print("Status:", r.status_code)
-        print("HTML recibido:", len(r.text))
 
         if r.status_code != 200:
-            print("Fin de páginas")
-            break
+            continue
 
         soup = BeautifulSoup(r.text, "html.parser")
 
         cards = soup.select("li.product")
 
         print("Productos encontrados:", len(cards))
-
-        if not cards:
-
-            with open(
-                f"debug_pagina_{page}.html",
-                "w",
-                encoding="utf-8"
-            ) as f:
-                f.write(r.text)
-
-            print(
-                f"No se encontraron productos en página {page}"
-            )
-
-            break
 
         for card in cards:
 
@@ -135,21 +119,11 @@ while True:
                     precio * (1 + GANANCIA / 100)
                 )
 
-                link_tag = card.select_one("a")
-
-                link_producto = (
-                    link_tag["href"]
-                    if link_tag
-                    and link_tag.has_attr("href")
-                    else ""
-                )
-
                 img_tag = card.select_one("img")
 
                 imagen = ""
 
                 if img_tag:
-
                     imagen = (
                         img_tag.get("data-src")
                         or img_tag.get("data-lazy-src")
@@ -245,14 +219,11 @@ while True:
             except Exception as e:
                 print("Error producto:", e)
 
-        page += 1
         time.sleep(1)
 
     except Exception as e:
 
-        print("ERROR GENERAL:", e)
-
-        break
+        print("Error página:", e)
 
 df = pd.DataFrame(productos)
 
@@ -261,9 +232,7 @@ df.to_excel(
     index=False
 )
 
-print(
-    f"Productos exportados: {len(df)}"
-)
+print(f"Productos exportados: {len(df)}")
 
 if len(df) == 0:
     raise RuntimeError(
