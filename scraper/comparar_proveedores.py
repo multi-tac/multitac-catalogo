@@ -199,11 +199,21 @@ unificados["Subcategoria"] = unificados["Producto"].apply(
 
 def calcular_precio_reventa(precio):
 
-    if precio < 30000:
-        return round(precio * 1.55)
+    if precio <= 10000:
+        ganancia = 40
+
+    elif precio <= 20000:
+        ganancia = 35
+
+    elif precio <= 30000:
+        ganancia = 30
 
     else:
-        return round(precio * 1.30)
+        ganancia = 20
+
+    return round(
+        precio * (1 + ganancia / 100)
+    )
 
 unificados["PrecioReventa"] = (
     unificados["PrecioProveedor"]
@@ -278,4 +288,10 @@ print(
     f"✅ Productos sin subcategoría: {sin_subcategoria}"
 )
 
-print("VERSION NUEVA SUBCATEGORIAS - MARGEN 55% HASTA 30000 Y 30% SUPERIOR")
+print(
+    "VERSION NUEVA SUBCATEGORIAS - "
+    "40% HASTA $10.000 | "
+    "35% HASTA $20.000 | "
+    "30% HASTA $30.000 | "
+    "20% SUPERIOR A $30.000"
+)
