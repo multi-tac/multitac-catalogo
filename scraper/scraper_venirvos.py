@@ -10,176 +10,262 @@ GANANCIA = 35
 productos = []
 
 headers = {
-    "User-Agent": "Mozilla/5.0"
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/138.0 Safari/537.36"
+    )
 }
 
 page = 1
 
 while True:
 
-    url = f"{BASE_URL}/page/{page}"
+    if page == 1:
+        url = BASE_URL
+    else:
+        url = f"{BASE_URL}/page/{page}/"
 
-    print(f"Procesando página {page}")
+    print(f"\nProcesando página {page}")
 
-    r = requests.get(url, headers=headers, timeout=30)
+    try:
 
-    if r.status_code != 200:
-        break
+        r = requests.get(
+            url,
+            headers=headers,
+            timeout=30
+        )
 
-    soup = BeautifulSoup(r.text, "html.parser")
+        print("URL:", url)
+        print("Status:", r.status_code)
+        print("HTML recibido:", len(r.text))
 
-    cards = soup.select("li.product")
+        if r.status_code != 200:
+            print("Fin de páginas")
+            break
 
-    if not cards:
-        break
+        soup = BeautifulSoup(r.text, "html.parser")
 
-    for card in cards:
+        cards = soup.select("li.product")
 
-        try:
+        print("Productos encontrados:", len(cards))
 
-            nombre_tag = card.select_one("h2")
-            if not nombre_tag:
-                continue
+        if not cards:
 
-            nombre_original = nombre_tag.get_text(strip=True)
+            with open(
+                f"debug_pagina_{page}.html",
+                "w",
+                encoding="utf-8"
+            ) as f:
+                f.write(r.text)
 
-            sku = ""
-
-            match = re.search(r"\(([^()]+)\)\s*$", nombre_original)
-
-            if match:
-
-                sku = match.group(1).strip()
-
-            nombre = re.sub(r"\s*\([^()]+\)\s*$", "", nombre_original).strip()
-            
-
-            categoria_tag = card.select_one(".product-category")
-            categoria = categoria_tag.get_text(strip=True).upper() if categoria_tag else ""
-
-            precio_tag = card.select_one(".price")
-
-            precio_texto = precio_tag.get_text(" ", strip=True) if precio_tag else ""
-
-            numeros = re.findall(r"[\d\.]+", precio_texto)
-
-            if numeros:
-                precio = int(numeros[0].replace(".", ""))
-            else:
-                precio = 0
-
-            precio_reventa = round(precio * (1 + GANANCIA / 100))
-
-            link_tag = card.select_one("a")
-
-            link_producto = (
-                link_tag["href"]
-                if link_tag and link_tag.has_attr("href")
-                else ""
+            print(
+                f"No se encontraron productos en página {page}"
             )
 
-            img_tag = card.select_one("img")
+            break
 
-            imagen = ""
+        for card in cards:
 
-            if img_tag:
-                imagen = (
-                    img_tag.get("data-src")
-                    or img_tag.get("src")
-                    or ""
+            try:
+
+                nombre_tag = card.select_one(
+                    "h2.woocommerce-loop-product__title"
                 )
 
-            disponible = "SI"
+                if not nombre_tag:
+                    continue
 
-            texto_card = card.get_text(" ", strip=True).upper()
+                nombre_original = nombre_tag.get_text(
+                    strip=True
+                )
 
-            if "AGOTADO" in texto_card:
-                disponible = "NO"
-            nombre_upper = nombre.upper()
+                sku = ""
 
-            if any(x in nombre_upper for x in [
-                "CUCHILLO",
-                "NAVAJA",
-                "MACHETE",
-                "KATANA",
-                "KERAMBIT",
-                "MARIPOSA"
-            ]):
-                categoria = "CUCHILLERIA"
+                match = re.search(
+                    r"\(([^()]+)\)\s*$",
+                    nombre_original
+                )
 
-            elif any(x in nombre_upper for x in [
-                "CARPA",
-                "MOSQUETON",
-                "SOGA",
-                "PULSERA",
-                "SET CUBIERTO",
-                "PANEL SOLAR"
-            ]):
-                categoria = "CAMPING"
+                if match:
+                    sku = match.group(1).strip()
 
-            elif any(x in nombre_upper for x in [
-                "CHALECO",
-                "GUANTE",
-                "CAMPERA",
-                "REMERA",
-                "PANTALON",
-                "GORRA"
-            ]):
-                categoria = "INDUMENTARIA"
+                nombre = re.sub(
+                    r"\s*\([^()]+\)\s*$",
+                    "",
+                    nombre_original
+                ).strip()
 
-            elif "LINTERNA" in nombre_upper:
-                categoria = "LINTERNA"
+                categoria_tag = card.select_one(
+                    ".product-category"
+                )
 
-            elif any(x in nombre_upper for x in [
-                "PINZA",
-                "LLAVE",
-                "DESTORNILLADOR",
-                "HERRAMIENTA"
-            ]):
-                categoria = "HERRAMIENTA"
+                categoria = (
+                    categoria_tag.get_text(
+                        strip=True
+                    ).upper()
+                    if categoria_tag
+                    else ""
+                )
 
-            elif any(x in nombre_upper for x in [
-                "LED",
-                "CABLE",
-                "CARGADOR",
-                "ELECTRICO",
-                "ELECTRICA"
-            ]):
-                categoria = "ELECTRICOS"
+                precio_tag = card.select_one(".price")
 
-            elif any(x in nombre_upper for x in [
-                "TERMO",
-                "MATE",
-                "VASO",
-                "TAZA",
-                "JARRA"
-            ]):
-                categoria = "BAZAR"
+                precio_texto = (
+                    precio_tag.get_text(
+                        " ",
+                        strip=True
+                    )
+                    if precio_tag
+                    else ""
+                )
 
-            else:
-                categoria = "ACCESORIOS"
+                numeros = re.findall(
+                    r"[\d\.]+",
+                    precio_texto
+                )
 
+                if numeros:
+                    precio = int(
+                        numeros[0].replace(".", "")
+                    )
+                else:
+                    precio = 0
 
-            productos.append({
-                "SKU": sku,
-                "Producto": nombre,
-                "Categoria": categoria,
-                "PrecioProveedor": precio,
-                "%Ganancia": GANANCIA,
-                "PrecioReventa": precio_reventa,
-                "Imagen": imagen,
-                "Disponible": disponible
-            })
+                precio_reventa = round(
+                    precio * (1 + GANANCIA / 100)
+                )
 
+                link_tag = card.select_one("a")
 
-        except Exception as e:
-            print("Error:", e)
+                link_producto = (
+                    link_tag["href"]
+                    if link_tag
+                    and link_tag.has_attr("href")
+                    else ""
+                )
 
-    page += 1
-    time.sleep(1)
+                img_tag = card.select_one("img")
+
+                imagen = ""
+
+                if img_tag:
+
+                    imagen = (
+                        img_tag.get("data-src")
+                        or img_tag.get("data-lazy-src")
+                        or img_tag.get("src")
+                        or ""
+                    )
+
+                disponible = "SI"
+
+                texto_card = card.get_text(
+                    " ",
+                    strip=True
+                ).upper()
+
+                if "AGOTADO" in texto_card:
+                    disponible = "NO"
+
+                nombre_upper = nombre.upper()
+
+                if any(x in nombre_upper for x in [
+                    "CUCHILLO",
+                    "NAVAJA",
+                    "MACHETE",
+                    "KATANA",
+                    "KERAMBIT",
+                    "MARIPOSA"
+                ]):
+                    categoria = "CUCHILLERIA"
+
+                elif any(x in nombre_upper for x in [
+                    "CARPA",
+                    "MOSQUETON",
+                    "SOGA",
+                    "PULSERA",
+                    "SET CUBIERTO",
+                    "PANEL SOLAR"
+                ]):
+                    categoria = "CAMPING"
+
+                elif any(x in nombre_upper for x in [
+                    "CHALECO",
+                    "GUANTE",
+                    "CAMPERA",
+                    "REMERA",
+                    "PANTALON",
+                    "GORRA"
+                ]):
+                    categoria = "INDUMENTARIA"
+
+                elif "LINTERNA" in nombre_upper:
+                    categoria = "LINTERNA"
+
+                elif any(x in nombre_upper for x in [
+                    "PINZA",
+                    "LLAVE",
+                    "DESTORNILLADOR",
+                    "HERRAMIENTA"
+                ]):
+                    categoria = "HERRAMIENTA"
+
+                elif any(x in nombre_upper for x in [
+                    "LED",
+                    "CABLE",
+                    "CARGADOR",
+                    "ELECTRICO",
+                    "ELECTRICA"
+                ]):
+                    categoria = "ELECTRICOS"
+
+                elif any(x in nombre_upper for x in [
+                    "TERMO",
+                    "MATE",
+                    "VASO",
+                    "TAZA",
+                    "JARRA"
+                ]):
+                    categoria = "BAZAR"
+
+                else:
+                    categoria = "ACCESORIOS"
+
+                productos.append({
+                    "SKU": sku,
+                    "Producto": nombre,
+                    "Categoria": categoria,
+                    "PrecioProveedor": precio,
+                    "%Ganancia": GANANCIA,
+                    "PrecioReventa": precio_reventa,
+                    "Imagen": imagen,
+                    "Disponible": disponible
+                })
+
+            except Exception as e:
+                print("Error producto:", e)
+
+        page += 1
+        time.sleep(1)
+
+    except Exception as e:
+
+        print("ERROR GENERAL:", e)
+
+        break
 
 df = pd.DataFrame(productos)
 
-df.to_excel("venirvos.xlsx", index=False)
+df.to_excel(
+    "venirvos.xlsx",
+    index=False
+)
 
-print(f"Productos exportados: {len(df)}")
+print(
+    f"Productos exportados: {len(df)}"
+)
+
+if len(df) == 0:
+    raise RuntimeError(
+        "No se obtuvo ningún producto de VenirVos"
+    )
