@@ -26,6 +26,15 @@ jobs:
           mkdir -p scraper
           echo '${{ secrets.GOOGLE_CREDENTIALS }}' > scraper/credenciales.json
 
+      - name: Test conectividad Pasteur86
+        run: |
+          echo "===== DNS ====="
+          nslookup pasteur86.com || true
+
+          echo ""
+          echo "===== HTTPS ====="
+          curl -I -L --max-time 30 https://pasteur86.com
+
       - name: Ejecutar Pasteur
         run: python scraper/scraper_pasteur86.py
 
