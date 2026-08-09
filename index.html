@@ -294,31 +294,38 @@
     margin: 12px 0;
   }
 
-  /* Botones en barra inferior */
-  .bottom-action-btn {
+  /* Botones en el header */
+  .header-action-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 44px;
-    height: 44px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    background: #191d20;
+    background: transparent;
     border: 1px solid #343b3f;
     color: #9ba1a4;
     transition: all 0.2s;
     flex-shrink: 0;
   }
-  .bottom-action-btn:hover {
+  .header-action-btn:hover {
     border-color: #ffb000;
     color: #ffb000;
   }
-  .bottom-action-btn.facebook-btn:hover {
+  .header-action-btn.facebook-btn:hover {
     border-color: #1877f2;
     color: #1877f2;
   }
-  .bottom-action-btn.info-btn:hover {
+  .header-action-btn.info-btn:hover {
     border-color: #ffb000;
     color: #ffb000;
+  }
+
+  /* Header right group */
+  .header-right-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
 </style>
 </head>
@@ -331,6 +338,7 @@
 <header class="sticky top-0 z-30 bg-carbon-950/95 backdrop-blur border-b border-carbon-700">
   <div class="px-4 pt-4 pb-3">
     <div class="flex items-center justify-between">
+      <!-- Hamburguesa: abre el panel de categorías -->
       <button
         id="hamburgerBtn"
         onclick="toggleFilterPanel()"
@@ -344,15 +352,39 @@
         MULTI<span class="text-amber-500 glow-amber">-TAC</span>
       </h1>
 
-      <button
-        id="cartHeaderBtn"
-        onclick="openCart()"
-        aria-label="Ver carrito"
-        class="relative w-9 h-9 rounded-sm border border-amber-500/40 flex items-center justify-center shrink-0"
-      >
-        <i class="fa-solid fa-cart-shopping text-amber-500 text-sm"></i>
-        <span id="cartCountHeader" class="absolute -top-1.5 -right-1.5 bg-amber-500 text-carbon-950 text-[9px] font-bold min-w-[16px] h-4 px-0.5 rounded-full flex items-center justify-center">0</span>
-      </button>
+      <!-- Grupo de botones a la derecha: Facebook, Información, Carrito -->
+      <div class="header-right-group">
+        <!-- Botón Facebook -->
+        <a
+          href="https://www.facebook.com/WMZA.ARG"
+          target="_blank"
+          rel="noopener"
+          aria-label="Facebook"
+          class="header-action-btn facebook-btn"
+        >
+          <i class="fa-brands fa-facebook-f text-sm"></i>
+        </a>
+
+        <!-- Botón Información (i) -->
+        <button
+          onclick="openInfoModal()"
+          aria-label="Información"
+          class="header-action-btn info-btn"
+        >
+          <i class="fa-solid fa-info text-sm"></i>
+        </button>
+
+        <!-- Botón Carrito -->
+        <button
+          id="cartHeaderBtn"
+          onclick="openCart()"
+          aria-label="Ver carrito"
+          class="relative w-9 h-9 rounded-sm border border-amber-500/40 flex items-center justify-center shrink-0"
+        >
+          <i class="fa-solid fa-cart-shopping text-amber-500 text-sm"></i>
+          <span id="cartCountHeader" class="absolute -top-1.5 -right-1.5 bg-amber-500 text-carbon-950 text-[9px] font-bold min-w-[16px] h-4 px-0.5 rounded-full flex items-center justify-center">0</span>
+        </button>
+      </div>
     </div>
 
     <div class="mt-3 relative">
@@ -520,42 +552,19 @@
 </a>
 
 <!-- ======================================================================
-     BARRA INFERIOR FIJA — con botones de Facebook e Información
+     BARRA INFERIOR FIJA — solo carrito (sin Facebook ni Info)
 ====================================================================== -->
-<div id="cartBar" class="hidden fixed bottom-0 left-0 right-0 z-30 bg-carbon-900 border-t border-amber-500/30 px-3 py-2">
-  <div class="flex items-center gap-2">
-    <!-- Botón Facebook (izquierda) -->
-    <a
-      href="https://www.facebook.com/WMZA.ARG"
-      target="_blank"
-      rel="noopener"
-      aria-label="Facebook"
-      class="bottom-action-btn facebook-btn shrink-0"
-    >
-      <i class="fa-brands fa-facebook-f text-lg"></i>
-    </a>
-
-    <!-- Botón Información (i) -->
-    <button
-      onclick="openInfoModal()"
-      aria-label="Información"
-      class="bottom-action-btn info-btn shrink-0"
-    >
-      <i class="fa-solid fa-info text-lg"></i>
-    </button>
-
-    <!-- Botón principal de carrito (ocupa el resto) -->
-    <button onclick="openCart()" class="flex-1 flex items-center justify-between bg-carbon-800 border border-carbon-600 rounded-sm px-4 py-2.5">
-      <div class="flex items-center gap-3">
-        <div class="relative">
-          <i class="fa-solid fa-cart-shopping text-amber-500"></i>
-          <span id="cartCount" class="absolute -top-2 -right-2 bg-amber-500 text-carbon-950 text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</span>
-        </div>
-        <span class="font-display font-600 text-sm tracking-wide">VER PEDIDO</span>
+<div id="cartBar" class="hidden fixed bottom-0 left-0 right-0 z-30 bg-carbon-900 border-t border-amber-500/30 px-4 py-3">
+  <button onclick="openCart()" class="w-full flex items-center justify-between bg-carbon-800 border border-carbon-600 rounded-sm px-4 py-3">
+    <div class="flex items-center gap-3">
+      <div class="relative">
+        <i class="fa-solid fa-cart-shopping text-amber-500"></i>
+        <span id="cartCount" class="absolute -top-2 -right-2 bg-amber-500 text-carbon-950 text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</span>
       </div>
-      <span id="cartSubtotalBar" class="font-mono text-amber-500 text-sm glow-amber">$0</span>
-    </button>
-  </div>
+      <span class="font-display font-600 text-sm tracking-wide">VER PEDIDO</span>
+    </div>
+    <span id="cartSubtotalBar" class="font-mono text-amber-500 text-sm glow-amber">$0</span>
+  </button>
 </div>
 
 <!-- ======================================================================
@@ -622,7 +631,7 @@
 </div>
 
 <!-- ======================================================================
-     MODAL DE INFORMACIÓN (NUEVO)
+     MODAL DE INFORMACIÓN
 ====================================================================== -->
 <div id="infoModal" onclick="closeInfoModal(event)">
   <div class="info-content" onclick="event.stopPropagation()">
@@ -1389,7 +1398,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 /* ============================================================================
-   MODAL DE INFORMACIÓN (NUEVO)
+   MODAL DE INFORMACIÓN
 ============================================================================ */
 function openInfoModal() {
   document.getElementById('infoModal').classList.add('active');
@@ -1507,7 +1516,7 @@ function clearCart() {
 }
 
 /* ============================================================================
-   EXPORTAR PDF — CON MINIATURAS Y FECHA CORREGIDO
+   EXPORTAR PDF — CON MINIATURAS Y FECHA
 ============================================================================ */
 function exportCartPDF() {
   if (cart.length === 0) {
@@ -1525,13 +1534,11 @@ function exportCartPDF() {
   const margin = 14;
   let y = 18;
 
-  // Título
   doc.setFontSize(18);
   doc.setTextColor(255, 176, 0);
   doc.text("MULTI-TAC", margin, y);
   y += 8;
 
-  // Fecha (arriba a la derecha)
   doc.setFontSize(9);
   doc.setTextColor(150);
   const dateStr = new Date().toLocaleDateString('es-AR', {
@@ -1540,7 +1547,6 @@ function exportCartPDF() {
   });
   doc.text(`Fecha: ${dateStr}`, pageWidth - margin - 20, y - 8);
 
-  // Línea separadora
   doc.setDrawColor(255, 176, 0, 50);
   doc.line(margin, y, pageWidth - margin, y);
   y += 6;
@@ -1552,7 +1558,6 @@ function exportCartPDF() {
   doc.text(`Total general: ${formatPrice(cartTotal())}`, margin, y);
   y += 10;
 
-  // Encabezados de tabla
   doc.setFontSize(8);
   doc.setTextColor(150);
   doc.text("SKU", margin, y);
@@ -1574,47 +1579,31 @@ function exportCartPDF() {
       y = 20;
     }
 
-    // === MINIATURA DE IMAGEN (corregido) ===
-    // Dibujamos un rectángulo con la URL de la imagen como referencia
-    // y un placeholder visual
+    // Miniaturas con icono 🖼️
     const imgX = margin;
     const imgY = y - 4;
     const imgW = 16;
     const imgH = 16;
 
-    // Fondo del recuadro
     doc.setFillColor(30, 30, 35);
     doc.rect(imgX, imgY, imgW, imgH, 'F');
     doc.setDrawColor(255, 176, 0, 40);
     doc.rect(imgX, imgY, imgW, imgH, 'S');
 
-    // Icono de imagen (cámara) dentro del recuadro
     doc.setFontSize(8);
     doc.setTextColor(255, 176, 0, 80);
     doc.text("🖼️", imgX + 3, imgY + 11);
 
-    // Guardamos la URL de la imagen en el PDF como metadato
-    // y mostramos el SKU como referencia visual
-
-    // SKU
     doc.setFontSize(8);
     doc.setTextColor(200);
     doc.text(String(item.sku), margin + 20, y + 6);
 
-    // Nombre (truncado)
     const name = item.name.length > 38 ? item.name.slice(0, 38) + "..." : item.name;
     doc.text(name, margin + 28, y + 6);
-
-    // Cantidad
     doc.text(String(item.qty), margin + 110, y + 6);
-
-    // Precio unitario
     doc.text(formatPrice(item.price), margin + 130, y + 6);
-
-    // Subtotal
     doc.text(formatPrice(item.price * item.qty), margin + 160, y + 6);
 
-    // Observación en línea siguiente
     if (item.note) {
       y += 5;
       doc.setFontSize(6.5);
