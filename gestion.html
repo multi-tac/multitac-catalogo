@@ -350,7 +350,13 @@ const PEDIDOS_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?
 const PRODUCTOS_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=PRODUCTOS_UNIFICADOS`;
 
 // ============================================================
-// FUNCIONES DE ESTADÍSTICAS - DEFINICIÓN TEMPRANA
+// VARIABLES GLOBALES
+// ============================================================
+window.siteStatsLoaded = false;
+window.visitsChartInstance = null;
+
+// ============================================================
+// FUNCIONES DE ESTADÍSTICAS
 // ============================================================
 
 // Función para formatear duración
@@ -421,6 +427,51 @@ function renderVisitsChart(data) {
   });
 }
 
+// Función para renderizar estadísticas
+function renderStatsData(stats) {
+  console.log("📊 Renderizando estadísticas...");
+  console.log("📊 Datos completos:", stats);
+  
+  // Verificar que los elementos existan
+  const visitantesEl = document.getElementById("stat-visitantes");
+  const tiempoEl = document.getElementById("stat-tiempo");
+  const abandonoEl = document.getElementById("stat-abandono");
+  
+  console.log("🔍 Elementos encontrados:");
+  console.log("  - stat-visitantes:", visitantesEl ? "✅" : "❌");
+  console.log("  - stat-tiempo:", tiempoEl ? "✅" : "❌");
+  console.log("  - stat-abandono:", abandonoEl ? "✅" : "❌");
+  console.log("  - visitsChart:", document.getElementById("visitsChart") ? "✅" : "❌");
+  console.log("  - top-paises:", document.getElementById("top-paises") ? "✅" : "❌");
+  console.log("  - top-provincias:", document.getElementById("top-provincias") ? "✅" : "❌");
+  console.log("  - top-vistos:", document.getElementById("top-vistos") ? "✅" : "❌");
+  
+  // Actualizar UI con los datos
+  if (visitantesEl) visitantesEl.textContent = stats.totalVisitantes || 0;
+  if (tiempoEl) tiempoEl.textContent = formatDuracion(stats.duracionPromedio || 0);
+  
+  const pctAbandono = stats.sesionesConCarrito > 0
+    ? Math.round((stats.carritosAbandonados / stats.sesionesConCarrito) * 100)
+    : 0;
+  if (abandonoEl) abandonoEl.textContent = pctAbandono + "%";
+  
+  // Mostrar rankings
+  mostrarRanking("top-paises", stats.topPaises || [], "visitas");
+  mostrarRanking("top-provincias", stats.topProvincias || [], "visitas");
+  mostrarRanking("top-vistos", stats.topProductosVistos || [], "vistas");
+  
+  // Gráfico de visitas
+  const chartCanvas = document.getElementById("visitsChart");
+  if (chartCanvas) {
+    renderVisitsChart(stats.visitasPorDia || {});
+  } else {
+    console.error("❌ No se encontró el canvas visitsChart");
+  }
+  
+  window.siteStatsLoaded = true;
+  console.log("✅ Estadísticas renderizadas correctamente");
+}
+
 // Función principal para cargar estadísticas
 function cargarEstadisticasSitio() {
   console.log("📊 Cargando estadísticas...");
@@ -442,24 +493,8 @@ function cargarEstadisticasSitio() {
     console.log("📊 Datos recibidos:", data);
     
     if (data && !data.error) {
-      // Actualizar UI con los datos
-      if (visitantesEl) visitantesEl.textContent = data.totalVisitantes || 0;
-      if (tiempoEl) tiempoEl.textContent = formatDuracion(data.duracionPromedio || 0);
-      
-      const pctAbandono = data.sesionesConCarrito > 0
-        ? Math.round((data.carritosAbandonados / data.sesionesConCarrito) * 100)
-        : 0;
-      if (abandonoEl) abandonoEl.textContent = pctAbandono + "%";
-      
-      // Mostrar rankings
-      mostrarRanking("top-paises", data.topPaises || [], "visitas");
-      mostrarRanking("top-provincias", data.topProvincias || [], "visitas");
-      mostrarRanking("top-vistos", data.topProductosVistos || [], "vistas");
-      
-      // Gráfico de visitas
-      renderVisitsChart(data.visitasPorDia || {});
-      
-      window.siteStatsLoaded = true;
+      // 🔥 LLAMAR A renderStatsData CON LOS DATOS
+      renderStatsData(data);
     } else {
       console.error("Error en datos:", data?.error);
       if (visitantesEl) visitantesEl.textContent = "⚠️ Error";
@@ -520,16 +555,11 @@ function cerrarDrawer() {
   if (overlay) overlay.classList.remove("open");
 }
 
-// ============================================================
-// VARIABLES GLOBALES
-// ============================================================
-window.siteStatsLoaded = false;
-window.visitsChartInstance = null;
-
 // Exponer funciones globalmente
 window.abrirDrawer = abrirDrawer;
 window.cerrarDrawer = cerrarDrawer;
 window.cargarEstadisticasSitio = cargarEstadisticasSitio;
+window.renderStatsData = renderStatsData;
 
 console.log("✅ Funciones de estadísticas cargadas");
 
