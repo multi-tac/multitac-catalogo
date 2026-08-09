@@ -24,7 +24,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
-  // Configuración de tema Tailwind — paleta "instrumental militar"
   tailwind.config = {
     theme: {
       extend: {
@@ -63,7 +62,6 @@
   html, body { background-color: #0a0c0d; overscroll-behavior-y: contain; }
   body { font-family: 'Inter', sans-serif; }
 
-  /* Textura sutil tipo pantalla óptica / visión nocturna sobre el fondo */
   .scan-overlay {
     background-image: repeating-linear-gradient(
       to bottom,
@@ -74,14 +72,11 @@
     );
   }
 
-  /* Oculta scrollbar en filas horizontales sin perder el scroll */
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-  /* Resplandor ámbar tipo display de instrumento */
   .glow-amber { text-shadow: 0 0 8px rgba(255,176,0,0.45); }
 
-  /* Marco tipo "reticula óptica" en las esquinas de la foto del producto */
   .reticle { position: relative; }
   .reticle::before, .reticle::after,
   .reticle .c-tr, .reticle .c-bl {
@@ -97,24 +92,20 @@
   .reticle .c-tr { top: -1px; right: -1px; border-top: 2px solid #ffb000; border-right: 2px solid #ffb000; }
   .reticle .c-bl { bottom: -1px; left: -1px; border-bottom: 2px solid #ffb000; border-left: 2px solid #ffb000; }
 
-  /* Transición del bottom-sheet del carrito */
   #cartSheet { transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1); }
   #cartBackdrop { transition: opacity 0.28s ease; }
 
-  /* Cursor parpadeante en el placeholder del buscador (detalle de terminal) */
   @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
   .blink-cursor { animation: blink 1s step-start infinite; }
 
   input:focus { outline: none; }
 
-  /* Panel de filtros colapsable */
   #filterPanel { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
   #filterPanel.open { max-height: 70vh; overflow-y: auto; }
 
   .cat-chevron { transition: transform 0.2s ease; }
   .cat-chevron.rotated { transform: rotate(180deg); }
 
-  /* Slider de doble extremo — rango de precio */
   .range-thumb {
     -webkit-appearance: none;
     appearance: none;
@@ -147,7 +138,6 @@
   .range-thumb::-webkit-slider-runnable-track { background: transparent; }
   .range-thumb::-moz-range-track { background: transparent; }
 
-  /* Botón flotante de WhatsApp — sube cuando la barra del carrito está visible */
   #whatsappFloat {
     transition: bottom 0.28s ease;
   }
@@ -159,7 +149,6 @@
     overflow: hidden;
   }
 
-  /* Modal de imagen ampliada */
   #imageModal {
     display: none;
     position: fixed;
@@ -202,9 +191,17 @@
     background: rgba(255,176,0,0.3);
   }
 
-  /* Scroll suave para la página */
-  html {
-    scroll-behavior: smooth;
+  /* Logo banner shipping */
+  .shipping-logo {
+    height: 28px;
+    width: auto;
+    object-fit: contain;
+    filter: brightness(0.9);
+  }
+  .shipping-logo-correo {
+    height: 24px;
+    width: auto;
+    object-fit: contain;
   }
 </style>
 </head>
@@ -217,7 +214,6 @@
 <header class="sticky top-0 z-30 bg-carbon-950/95 backdrop-blur border-b border-carbon-700">
   <div class="px-4 pt-4 pb-3">
     <div class="flex items-center justify-between">
-      <!-- Hamburguesa: abre el panel de categorías / subcategorías / precio -->
       <button
         id="hamburgerBtn"
         onclick="toggleFilterPanel()"
@@ -231,7 +227,6 @@
         MULTI<span class="text-amber-500 glow-amber">-TAC</span>
       </h1>
 
-      <!-- Carrito: ahora arriba a la derecha, con contador -->
       <button
         id="cartHeaderBtn"
         onclick="openCart()"
@@ -243,7 +238,6 @@
       </button>
     </div>
 
-    <!-- BUSCADOR -->
     <div class="mt-3 relative">
       <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-ink-600 text-sm"></i>
       <input
@@ -255,7 +249,6 @@
       >
     </div>
 
-    <!-- Fila: botón de filtro activo + botón de orden por precio -->
     <div class="mt-3 flex items-center gap-2">
       <button
         id="filterToggleBtn"
@@ -280,28 +273,19 @@
       </button>
     </div>
 
-    <!-- Panel colapsable: categorías horizontales, subcategorías y rango de precio -->
     <div id="filterPanel" class="mt-2 bg-carbon-800 border border-carbon-600 rounded-sm no-scrollbar">
-
-      <!-- Categorías como menú horizontal -->
       <div class="px-3 pt-3 pb-1">
         <span class="font-mono text-[10px] text-ink-600 tracking-wider">CATEGORÍAS</span>
       </div>
-      <div id="categoryChipsRow" class="flex gap-2 overflow-x-auto no-scrollbar px-3 pb-3">
-        <!-- Se renderiza dinámicamente vía JS -->
-      </div>
+      <div id="categoryChipsRow" class="flex gap-2 overflow-x-auto no-scrollbar px-3 pb-3"></div>
 
-      <!-- Subcategorías de la categoría elegida, también como menú horizontal -->
       <div id="subcategoryWrap" class="hidden border-t border-carbon-700">
         <div class="px-3 pt-3 pb-1">
           <span class="font-mono text-[10px] text-ink-600 tracking-wider">SUBCATEGORÍAS</span>
         </div>
-        <div id="subcategoryChipsRow" class="flex gap-2 overflow-x-auto no-scrollbar px-3 pb-3">
-          <!-- Se renderiza dinámicamente vía JS -->
-        </div>
+        <div id="subcategoryChipsRow" class="flex gap-2 overflow-x-auto no-scrollbar px-3 pb-3"></div>
       </div>
 
-      <!-- Rango de precio -->
       <div class="px-3 py-3 border-t border-carbon-700">
         <div class="flex items-center justify-between mb-3">
           <span class="font-mono text-[10px] text-ink-600 tracking-wider">RANGO DE PRECIO</span>
@@ -319,29 +303,55 @@
 </header>
 
 <!-- ======================================================================
-     BANNER DE ENVÍOS (NUEVO)
+     BANNER DE ENVÍOS — Con bandera Argentina y logos Correo Argentino + Via Cargo
 ====================================================================== -->
-<div class="bg-carbon-800 border-b border-amber-500/20 py-2 px-4 flex items-center justify-center gap-3 flex-wrap">
-  <div class="flex items-center gap-1.5">
+<div class="bg-carbon-800 border-b border-amber-500/20 py-2.5 px-4 flex items-center justify-center gap-3 flex-wrap">
+  <!-- Ícono de camión + texto -->
+  <div class="flex items-center gap-2">
     <span class="text-amber-500 text-lg">🚚</span>
     <span class="font-display font-600 text-sm text-ink-100 tracking-wide">ENVÍOS A TODO EL PAÍS</span>
   </div>
-  <div class="flex items-center gap-2 text-xs font-mono text-ink-400">
-    <span class="flex items-center gap-1">
-      <span class="text-lg">🇦🇷</span>
-    </span>
-    <span class="w-px h-5 bg-carbon-600"></span>
-    <span class="flex items-center gap-1.5">
-      <svg class="w-5 h-5" viewBox="0 0 100 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <text x="0" y="20" font-family="Arial, sans-serif" font-weight="bold" font-size="12" fill="#f5a623">VIACARGO</text>
+
+  <!-- Separador -->
+  <span class="w-px h-6 bg-carbon-600 hidden sm:block"></span>
+
+  <!-- Bandera Argentina -->
+  <div class="flex items-center gap-1.5">
+    <span class="text-xl">🇦🇷</span>
+    <span class="text-[10px] font-mono text-ink-400">ARGENTINA</span>
+  </div>
+
+  <!-- Separador -->
+  <span class="w-px h-6 bg-carbon-600 hidden sm:block"></span>
+
+  <!-- Logos de las empresas de envío -->
+  <div class="flex items-center gap-3">
+    <!-- Via Cargo (logo en SVG) -->
+    <div class="flex items-center gap-1.5">
+      <svg width="70" height="24" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="0" width="200" height="60" rx="4" fill="#1a1f23" opacity="0"/>
+        <text x="4" y="26" font-family="Arial, Helvetica, sans-serif" font-weight="900" font-size="22" fill="#f5a623" letter-spacing="1">Via</text>
+        <text x="56" y="26" font-family="Arial, Helvetica, sans-serif" font-weight="900" font-size="22" fill="#ffffff" letter-spacing="1">CARGO</text>
+        <text x="4" y="44" font-family="Arial, Helvetica, sans-serif" font-weight="400" font-size="9" fill="#9ba1a4" letter-spacing="0.5">Cargas y encomiendas a todo el país</text>
       </svg>
-    </span>
-    <span class="w-px h-5 bg-carbon-600"></span>
-    <span class="flex items-center gap-1.5">
-      <svg class="w-5 h-5" viewBox="0 0 100 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <text x="0" y="20" font-family="Arial, sans-serif" font-weight="bold" font-size="10" fill="#9ba1a4">✉️ CORREO ARGENTINO</text>
+    </div>
+
+    <!-- Separador -->
+    <span class="w-px h-7 bg-carbon-600"></span>
+
+    <!-- Correo Argentino (logo en SVG) -->
+    <div class="flex items-center gap-1.5">
+      <svg width="80" height="28" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="0" width="200" height="60" rx="4" fill="#1a1f23" opacity="0"/>
+        <!-- Ícono de sobre estilizado -->
+        <rect x="4" y="12" width="34" height="26" rx="2" fill="none" stroke="#f5a623" stroke-width="2"/>
+        <polyline points="4,12 21,28 38,12" stroke="#f5a623" stroke-width="2" fill="none"/>
+        <line x1="4" y1="38" x2="16" y2="28" stroke="#f5a623" stroke-width="1.5" opacity="0.5"/>
+        <line x1="38" y1="38" x2="26" y2="28" stroke="#f5a623" stroke-width="1.5" opacity="0.5"/>
+        <text x="44" y="26" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="16" fill="#f5a623" letter-spacing="1">CORREO</text>
+        <text x="44" y="44" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="14" fill="#ffffff" letter-spacing="2">ARGENTINO</text>
       </svg>
-    </span>
+    </div>
   </div>
 </div>
 
@@ -369,7 +379,6 @@
 
 <!-- ======================================================================
      PANTALLA DE INICIO — NUEVOS INGRESOS Y OFERTAS
-     (solo visibles cuando no hay categoría ni búsqueda activa)
 ====================================================================== -->
 <section id="newProductsSection" class="hidden px-4 pt-4">
   <div class="flex items-center gap-2 mb-2">
@@ -394,7 +403,7 @@
 <div id="pagination" class="hidden flex justify-center items-center gap-1.5 py-6 flex-wrap px-4"></div>
 
 <!-- ======================================================================
-     BOTÓN FLOTANTE DE WHATSAPP — CONSULTAS GENERALES
+     BOTÓN FLOTANTE DE WHATSAPP
 ====================================================================== -->
 <a
   id="whatsappFloat"
@@ -441,7 +450,6 @@
     </button>
   </div>
 
-  <!-- Acciones del carrito: exportar PDF / vaciar -->
   <div class="flex items-center gap-2 px-5 py-2.5 border-b border-carbon-700">
     <button onclick="exportCartPDF()" class="flex-1 flex items-center justify-center gap-1.5 bg-carbon-800 border border-carbon-600 rounded-sm py-2 text-[11px] font-mono text-ink-100">
       <i class="fa-solid fa-file-arrow-down text-amber-500 text-xs"></i> EXPORTAR PDF
@@ -451,9 +459,7 @@
     </button>
   </div>
 
-  <div id="cartItemsList" class="overflow-y-auto flex-1 px-5 py-3 space-y-3">
-    <!-- Renderizado dinámico -->
-  </div>
+  <div id="cartItemsList" class="overflow-y-auto flex-1 px-5 py-3 space-y-3"></div>
 
   <div class="px-5 py-4 border-t border-carbon-700 bg-carbon-900">
     <div class="flex items-center justify-between mb-3">
@@ -483,7 +489,7 @@
 </div>
 
 <!-- ======================================================================
-     MODAL DE IMAGEN AMPLIADA (NUEVO)
+     MODAL DE IMAGEN AMPLIADA
 ====================================================================== -->
 <div id="imageModal" onclick="closeImageModal(event)">
   <button class="close-modal" onclick="closeImageModal(event)">✕</button>
@@ -492,34 +498,25 @@
 
 <script>
 /* ============================================================================
-   CONFIGURACIÓN — REEMPLAZAR ANTES DE PUBLICAR
+   CONFIGURACIÓN
 ============================================================================ */
-
-// ID de tu Google Sheet (se obtiene de la URL: /d/ESTE_ID/edit)
 const SHEET_ID = "1_odj6wFfsVmf7cADgHY5mHeGxvrxCA80ELHOlSDC_58";
-
-// Nombre exacto de la pestaña/hoja donde están los datos
 const SHEET_NAME = "PRODUCTOS_UNIFICADOS";
-
-// Número de WhatsApp de atención (formato internacional, sin + ni espacios. Ej: 5491122334455)
 const WHATSAPP_NUMERO = "5491150432518";
 const PEDIDOS_API_URL = "https://script.google.com/macros/s/AKfycbwu8TneQNvyiucyyIkDrOUPjv0iGB-bI5b2hzD2dJTOm1WNgg-pIpi7OXp5rBR4xUOeGQ/exec";
-
-// Mensaje inicial del botón flotante de WhatsApp (consultas generales, no pedidos)
 const WHATSAPP_MENSAJE_CONSULTA = "Hola! Quiero hacer una consulta sobre un producto del catálogo.";
 
 /* ============================================================================
    ESTADO GLOBAL
 ============================================================================ */
-let allProducts = [];       // Productos crudos leídos del Sheet
+let allProducts = [];
 let activeCategory = "TODO";
 let activeSubcategory = null;
 let searchTerm = "";
-let cart = [];               // { id, sku, name, price, image, category, note, qty }
+let cart = [];
 let currentPage = 1;
 const PRODUCTS_PER_PAGE = 24;
 
-// Orden fijo en el que se listan las categorías dentro del panel colapsable
 const CATEGORY_ORDER = [
   "CUCHILLERIA",
   "CAMPING",
@@ -532,30 +529,16 @@ const CATEGORY_ORDER = [
 ];
 
 let filterPanelOpen = false;
-
-// Rango de precio elegido por el usuario (se inicializa según los datos reales al cargar)
 let priceFilterMin = 0;
 let priceFilterMax = Infinity;
 let priceBoundsMin = 0;
 let priceBoundsMax = 0;
-
-// Orden por precio: 'none' | 'asc' | 'desc'
 let sortOrder = "none";
 
-// Quita tildes y pasa a mayúsculas para poder comparar categorías/subcategorías sin que
-// importe cómo estén tildadas en el Sheet.
 function normalizeStr(str) {
-  return String(str)
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .trim()
-    .toUpperCase();
+  return String(str).normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toUpperCase();
 }
 
-/* ============================================================================
-   DATOS DE RESPALDO (solo para previsualizar el diseño si falla la conexión
-   con el Google Sheet — reemplazar/eliminar en producción)
-============================================================================ */
 const FALLBACK_PRODUCTS = [
   { sku: "CUC-101", name: "Cuchillo Táctico Ka-Bar Full Tang", category: "CUCHILLERIA", subcategory: "CUCHILLOS", price: 45000, image: "https://placehold.co/400x400/191d20/ffb000?text=CUC-101", inStock: true, nuevo: true, originalPrice: null },
   { sku: "CUC-140", name: "Navaja BK Skull", category: "CUCHILLERIA", subcategory: "NAVAJAS", price: 22000, image: "https://placehold.co/400x400/191d20/ffb000?text=CUC-140", inStock: true, nuevo: false, originalPrice: 27000 },
@@ -567,8 +550,7 @@ const FALLBACK_PRODUCTS = [
 ];
 
 /* ============================================================================
-   TRACKING / ESTADISTICAS — visitas, tiempo en sitio, geolocalizacion,
-   productos vistos y carrito. Reutiliza el mismo Apps Script de PEDIDOS_API_URL.
+   TRACKING
 ============================================================================ */
 const STATS_API_URL = PEDIDOS_API_URL;
 
@@ -589,14 +571,8 @@ async function procesarTrackQueue() {
   trackProcessing = true;
   while (trackQueue.length > 0) {
     const url = trackQueue.shift();
-    console.log("URL TRACK:", url);
     try {
-      await fetch(url, {
-        method: "GET",
-        mode: "no-cors",
-        cache: "no-store"
-      });
-      console.log("TRACK ENVIADO");
+      await fetch(url, { method: "GET", mode: "no-cors", cache: "no-store" });
     } catch (err) {
       console.warn("Error tracking:", err);
     }
@@ -607,11 +583,7 @@ async function procesarTrackQueue() {
 
 function trackEvent(params) {
   try {
-    const payload = {
-      accion: "track",
-      sid: getSessionId(),
-      evt: params.evt || ""
-    };
+    const payload = { accion: "track", sid: getSessionId(), evt: params.evt || "" };
     if (params.sku) payload.sku = params.sku;
     if (params.prod) payload.prod = params.prod;
     if (params.seg) payload.seg = params.seg;
@@ -635,11 +607,7 @@ async function initTracking() {
     const res = await fetch("https://ipwho.is/");
     const data = await res.json();
     if (data && data.success !== false) {
-      geo = {
-        pais: data.country || "",
-        prov: data.region || "",
-        ciudad: data.city || ""
-      };
+      geo = { pais: data.country || "", prov: data.region || "", ciudad: data.city || "" };
     }
   } catch (err) {
     console.warn(err);
@@ -677,25 +645,18 @@ function setupViewObserver() {
 }
 
 /* ============================================================================
-   "NUEVO" Y "OFERTA" — se definen a mano en el Sheet, nunca de forma automática.
+   FUNCIONES DE PRODUCTO
 ============================================================================ */
-function isNewProduct(p) {
-  return p.nuevo === true;
-}
-
-function hasDiscount(p) {
-  return !!(p.originalPrice && p.originalPrice > p.price);
-}
+function isNewProduct(p) { return p.nuevo === true; }
+function hasDiscount(p) { return !!(p.originalPrice && p.originalPrice > p.price); }
 
 /* ============================================================================
-   CARGA DE DATOS DESDE GOOGLE SHEETS (API pública de visualización GViz)
+   CARGA DE DATOS DESDE GOOGLE SHEETS
 ============================================================================ */
 async function fetchSheetData() {
   const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
   const res = await fetch(url);
-  if (!res.ok) {
-    throw new Error("No se pudo leer el Google Sheet");
-  }
+  if (!res.ok) throw new Error("No se pudo leer el Google Sheet");
   const text = await res.text();
   const jsonStr = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
   const data = JSON.parse(jsonStr);
@@ -787,9 +748,7 @@ async function fetchSheetData() {
     };
   }).filter(p => p.name && p.sku.toUpperCase() !== "SKU");
 
-  if (products.length === 0) {
-    throw new Error("Sheet sin productos válidos");
-  }
+  if (products.length === 0) throw new Error("Sheet sin productos válidos");
   return products;
 }
 
@@ -820,9 +779,8 @@ function setState(state) {
 }
 
 /* ============================================================================
-   PANEL DE FILTROS COLAPSABLE — CATEGORÍAS Y SUBCATEGORÍAS (MENÚ HORIZONTAL)
+   FILTROS
 ============================================================================ */
-
 function buildCategoryTree() {
   const tree = {};
   allProducts.forEach(p => {
@@ -922,14 +880,12 @@ function selectCategory(cat, sub) {
   renderCategoryChips();
   updateFilterLabel();
   applyFilters();
-  // El panel se cierra automáticamente al seleccionar una categoría
-  // pero NO se hace scroll automático
   if (filterPanelOpen) toggleFilterPanel();
-  // ✅ NO hacemos scroll automático al grid
+  // ✅ NO se hace scroll automático
 }
 
 /* ============================================================================
-   FILTRO DE RANGO DE PRECIO
+   RANGO DE PRECIO
 ============================================================================ */
 function setupPriceBounds() {
   const prices = allProducts.map(p => p.price).filter(n => !isNaN(n) && n > 0);
@@ -980,7 +936,7 @@ function updatePriceRangeUI() {
 }
 
 /* ============================================================================
-   ORDEN POR PRECIO
+   ORDEN
 ============================================================================ */
 function toggleSortOrder() {
   sortOrder = sortOrder === "none" ? "asc" : sortOrder === "asc" ? "desc" : "none";
@@ -1041,7 +997,7 @@ function applyFilters() {
 }
 
 /* ============================================================================
-   PANTALLA DE INICIO — NUEVOS INGRESOS Y OFERTAS
+   HOME SECTIONS
 ============================================================================ */
 function isHomeState() {
   return activeCategory === "TODO" && !activeSubcategory && !searchTerm;
@@ -1093,11 +1049,11 @@ function jumpToProduct(sku) {
   searchTerm = sku.toLowerCase();
   currentPage = 1;
   applyFilters();
-  // ✅ NO hacemos scroll automático al grid
+  // ✅ NO se hace scroll automático
 }
 
 /* ============================================================================
-   RENDER — PAGINACIÓN NUMERADA
+   RENDER — PAGINACIÓN
 ============================================================================ */
 function renderPagination(totalItems) {
   const container = document.getElementById('pagination');
@@ -1142,7 +1098,7 @@ function renderPagination(totalItems) {
 function goToPage(page) {
   currentPage = page;
   applyFilters();
-  // ✅ NO hacemos scroll automático al grid
+  // ✅ NO se hace scroll automático
 }
 
 /* ============================================================================
@@ -1255,7 +1211,7 @@ function formatPrice(n) {
 }
 
 /* ============================================================================
-   LÓGICA DE CARRITO
+   CARRITO
 ============================================================================ */
 function addToCart(product, noteInputId) {
   const noteInput = document.getElementById(noteInputId);
@@ -1353,13 +1309,11 @@ function exportCartPDF() {
   const margin = 14;
   let y = 18;
 
-  // Título
   doc.setFontSize(18);
   doc.setTextColor(255, 176, 0);
   doc.text("MULTI-TAC", margin, y);
   y += 8;
 
-  // Fecha (arriba a la derecha)
   doc.setFontSize(9);
   doc.setTextColor(150);
   const dateStr = new Date().toLocaleDateString('es-AR', {
@@ -1368,7 +1322,6 @@ function exportCartPDF() {
   });
   doc.text(`Fecha: ${dateStr}`, pageWidth - margin - 20, y - 8);
 
-  // Línea separadora
   doc.setDrawColor(255, 176, 0, 50);
   doc.line(margin, y, pageWidth - margin, y);
   y += 6;
@@ -1380,7 +1333,6 @@ function exportCartPDF() {
   doc.text(`Total general: ${formatPrice(cartTotal())}`, margin, y);
   y += 10;
 
-  // Encabezados de tabla
   doc.setFontSize(8);
   doc.setTextColor(150);
   doc.text("SKU", margin, y);
@@ -1393,17 +1345,16 @@ function exportCartPDF() {
   doc.line(margin, y, pageWidth - margin, y);
   y += 6;
 
-  // Ítems con miniaturas
   doc.setFontSize(8);
   doc.setTextColor(220);
 
-  cart.forEach((item, index) => {
+  cart.forEach((item) => {
     if (y > 260) {
       doc.addPage();
       y = 20;
     }
 
-    // Miniaturas: dibujamos un rectángulo y texto "IMG" como placeholder
+    // Miniaturas: recuadro con "IMG"
     doc.setFillColor(30, 30, 35);
     doc.rect(margin, y - 4, 16, 16, 'F');
     doc.setDrawColor(255, 176, 0, 40);
@@ -1412,25 +1363,16 @@ function exportCartPDF() {
     doc.setTextColor(100);
     doc.text("IMG", margin + 3, y + 7);
 
-    // SKU
     doc.setFontSize(8);
     doc.setTextColor(200);
     doc.text(String(item.sku), margin + 20, y + 6);
 
-    // Nombre (truncado)
     const name = item.name.length > 38 ? item.name.slice(0, 38) + "..." : item.name;
     doc.text(name, margin + 28, y + 6);
-
-    // Cantidad
     doc.text(String(item.qty), margin + 110, y + 6);
-
-    // Precio unitario
     doc.text(formatPrice(item.price), margin + 130, y + 6);
-
-    // Subtotal
     doc.text(formatPrice(item.price * item.qty), margin + 160, y + 6);
 
-    // Observación en línea siguiente
     if (item.note) {
       y += 5;
       doc.setFontSize(6.5);
@@ -1444,7 +1386,6 @@ function exportCartPDF() {
     y += 10;
   });
 
-  // Línea final y total
   y += 4;
   doc.setDrawColor(255, 176, 0, 40);
   doc.line(margin, y, pageWidth - margin, y);
