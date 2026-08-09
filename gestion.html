@@ -906,7 +906,7 @@ function renderTopProductos(){
 }
 
 /* ============================================================================
-   ESTADISTICAS DEL SITIO — CORREGIDO CON JSONP PARA EVITAR CORS
+   ESTADISTICAS DEL SITIO — CON JSONP PARA EVITAR CORS (CORREGIDO)
 ============================================================================ */
 const medalsGeo = ["#D9A62E","#a8a59c","#8a6c22","#565349","#565349"];
 let visitsChartInstance = null;
@@ -972,71 +972,69 @@ function renderStatsData(stats) {
   siteStatsLoaded = true;
 }
 
-async function cargarEstadisticasSitio() {
+function cargarEstadisticasSitio() {
   try {
-    console.log("📊 Cargando estadísticas...");
+    console.log("📊 Cargando estadísticas con JSONP...");
     
-    // Intentar con fetch normal
-    const res = await fetch(`${API_URL}?accion=stats`, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
+    // Usar JSONP para evitar CORS
+    const callbackName = 'jsonpCallback_' + Date.now();
+    
+    // Crear la función global que recibirá los datos
+    window[callbackName] = function(data) {
+      console.log("📊 JSONP: Datos recibidos", data);
+      if (data && !data.error) {
+        renderStatsData(data);
+      } else {
+        console.error("Error en datos JSONP:", data?.error);
+        document.getElementById("stat-visitantes").textContent = "⚠️ Error en datos";
+        document.getElementById("stat-tiempo").textContent = "⚠️ Error";
+        document.getElementById("stat-abandono").textContent = "⚠️ Error";
       }
-    });
+      // Limpiar
+      delete window[callbackName];
+      if (script) document.body.removeChild(script);
+    };
     
-    if (res.ok) {
-      const stats = await res.json();
-      renderStatsData(stats);
-      return;
-    }
+    // Crear el script con el callback
+    const script = document.createElement('script');
+    script.src = `${API_URL}?accion=stats&callback=${callbackName}`;
+    script.id = 'jsonp_script';
     
-    // Si falla, usar JSONP
-    console.log("⚠️ Fetch falló, usando JSONP...");
-    cargarStatsConJSONP();
-    
-  } catch (err) {
-    console.log("⚠️ Error en fetch, usando JSONP...", err);
-    cargarStatsConJSONP();
-  }
-}
-
-function cargarStatsConJSONP() {
-  const callbackName = 'jsonpCallback_' + Date.now();
-  
-  window[callbackName] = function(data) {
-    console.log("📊 JSONP: Datos recibidos", data);
-    if (data && !data.error) {
-      renderStatsData(data);
-    } else {
-      console.error("Error JSONP:", data?.error);
-      document.getElementById("stat-visitantes").textContent = "⚠️ Error";
+    script.onerror = function() {
+      console.error("❌ Error cargando JSONP");
+      document.getElementById("stat-visitantes").textContent = "⚠️ Error de conexión";
       document.getElementById("stat-tiempo").textContent = "⚠️ Error";
       document.getElementById("stat-abandono").textContent = "⚠️ Error";
-    }
-    delete window[callbackName];
-  };
-  
-  const script = document.createElement('script');
-  script.src = `${API_URL}?accion=stats&callback=${callbackName}`;
-  script.onerror = function() {
-    console.error("❌ Error cargando JSONP");
+      delete window[callbackName];
+      if (script) document.body.removeChild(script);
+    };
+    
+    // Timeout por si tarda demasiado
+    setTimeout(() => {
+      if (!siteStatsLoaded) {
+        console.warn("⏳ Timeout cargando estadísticas");
+        document.getElementById("stat-visitantes").textContent = "⏳ Sin datos aún";
+        document.getElementById("stat-tiempo").textContent = "⏳ Sin datos aún";
+        document.getElementById("stat-abandono").textContent = "⏳ Sin datos aún";
+        delete window[callbackName];
+        if (script) document.body.removeChild(script);
+      }
+    }, 15000);
+    
+    document.body.appendChild(script);
+    console.log("📊 JSONP: Script agregado -", script.src);
+    
+  } catch (err) {
+    console.error("❌ Error cargando estadísticas:", err);
     document.getElementById("stat-visitantes").textContent = "⚠️ Error";
     document.getElementById("stat-tiempo").textContent = "⚠️ Error";
     document.getElementById("stat-abandono").textContent = "⚠️ Error";
-    delete window[callbackName];
-  };
-  document.body.appendChild(script);
-  
-  // Timeout por si tarda demasiado
-  setTimeout(() => {
-    if (!siteStatsLoaded) {
-      document.getElementById("stat-visitantes").textContent = "⏳ Sin datos aún";
-      document.getElementById("stat-tiempo").textContent = "⏳ Sin datos aún";
-      document.getElementById("stat-abandono").textContent = "⏳ Sin datos aún";
-    }
-  }, 10000);
+  }
 }
 
+// ============================================================
+// EVENTOS DEL DOM
+// ============================================================
 document.querySelectorAll("#state-chips .chip").forEach(btn=>{
   btn.addEventListener("click", ()=>{
     activeState = btn.getAttribute("data-state");
@@ -1059,24 +1057,36 @@ document.querySelectorAll("#date-chips .datechip").forEach(btn=>{
   });
 });
 
+// ============================================================
+// DRAWER (Panel de estadísticas)
+// ============================================================
 const drawer = document.getElementById("drawer");
 const overlay = document.getElementById("overlay");
 document.getElementById("menu-toggle").addEventListener("click", ()=>{
-  drawer.classList.add("open"); overlay.classList.add("open");
-  if(!siteStatsLoaded) cargarEstadisticasSitio();
+  drawer.classList.add("open"); 
+  overlay.classList.add("open");
+  if(!siteStatsLoaded) {
+    console.log("📊 Abriendo drawer, cargando estadísticas...");
+    cargarEstadisticasSitio();
+  }
 });
 document.getElementById("drawer-close").addEventListener("click", ()=>{
-  drawer.classList.remove("open"); overlay.classList.remove("open");
+  drawer.classList.remove("open"); 
+  overlay.classList.remove("open");
 });
 overlay.addEventListener("click", ()=>{
-  drawer.classList.remove("open"); overlay.classList.remove("open");
+  drawer.classList.remove("open"); 
+  overlay.classList.remove("open");
 });
 
+// ============================================================
+// INICIALIZACIÓN
+// ============================================================
 async function init(){
+  console.log("🚀 Inicializando panel de gestión...");
   await cargarProductos();
   await cargarPedidos();
+  console.log("✅ Panel de gestión listo");
 }
 init();
-</script>
-</body>
-</html>
+
