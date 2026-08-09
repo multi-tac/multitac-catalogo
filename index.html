@@ -6,7 +6,7 @@
 <title>MULTI-TAC | Catálogo de Equipamiento Táctico</title>
 
 <!-- ============================================================
-     GOOGLE ANALYTICS (NUEVO)
+     GOOGLE ANALYTICS (GA4) — Eventos personalizados integrados
 ============================================================ -->
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-QWQDL9FZHB"></script>
@@ -18,7 +18,9 @@
 </script>
 
 <!-- ============================================================
-     FUENTES: Rajdhani, Share Tech Mono, Inter
+     FUENTES: Rajdhani (titulares tipo panel operativo),
+     Share Tech Mono (SKU / precios estilo lectura instrumental),
+     Inter (texto general)
 ============================================================ -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -201,7 +203,6 @@
     background: rgba(255,176,0,0.3);
   }
 
-  /* Modal de información */
   #infoModal {
     display: none;
     position: fixed;
@@ -304,7 +305,6 @@
     margin: 12px 0;
   }
 
-  /* Botones en el header */
   .header-action-btn {
     display: flex;
     align-items: center;
@@ -331,7 +331,6 @@
     color: #ffb000;
   }
 
-  /* Header right group */
   .header-right-group {
     display: flex;
     align-items: center;
@@ -348,7 +347,6 @@
 <header class="sticky top-0 z-30 bg-carbon-950/95 backdrop-blur border-b border-carbon-700">
   <div class="px-4 pt-4 pb-3">
     <div class="flex items-center justify-between">
-      <!-- Hamburguesa: abre el panel de categorías -->
       <button
         id="hamburgerBtn"
         onclick="toggleFilterPanel()"
@@ -362,9 +360,7 @@
         MULTI<span class="text-amber-500 glow-amber">-TAC</span>
       </h1>
 
-      <!-- Grupo de botones a la derecha: Facebook, Información, Carrito -->
       <div class="header-right-group">
-        <!-- Botón Facebook -->
         <a
           href="https://www.facebook.com/WMZA.ARG"
           target="_blank"
@@ -375,7 +371,6 @@
           <i class="fa-brands fa-facebook-f text-sm"></i>
         </a>
 
-        <!-- Botón Información (i) -->
         <button
           onclick="openInfoModal()"
           aria-label="Información"
@@ -384,7 +379,6 @@
           <i class="fa-solid fa-info text-sm"></i>
         </button>
 
-        <!-- Botón Carrito -->
         <button
           id="cartHeaderBtn"
           onclick="openCart()"
@@ -562,7 +556,7 @@
 </a>
 
 <!-- ======================================================================
-     BARRA INFERIOR FIJA — solo carrito (sin Facebook ni Info)
+     BARRA INFERIOR FIJA — solo carrito
 ====================================================================== -->
 <div id="cartBar" class="hidden fixed bottom-0 left-0 right-0 z-30 bg-carbon-900 border-t border-amber-500/30 px-4 py-3">
   <button onclick="openCart()" class="w-full flex items-center justify-between bg-carbon-800 border border-carbon-600 rounded-sm px-4 py-3">
@@ -764,7 +758,7 @@ const FALLBACK_PRODUCTS = [
 ];
 
 /* ============================================================================
-   TRACKING
+   TRACKING (tu sistema propio)
 ============================================================================ */
 const STATS_API_URL = PEDIDOS_API_URL;
 
@@ -836,9 +830,28 @@ async function initTracking() {
 }
 
 const vistosEnSesion = new Set();
+
+/* ============================================================================
+   TRACKING CON GOOGLE ANALYTICS — Producto visto (view_item)
+============================================================================ */
 function trackProductoVisto(sku, nombre) {
   if (!sku || vistosEnSesion.has(sku)) return;
   vistosEnSesion.add(sku);
+
+  // ============================================================
+  // 🔥 EVENTO PARA GOOGLE ANALYTICS — Producto visto
+  // ============================================================
+  if (typeof gtag === 'function') {
+    gtag('event', 'view_item', {
+      'currency': 'ARS',
+      'items': [{
+        'item_id': sku,
+        'item_name': nombre
+      }]
+    });
+    console.log('📊 GA: Producto visto ->', sku, nombre);
+  }
+
   trackEvent({ evt: "producto_visto", sku, prod: nombre });
 }
 
@@ -1170,10 +1183,24 @@ function toggleSortOrder() {
 }
 
 /* ============================================================================
-   FILTRO + BÚSQUEDA
+   FILTRO + BÚSQUEDA — CON EVENTO search PARA GOOGLE ANALYTICS
 ============================================================================ */
 document.getElementById('searchInput').addEventListener('input', (e) => {
+  const searchTermOld = searchTerm;
   searchTerm = e.target.value.trim().toLowerCase();
+
+  // ============================================================
+  // 🔥 EVENTO PARA GOOGLE ANALYTICS — Búsqueda
+  // ============================================================
+  if (searchTerm.length > 0 && searchTerm !== searchTermOld) {
+    if (typeof gtag === 'function') {
+      gtag('event', 'search', {
+        'search_term': searchTerm
+      });
+      console.log('📊 GA: Búsqueda ->', searchTerm);
+    }
+  }
+
   currentPage = 1;
   applyFilters();
 });
@@ -1446,7 +1473,7 @@ function formatPrice(n) {
 }
 
 /* ============================================================================
-   CARRITO
+   CARRITO — CON EVENTO add_to_cart PARA GOOGLE ANALYTICS
 ============================================================================ */
 function addToCart(product, noteInputId) {
   const noteInput = document.getElementById(noteInputId);
@@ -1467,6 +1494,25 @@ function addToCart(product, noteInputId) {
       qty: 1
     });
   }
+
+  // ============================================================
+  // 🔥 EVENTO PARA GOOGLE ANALYTICS — Agregado al carrito
+  // ============================================================
+  if (typeof gtag === 'function') {
+    gtag('event', 'add_to_cart', {
+      'currency': 'ARS',
+      'value': product.price,
+      'items': [{
+        'item_id': product.sku,
+        'item_name': product.name,
+        'price': product.price,
+        'quantity': 1,
+        'item_category': product.category
+      }]
+    });
+    console.log('📊 GA: Agregado al carrito ->', product.sku, product.name);
+  }
+
   trackEvent({ evt: "carrito", sku: product.sku, prod: product.name });
   if (noteInput) noteInput.value = "";
   updateCartUI();
@@ -1589,7 +1635,6 @@ function exportCartPDF() {
       y = 20;
     }
 
-    // Miniaturas con icono 🖼️
     const imgX = margin;
     const imgY = y - 4;
     const imgW = 16;
@@ -1736,7 +1781,7 @@ function closeCart() {
 }
 
 /* ============================================================================
-   DESPACHO A WHATSAPP
+   DESPACHO A WHATSAPP — CON EVENTO purchase PARA GOOGLE ANALYTICS
 ============================================================================ */
 async function guardarPedido(nombre, telefono) {
   const detalle = cart.map(item => ({
@@ -1778,6 +1823,26 @@ async function sendToWhatsApp() {
   }
   await guardarPedido(nombre, telefono);
   if (cart.length === 0) return;
+
+  // ============================================================
+  // 🔥 EVENTO PARA GOOGLE ANALYTICS — Pedido enviado (purchase)
+  // ============================================================
+  if (typeof gtag === 'function') {
+    gtag('event', 'purchase', {
+      'currency': 'ARS',
+      'value': cartTotal(),
+      'transaction_id': 'pedido_' + Date.now(),
+      'items': cart.map(item => ({
+        'item_id': item.sku,
+        'item_name': item.name,
+        'price': item.price,
+        'quantity': item.qty,
+        'item_category': item.category
+      }))
+    });
+    console.log('📊 GA: Pedido enviado! Total:', cartTotal());
+  }
+
   trackEvent({ evt: "pedido_enviado" });
   let msg = `*🛒 NUEVO PEDIDO - MULTI-TAC*\n\n`;
   msg += `*Cliente:* ${nombre}\n`;
