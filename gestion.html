@@ -157,7 +157,7 @@
     position:fixed; top:0; right:0; height:100%; width:88%; max-width:380px;
     background:var(--bg); border-left:1px solid var(--border); z-index:31;
     transform:translateX(100%); transition:transform 0.25s ease; overflow-y:auto;
-    padding:16px;
+    padding:16px; padding-bottom:80px;
   }
   .drawer.open{ transform:translateX(0); }
   .drawer-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
@@ -179,6 +179,18 @@
   .rank-name{ font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .rank-sub{ font-size:11px; color:var(--text-secondary); }
   .rank-value{ font-size:13px; font-weight:700; white-space:nowrap; }
+
+  /* Botón Google Analytics */
+  .ga-btn{
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    width:100%; padding:12px; border-radius:10px;
+    background:linear-gradient(135deg, #4285F4, #34A853);
+    color:white; font-weight:700; font-size:14px;
+    border:none; cursor:pointer; text-decoration:none;
+    margin-top:20px;
+  }
+  .ga-btn:hover{ opacity:0.9; }
+  .ga-btn svg{ width:20px; height:20px; }
 </style>
 <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 
@@ -314,6 +326,12 @@ console.log("VERSION TEST MULTITAC");
       <span>Productos más vistos</span>
     </div>
     <div id="top-vistos"></div>
+
+    <!-- Botón para Google Analytics -->
+    <a href="https://analytics.google.com/analytics/web/?authuser=0#/report-home/a401287119w97132290p103412338" target="_blank" class="ga-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h7"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      Ver todas las estadísticas en Google Analytics
+    </a>
   </div>
 
   </div>
@@ -888,7 +906,7 @@ function renderTopProductos(){
 }
 
 /* ============================================================================
-   ESTADISTICAS DEL SITIO — visitas, tiempo, pais/provincia, productos vistos
+   ESTADISTICAS DEL SITIO — CORREGIDO CON JSONP PARA EVITAR CORS
 ============================================================================ */
 const medalsGeo = ["#D9A62E","#a8a59c","#8a6c22","#565349","#565349"];
 let visitsChartInstance = null;
@@ -934,103 +952,89 @@ function renderVisitsChart(data){
   });
 }
 
-  async function cargarEstadisticasSitio(){
+function renderStatsData(stats) {
+  console.log("📊 Estadísticas recibidas:", stats);
+  
+  renderVisitsChart(stats.visitasPorDia || {});
+  
+  document.getElementById("stat-visitantes").textContent = stats.totalVisitantes || 0;
+  document.getElementById("stat-tiempo").textContent = formatDuracion(stats.duracionPromedio || 0);
+  
+  const pctAbandono = stats.sesionesConCarrito > 0
+    ? Math.round((stats.carritosAbandonados / stats.sesionesConCarrito) * 100)
+    : 0;
+  document.getElementById("stat-abandono").textContent = pctAbandono + "%";
+  
+  renderRankGeneric("top-paises", stats.topPaises || [], "visitas");
+  renderRankGeneric("top-provincias", stats.topProvincias || [], "visitas");
+  renderRankGeneric("top-vistos", stats.topProductosVistos || [], "vistas");
+  
+  siteStatsLoaded = true;
+}
 
-  try{
-
-    const res = await fetch(
-      `${API_URL}?accion=stats`
-    );
-
-    const stats = await res.json();
-
-    console.log(
-      "ESTADISTICAS:",
-      stats
-    );
-
-    renderVisitsChart(
-      stats.visitasPorDia || {}
-    );
-
-    document.getElementById(
-      "stat-visitantes"
-    ).textContent =
-      stats.totalVisitantes || 0;
-
-    document.getElementById(
-      "stat-tiempo"
-    ).textContent =
-      formatDuracion(
-        stats.duracionPromedio || 0
-      );
-
-    const pctAbandono =
-      stats.sesionesConCarrito > 0
-        ? Math.round(
-            (
-              stats.carritosAbandonados /
-              stats.sesionesConCarrito
-            ) * 100
-          )
-        : 0;
-
-    document.getElementById(
-      "stat-abandono"
-    ).textContent =
-      pctAbandono + "%";
-
-    renderRankGeneric(
-      "top-paises",
-      stats.topPaises || [],
-      "visitas"
-    );
-
-    renderRankGeneric(
-      "top-provincias",
-      stats.topProvincias || [],
-      "visitas"
-    );
-
-    renderRankGeneric(
-      "top-vistos",
-      stats.topProductosVistos || [],
-      "vistas"
-    );
-
-    siteStatsLoaded = true;
-
-  } catch(err) {
-
-    console.error(
-      "Error cargando estadísticas:",
-      err
-    );
-
+async function cargarEstadisticasSitio() {
+  try {
+    console.log("📊 Cargando estadísticas...");
+    
+    // Intentar con fetch normal
+    const res = await fetch(`${API_URL}?accion=stats`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+      }
+    });
+    
+    if (res.ok) {
+      const stats = await res.json();
+      renderStatsData(stats);
+      return;
+    }
+    
+    // Si falla, usar JSONP
+    console.log("⚠️ Fetch falló, usando JSONP...");
+    cargarStatsConJSONP();
+    
+  } catch (err) {
+    console.log("⚠️ Error en fetch, usando JSONP...", err);
+    cargarStatsConJSONP();
   }
+}
 
-  try{
-    const res = await fetch(`${API_URL}?accion=stats`);
-    const stats = await res.json();
-
-    renderVisitsChart(stats.visitasPorDia || {});
-
-    document.getElementById("stat-visitantes").textContent = stats.totalVisitantes ?? 0;
-    document.getElementById("stat-tiempo").textContent = formatDuracion(stats.duracionPromedio || 0);
-
-    const pctAbandono = stats.sesionesConCarrito > 0
-      ? Math.round((stats.carritosAbandonados / stats.sesionesConCarrito) * 100)
-      : 0;
-    document.getElementById("stat-abandono").textContent = pctAbandono + "%";
-
-    renderRankGeneric("top-paises", stats.topPaises, "visitas");
-    renderRankGeneric("top-provincias", stats.topProvincias, "visitas");
-    renderRankGeneric("top-vistos", stats.topProductosVistos, "vistas");
-
-    siteStatsLoaded = true;
-  }catch(err){
-    console.error("Error cargando estadisticas del sitio:", err);
-  }
+function cargarStatsConJSONP() {
+  const callbackName = 'jsonpCallback_' + Date.now();
+  
+  window[callbackName] = function(data) {
+    console.log("📊 JSONP: Datos recibidos", data);
+    if (data && !data.error) {
+      renderStatsData(data);
+    } else {
+      console.error("Error JSONP:", data?.error);
+      document.getElementById("stat-visitantes").textContent = "⚠️ Error";
+      document.getElementById("stat-tiempo").textContent = "⚠️ Error";
+      document.getElementById("stat-abandono").textContent = "⚠️ Error";
+    }
+    delete window[callbackName];
+  };
+  
+  const script = document.createElement('script');
+  script.src = `${API_URL}?accion=stats&callback=${callbackName}`;
+  script.onerror = function() {
+    console.error("❌ Error cargando JSONP");
+    document.getElementById("stat-visitantes").textContent = "⚠️ Error";
+    document.getElementById("stat-tiempo").textContent = "⚠️ Error";
+    document.getElementById("stat-abandono").textContent = "⚠️ Error";
+    delete window[callbackName];
+  };
+  document.body.appendChild(script);
+  
+  // Timeout por si tarda demasiado
+  setTimeout(() => {
+    if (!siteStatsLoaded) {
+      document.getElementById("stat-visitantes").textContent = "⏳ Sin datos aún";
+      document.getElementById("stat-tiempo").textContent = "⏳ Sin datos aún";
+      document.getElementById("stat-abandono").textContent = "⏳ Sin datos aún";
+    }
+  }, 10000);
 }
 
 document.querySelectorAll("#state-chips .chip").forEach(btn=>{
