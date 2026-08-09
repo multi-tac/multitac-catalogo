@@ -791,19 +791,36 @@ async function procesarTrackQueue() {
 
 function trackEvent(params) {
   try {
-    const payload = { accion: "track", sid: getSessionId(), evt: params.evt || "" };
-    if (params.sku) payload.sku = params.sku;
-    if (params.prod) payload.prod = params.prod;
+    const payload = {
+      accion: "track",
+      sid: getSessionId(),
+      evt: params.evt || ""
+    };
+    
+    // Agregar parámetros solo si existen
+    if (params.sku) payload.sku = encodeURIComponent(params.sku);
+    if (params.prod) payload.prod = encodeURIComponent(params.prod);
     if (params.seg) payload.seg = params.seg;
     if (params.evt === "visita") {
-      if (params.pais) payload.pais = params.pais;
-      if (params.prov) payload.prov = params.prov;
+      if (params.pais) payload.pais = encodeURIComponent(params.pais);
+      if (params.prov) payload.prov = encodeURIComponent(params.prov);
     }
-    const query = new URLSearchParams(payload).toString();
-    trackQueue.push(`${STATS_API_URL}?${query}`);
+    
+    // Construir URL manualmente para evitar problemas de codificación
+    const queryParams = [];
+    for (const key in payload) {
+      queryParams.push(`${key}=${payload[key]}`);
+    }
+    const queryString = queryParams.join('&');
+    const url = `${STATS_API_URL}?${queryString}`;
+    
+    console.log("📤 TRACK URL:", url);
+    
+    trackQueue.push(url);
     procesarTrackQueue();
+    
   } catch (err) {
-    console.warn(err);
+    console.warn("Error en trackEvent:", err);
   }
 }
 
