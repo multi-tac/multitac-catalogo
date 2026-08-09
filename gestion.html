@@ -972,14 +972,13 @@ function renderStatsData(stats) {
   siteStatsLoaded = true;
 }
 
-function cargarEstadisticasSitio() {
+// 🔥 FUNCIÓN PRINCIPAL — DEFINIDA GLOBALMENTE
+window.cargarEstadisticasSitio = function() {
   try {
     console.log("📊 Cargando estadísticas con JSONP...");
     
-    // Usar JSONP para evitar CORS
     const callbackName = 'jsonpCallback_' + Date.now();
     
-    // Crear la función global que recibirá los datos
     window[callbackName] = function(data) {
       console.log("📊 JSONP: Datos recibidos", data);
       if (data && !data.error) {
@@ -990,15 +989,17 @@ function cargarEstadisticasSitio() {
         document.getElementById("stat-tiempo").textContent = "⚠️ Error";
         document.getElementById("stat-abandono").textContent = "⚠️ Error";
       }
-      // Limpiar
       delete window[callbackName];
-      if (script) document.body.removeChild(script);
+      if (window._jsonp_script) {
+        document.body.removeChild(window._jsonp_script);
+        window._jsonp_script = null;
+      }
     };
     
-    // Crear el script con el callback
     const script = document.createElement('script');
     script.src = `${API_URL}?accion=stats&callback=${callbackName}`;
     script.id = 'jsonp_script';
+    window._jsonp_script = script;
     
     script.onerror = function() {
       console.error("❌ Error cargando JSONP");
@@ -1006,10 +1007,12 @@ function cargarEstadisticasSitio() {
       document.getElementById("stat-tiempo").textContent = "⚠️ Error";
       document.getElementById("stat-abandono").textContent = "⚠️ Error";
       delete window[callbackName];
-      if (script) document.body.removeChild(script);
+      if (window._jsonp_script) {
+        document.body.removeChild(window._jsonp_script);
+        window._jsonp_script = null;
+      }
     };
     
-    // Timeout por si tarda demasiado
     setTimeout(() => {
       if (!siteStatsLoaded) {
         console.warn("⏳ Timeout cargando estadísticas");
@@ -1017,7 +1020,10 @@ function cargarEstadisticasSitio() {
         document.getElementById("stat-tiempo").textContent = "⏳ Sin datos aún";
         document.getElementById("stat-abandono").textContent = "⏳ Sin datos aún";
         delete window[callbackName];
-        if (script) document.body.removeChild(script);
+        if (window._jsonp_script) {
+          document.body.removeChild(window._jsonp_script);
+          window._jsonp_script = null;
+        }
       }
     }, 15000);
     
@@ -1030,10 +1036,10 @@ function cargarEstadisticasSitio() {
     document.getElementById("stat-tiempo").textContent = "⚠️ Error";
     document.getElementById("stat-abandono").textContent = "⚠️ Error";
   }
-}
+};
 
 // ============================================================
-// EVENTOS DEL DOM
+// EVENTOS DEL DOM (CORREGIDO)
 // ============================================================
 document.querySelectorAll("#state-chips .chip").forEach(btn=>{
   btn.addEventListener("click", ()=>{
@@ -1058,25 +1064,52 @@ document.querySelectorAll("#date-chips .datechip").forEach(btn=>{
 });
 
 // ============================================================
-// DRAWER (Panel de estadísticas)
+// DRAWER (Panel de estadísticas) — CORREGIDO
 // ============================================================
-const drawer = document.getElementById("drawer");
-const overlay = document.getElementById("overlay");
-document.getElementById("menu-toggle").addEventListener("click", ()=>{
+function abrirDrawer() {
+  console.log("🔄 Abriendo drawer");
+  const drawer = document.getElementById("drawer");
+  const overlay = document.getElementById("overlay");
   drawer.classList.add("open"); 
   overlay.classList.add("open");
   if(!siteStatsLoaded) {
-    console.log("📊 Abriendo drawer, cargando estadísticas...");
-    cargarEstadisticasSitio();
+    console.log("📊 Cargando estadísticas...");
+    window.cargarEstadisticasSitio();
   }
-});
-document.getElementById("drawer-close").addEventListener("click", ()=>{
+}
+
+function cerrarDrawer() {
+  console.log("🔄 Cerrando drawer");
+  const drawer = document.getElementById("drawer");
+  const overlay = document.getElementById("overlay");
   drawer.classList.remove("open"); 
   overlay.classList.remove("open");
-});
-overlay.addEventListener("click", ()=>{
-  drawer.classList.remove("open"); 
-  overlay.classList.remove("open");
+}
+
+// Eventos — USAR onclick EN LUGAR DE addEventListener PARA MAYOR COMPATIBILIDAD
+document.addEventListener("DOMContentLoaded", function() {
+  console.log("📋 DOM cargado, asignando eventos...");
+  
+  const menuToggle = document.getElementById("menu-toggle");
+  const drawerClose = document.getElementById("drawer-close");
+  const overlay = document.getElementById("overlay");
+  
+  if (menuToggle) {
+    menuToggle.onclick = abrirDrawer;
+    console.log("✅ Evento de menú asignado (onclick)");
+  } else {
+    console.error("❌ No se encontró el botón menu-toggle");
+  }
+  
+  if (drawerClose) {
+    drawerClose.onclick = cerrarDrawer;
+    console.log("✅ Evento de cierre asignado");
+  }
+  
+  if (overlay) {
+    overlay.onclick = cerrarDrawer;
+    console.log("✅ Evento de overlay asignado");
+  }
 });
 
 // ============================================================
@@ -1088,5 +1121,10 @@ async function init(){
   await cargarPedidos();
   console.log("✅ Panel de gestión listo");
 }
-init();
 
+// Ejecutar init cuando el DOM esté listo
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
