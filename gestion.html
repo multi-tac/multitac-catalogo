@@ -239,7 +239,7 @@ console.log("VERSION TEST MULTITAC");
         <p class="brand-sub">Panel de pedidos</p>
       </div>
     </div>
-    <button class="icon-btn" id="menu-toggle" aria-label="Abrir menú de estadísticas">
+    <button class="icon-btn" id="menu-toggle" aria-label="Abrir menú de estadísticas" onclick="abrirDrawer()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
     </button>
   </header>
@@ -274,7 +274,7 @@ console.log("VERSION TEST MULTITAC");
   <div class="drawer" id="drawer">
     <div class="drawer-head">
       <p class="drawer-title">Estadísticas</p>
-      <button class="icon-btn" id="drawer-close" aria-label="Cerrar">
+      <button class="icon-btn" id="drawer-close" aria-label="Cerrar" onclick="cerrarDrawer()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
@@ -341,20 +341,203 @@ console.log("VERSION TEST MULTITAC");
 
 <script>
 
+// ============================================================
+// CONFIGURACIÓN
+// ============================================================
+const API_URL = "https://script.google.com/macros/s/AKfycbzhFWpOTMGGbQFSpnMChgvvUxMQH1PUecIi0Jsr6kSFXMmru4kulOmuCB_imUvP3Y7WBw/exec";
+const SHEET_ID = "1_odj6wFfsVmf7cADgHY5mHeGxvrxCA80ELHOlSDC_58";
+const PEDIDOS_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=PEDIDOS`;
+const PRODUCTOS_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=PRODUCTOS_UNIFICADOS`;
+
+// ============================================================
+// FUNCIONES DE ESTADÍSTICAS - DEFINICIÓN TEMPRANA
+// ============================================================
+
+// Función para formatear duración
+function formatDuracion(seg) {
+  if (!seg || seg === 0) return "0m 0s";
+  const m = Math.floor(seg / 60);
+  const s = seg % 60;
+  return `${m}m ${s}s`;
+}
+
+// Función para mostrar rankings
+function mostrarRanking(elId, entries, suffix) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  
+  el.innerHTML = "";
+  if (!entries || entries.length === 0) {
+    el.innerHTML = '<p class="empty">Sin datos aún.</p>';
+    return;
+  }
+  
+  const colors = ["#D9A62E","#a8a59c","#8a6c22","#565349","#565349"];
+  entries.forEach((entry, i) => {
+    const [nombre, valor] = entry;
+    const row = document.createElement("div");
+    row.className = "rank-row";
+    row.innerHTML = `
+      <div class="rank-num" style="background:${colors[i] || '#565349'}">${i+1}</div>
+      <div class="rank-info"><p class="rank-name">${nombre}</p></div>
+      <p class="rank-value">${valor} ${suffix}</p>
+    `;
+    el.appendChild(row);
+  });
+}
+
+// Función para el gráfico de visitas
+function renderVisitsChart(data) {
+  const labels = Object.keys(data);
+  const values = Object.values(data);
+  
+  if (window.visitsChartInstance) {
+    window.visitsChartInstance.destroy();
+  }
+  
+  const ctx = document.getElementById("visitsChart");
+  if (!ctx) return;
+  
+  window.visitsChartInstance = new Chart(ctx, {
+    type: "bar",
+    data: { 
+      labels: labels, 
+      datasets: [{ 
+        data: values, 
+        backgroundColor: "#4a90d9", 
+        borderRadius: 4, 
+        maxBarThickness: 32 
+      }] 
+    },
+    options: { 
+      responsive: true, 
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { ticks: { color: "#a8a59c" }, grid: { color: "#2c2c28" } },
+        x: { ticks: { color: "#a8a59c" }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+// Función principal para cargar estadísticas
+function cargarEstadisticasSitio() {
+  console.log("📊 Cargando estadísticas...");
+  
+  // Mostrar "cargando" en la UI
+  const visitantesEl = document.getElementById("stat-visitantes");
+  const tiempoEl = document.getElementById("stat-tiempo");
+  const abandonoEl = document.getElementById("stat-abandono");
+  
+  if (visitantesEl) visitantesEl.textContent = "⌛ Cargando...";
+  if (tiempoEl) tiempoEl.textContent = "⌛ Cargando...";
+  if (abandonoEl) abandonoEl.textContent = "⌛ Cargando...";
+  
+  // Usar JSONP para evitar CORS
+  const callbackName = 'jsonpCallback_' + Date.now();
+  
+  // Función que recibe los datos
+  window[callbackName] = function(data) {
+    console.log("📊 Datos recibidos:", data);
+    
+    if (data && !data.error) {
+      // Actualizar UI con los datos
+      if (visitantesEl) visitantesEl.textContent = data.totalVisitantes || 0;
+      if (tiempoEl) tiempoEl.textContent = formatDuracion(data.duracionPromedio || 0);
+      
+      const pctAbandono = data.sesionesConCarrito > 0
+        ? Math.round((data.carritosAbandonados / data.sesionesConCarrito) * 100)
+        : 0;
+      if (abandonoEl) abandonoEl.textContent = pctAbandono + "%";
+      
+      // Mostrar rankings
+      mostrarRanking("top-paises", data.topPaises || [], "visitas");
+      mostrarRanking("top-provincias", data.topProvincias || [], "visitas");
+      mostrarRanking("top-vistos", data.topProductosVistos || [], "vistas");
+      
+      // Gráfico de visitas
+      renderVisitsChart(data.visitasPorDia || {});
+      
+      window.siteStatsLoaded = true;
+    } else {
+      console.error("Error en datos:", data?.error);
+      if (visitantesEl) visitantesEl.textContent = "⚠️ Error";
+    }
+    
+    // Limpiar
+    delete window[callbackName];
+    if (window._jsonp_script) {
+      document.body.removeChild(window._jsonp_script);
+      window._jsonp_script = null;
+    }
+  };
+  
+  // Crear script con JSONP
+  const script = document.createElement('script');
+  script.src = `${API_URL}?accion=stats&callback=${callbackName}`;
+  window._jsonp_script = script;
+  
+  script.onerror = function() {
+    console.error("❌ Error cargando JSONP");
+    if (visitantesEl) visitantesEl.textContent = "⚠️ Error de conexión";
+    delete window[callbackName];
+    if (window._jsonp_script) {
+      document.body.removeChild(window._jsonp_script);
+      window._jsonp_script = null;
+    }
+  };
+  
+  document.body.appendChild(script);
+  console.log("📊 JSONP: Script enviado -", script.src);
+}
+
+// Función para abrir el drawer
+function abrirDrawer() {
+  console.log("🔄 Abriendo drawer");
+  
+  const drawer = document.getElementById("drawer");
+  const overlay = document.getElementById("overlay");
+  
+  if (drawer) drawer.classList.add("open");
+  if (overlay) overlay.classList.add("open");
+  
+  // Cargar estadísticas si no están cargadas
+  if (!window.siteStatsLoaded) {
+    console.log("📊 Cargando estadísticas por primera vez...");
+    cargarEstadisticasSitio();
+  } else {
+    console.log("📊 Estadísticas ya cargadas");
+  }
+}
+
+// Función para cerrar el drawer
+function cerrarDrawer() {
+  console.log("🔄 Cerrando drawer");
+  const drawer = document.getElementById("drawer");
+  const overlay = document.getElementById("overlay");
+  if (drawer) drawer.classList.remove("open");
+  if (overlay) overlay.classList.remove("open");
+}
+
+// ============================================================
+// VARIABLES GLOBALES
+// ============================================================
+window.siteStatsLoaded = false;
+window.visitsChartInstance = null;
+
+// Exponer funciones globalmente
+window.abrirDrawer = abrirDrawer;
+window.cerrarDrawer = cerrarDrawer;
+window.cargarEstadisticasSitio = cargarEstadisticasSitio;
+
+console.log("✅ Funciones de estadísticas cargadas");
+
+// ============================================================
+// EL RESTO DEL CÓDIGO (ORDERS, PEDIDOS, ETC.)
+// ============================================================
+
 let ORDERS = [];
-
-const API_URL =
-  "https://script.google.com/macros/s/AKfycbzhFWpOTMGGbQFSpnMChgvvUxMQH1PUecIi0Jsr6kSFXMmru4kulOmuCB_imUvP3Y7WBw/exec";
-
-const SHEET_ID =
-  "1_odj6wFfsVmf7cADgHY5mHeGxvrxCA80ELHOlSDC_58";
-
-const PEDIDOS_URL =
-  `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=PEDIDOS`;
-
-const PRODUCTOS_URL =
-  `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=PRODUCTOS_UNIFICADOS`;
-
 let PRODUCTOS_MAP = {};
 
 async function cargarProductos(){
@@ -368,17 +551,10 @@ async function cargarProductos(){
     const sku = r.c[0]?.v;
     if(!sku) return;
     PRODUCTOS_MAP[sku] = {
-  imagen: r.c[7]?.v || "",
-  proveedor: r.c[9]?.v || "",
-  costo: Number(r.c[4]?.v || 0)
-};
-
-console.log(
-  "PRODUCTO",
-  sku,
-  "COSTO",
-  Number(r.c[4]?.v || 0)
-);
+      imagen: r.c[7]?.v || "",
+      proveedor: r.c[9]?.v || "",
+      costo: Number(r.c[4]?.v || 0)
+    };
   });
 }
 
@@ -400,68 +576,60 @@ async function cargarPedidos() {
     try {
 
       productos = JSON.parse(
-  r.c[7]?.v || "[]"
-).map(p => ({
-  sku: p.sku || "",
-  n: p.producto || "",
-  c: Number(p.cantidad || 0),
-  p: Number(p.precio || 0),
-  img: p.imagen || "",
-  prov: p.proveedor || ""
-})).map(p => {
+        r.c[7]?.v || "[]"
+      ).map(p => ({
+        sku: p.sku || "",
+        n: p.producto || "",
+        c: Number(p.cantidad || 0),
+        p: Number(p.precio || 0),
+        img: p.imagen || "",
+        prov: p.proveedor || ""
+      })).map(p => {
 
-  const info = PRODUCTOS_MAP[p.sku] || {};
+        const info = PRODUCTOS_MAP[p.sku] || {};
 
-  return {
-    ...p,
-    img: p.img || info.imagen,
-    prov: p.prov || info.proveedor,
-    costo: Number(info.costo || 0)
-  };
+        return {
+          ...p,
+          img: p.img || info.imagen,
+          prov: p.prov || info.proveedor,
+          costo: Number(info.costo || 0)
+        };
 
-});
+      });
     } catch {
 
       productos = [];
 
     }
-    console.log(
-  "FECHA",
-  r.c[1]?.v,
-  typeof r.c[1]?.v
-);
 
-const fechaRaw = r.c[1]?.v || "";
-console.log("Fecha cruda:", fechaRaw);
-const m = String(fechaRaw).match(
-  /Date\((\d+),(\d+),(\d+),(\d+),(\d+),(\d+)\)/
-);
+    const fechaRaw = r.c[1]?.v || "";
+    const m = String(fechaRaw).match(
+      /Date\((\d+),(\d+),(\d+),(\d+),(\d+),(\d+)\)/
+    );
 
-let fechaPedido = null;
+    let fechaPedido = null;
 
-if (m) {
-  fechaPedido = new Date(
-    Number(m[1]),
-    Number(m[2]),
-    Number(m[3]),
-    Number(m[4]),
-    Number(m[5]),
-    Number(m[6])
-  );
-}
+    if (m) {
+      fechaPedido = new Date(
+        Number(m[1]),
+        Number(m[2]),
+        Number(m[3]),
+        Number(m[4]),
+        Number(m[5]),
+        Number(m[6])
+      );
+    }
 
     return {
-  id: String(r.c[0]?.v || ""),
-  fecha: fechaPedido,
-  nombre: r.c[2]?.v || "",
-  tel: String(r.c[3]?.v || ""),
-  total: Number(r.c[4]?.v || 0),
-  estado: r.c[5]?.v || "REALIZADO",
-  obs: r.c[6]?.v || "",
-  prod: productos
-};
-    
-
+      id: String(r.c[0]?.v || ""),
+      fecha: fechaPedido,
+      nombre: r.c[2]?.v || "",
+      tel: String(r.c[3]?.v || ""),
+      total: Number(r.c[4]?.v || 0),
+      estado: r.c[5]?.v || "REALIZADO",
+      obs: r.c[6]?.v || "",
+      prod: productos
+    };
   });
 
   computeStats();
@@ -614,14 +782,6 @@ function renderDetail(o){
   let rows = "";
 
   o.prod.forEach(p => {
-    console.log(
-  "SKU:",
-  p.sku,
-  "VENTA:",
-  p.p,
-  "COSTO:",
-  p.costo
-);
 
     rows += `
       <tr>
@@ -651,25 +811,21 @@ function renderDetail(o){
   });
 
   const sum = o.prod.reduce(
-  (a,p)=>a+p.c*p.p,
-  0
-);
+    (a,p)=>a+p.c*p.p,
+    0
+  );
 
-const costoTotal = o.prod.reduce(
-  (a,p)=>a + (p.c * (p.costo || 0)),
-  0
-);
-console.log("PRODUCTOS DEL PEDIDO");
-console.log(o.prod);
+  const costoTotal = o.prod.reduce(
+    (a,p)=>a + (p.c * (p.costo || 0)),
+    0
+  );
+  
+  const gananciaNeta = sum - costoTotal;
 
-console.log("TOTAL VENTA:", sum);
-console.log("TOTAL COSTO:", costoTotal);
-const gananciaNeta = sum - costoTotal;
-
-const porcentajeGanancia =
-  costoTotal > 0
-    ? ((gananciaNeta / costoTotal) * 100).toFixed(1)
-    : 0;
+  const porcentajeGanancia =
+    costoTotal > 0
+      ? ((gananciaNeta / costoTotal) * 100).toFixed(1)
+      : 0;
 
   wrap.innerHTML = `
 
@@ -693,28 +849,28 @@ const porcentajeGanancia =
     </table>
 
     <div class="detail-total">
-  <span>Total Venta</span>
-  <span>${fmtMoney(sum)}</span>
-</div>
+      <span>Total Venta</span>
+      <span>${fmtMoney(sum)}</span>
+    </div>
 
-<div class="detail-total">
-  <span>Costo</span>
-  <span>${fmtMoney(costoTotal)}</span>
-</div>
+    <div class="detail-total">
+      <span>Costo</span>
+      <span>${fmtMoney(costoTotal)}</span>
+    </div>
 
-<div class="detail-total">
-  <span>% Ganancia</span>
-  <span style="color:#D9A62E">
-    ${porcentajeGanancia}%
-  </span>
-</div>
+    <div class="detail-total">
+      <span>% Ganancia</span>
+      <span style="color:#D9A62E">
+        ${porcentajeGanancia}%
+      </span>
+    </div>
 
-<div class="detail-total">
-  <span>Ganancia Neta</span>
-  <span style="color:#7cc142;font-weight:700">
-    ${fmtMoney(gananciaNeta)}
-  </span>
-</div>
+    <div class="detail-total">
+      <span>Ganancia Neta</span>
+      <span style="color:#7cc142;font-weight:700">
+        ${fmtMoney(gananciaNeta)}
+      </span>
+    </div>
 
     ${
       o.obs
@@ -761,12 +917,12 @@ function renderList(){
           <span class="badge ${o.estado}">${STATE_LABEL[o.estado]}</span>
           <div class="order-actions">
             <button
-  class="delete-btn"
-  data-id="${o.id}"
-  onclick="event.stopPropagation()"
->
-  🗑️
-</button>
+              class="delete-btn"
+              data-id="${o.id}"
+              onclick="event.stopPropagation()"
+            >
+              🗑️
+            </button>
             <a class="wa-btn" href="${waLink(o.tel)}" target="_blank" rel="noopener" aria-label="Responder por WhatsApp" onclick="event.stopPropagation()">
               <svg viewBox="0 0 32 32"><path d="M16.04 3C9.37 3 3.98 8.39 3.98 15.06c0 2.28.62 4.42 1.7 6.26L3 29l7.9-2.6a12.02 12.02 0 0 0 5.14 1.16h.01c6.67 0 12.06-5.39 12.06-12.06C28.11 8.39 22.72 3 16.04 3zm0 21.86h-.01a9.9 9.9 0 0 1-5.05-1.38l-.36-.21-3.77 1.25 1.26-3.67-.24-.38a9.86 9.86 0 0 1-1.53-5.4c0-5.47 4.45-9.93 9.93-9.93 2.65 0 5.14 1.04 7.01 2.91a9.86 9.86 0 0 1 2.9 7.02c0 5.47-4.46 9.93-9.94 9.93zm5.44-7.44c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.16-.17.2-.35.22-.65.07-.3-.15-1.25-.46-2.38-1.47-.88-.78-1.47-1.75-1.65-2.05-.17-.3-.02-.46.13-.6.14-.14.3-.35.45-.53.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.61-.92-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37s-1.04 1.02-1.04 2.48 1.06 2.87 1.21 3.07c.15.2 2.09 3.2 5.08 4.48.71.31 1.26.49 1.69.63.71.23 1.36.19 1.87.12.57-.09 1.76-.72 2.01-1.41.25-.7.25-1.3.17-1.42-.07-.13-.27-.2-.57-.35z"/></svg>
             </a>
@@ -787,83 +943,72 @@ function renderList(){
       renderList();
     });
     card.querySelector(".delete-btn")
-.addEventListener("click", async (e) => {
+      .addEventListener("click", async (e) => {
 
-  e.stopPropagation();
+        e.stopPropagation();
 
-  const confirmar = confirm(
-    `¿Eliminar definitivamente el pedido de ${o.nombre} por ${fmtMoney(o.total)}?`
-  );
+        const confirmar = confirm(
+          `¿Eliminar definitivamente el pedido de ${o.nombre} por ${fmtMoney(o.total)}?`
+        );
 
-  if (!confirmar) return;
+        if (!confirmar) return;
 
-const r = await fetch(
-  `${API_URL}?accion=eliminar&id=${o.id}`
-);
+        const r = await fetch(
+          `${API_URL}?accion=eliminar&id=${o.id}`
+        );
 
-const txt = await r.text();
+        const txt = await r.text();
 
-alert(txt);
+        alert(txt);
 
-  ORDERS = ORDERS.filter(
-    x => x.id !== o.id
-  );
+        ORDERS = ORDERS.filter(
+          x => x.id !== o.id
+        );
 
-  computeCounts();
-  computeStats();
-  renderChart();
-  renderTopClientes();
-  renderTopProductos();
-  renderList();
+        computeCounts();
+        computeStats();
+        renderChart();
+        renderTopClientes();
+        renderTopProductos();
+        renderList();
 
-});
+      });
     card.querySelector("select").addEventListener("change", async (e)=>{
 
 
-  const order = ORDERS.find(
-    x=>x.id===e.target.getAttribute("data-id")
-  );
+      const order = ORDERS.find(
+        x=>x.id===e.target.getAttribute("data-id")
+      );
 
-  const nuevoEstado = e.target.value;
+      const nuevoEstado = e.target.value;
 
-  try{
+      try{
+        await fetch(
+          `${API_URL}?id=${order.id}&estado=${encodeURIComponent(nuevoEstado)}`,
+          {
+            method:"GET",
+            mode:"no-cors"
+          }
+        );
 
-console.log("ID:", order.id);
-console.log("ESTADO:", nuevoEstado);
-console.log(
-  `${API_URL}?id=${order.id}&estado=${encodeURIComponent(nuevoEstado)}`
-);
-console.log("ID A ELIMINAR:", o.id);
+        order.estado = nuevoEstado;
 
-console.log(
-  `${API_URL}?accion=eliminar&id=${o.id}`
-);
-    await fetch(
-      `${API_URL}?id=${order.id}&estado=${encodeURIComponent(nuevoEstado)}`,
-      {
-        method:"GET",
-        mode:"no-cors"
+        computeCounts();
+        computeStats();
+        renderChart();
+        renderTopClientes();
+        renderTopProductos();
+        renderList();
+
+      }catch(error){
+
+        console.error(error);
+        alert("Error actualizando estado");
+
       }
-    );
+    });
 
-    order.estado = nuevoEstado;
-
-    computeCounts();
-    computeStats();
-    renderChart();
-    renderTopClientes();
-    renderTopProductos();
-    renderList();
-
-  }catch(error){
-
-    console.error(error);
-    alert("Error actualizando estado");
-
-  }
-});
-
-list.appendChild(card);
+    list.appendChild(card);
 
   });
 
@@ -905,173 +1050,6 @@ function renderTopProductos(){
   });
 }
 
-/* ============================================================================
-   ESTADISTICAS DEL SITIO — VERSIÓN SIMPLE Y DIRECTA
-============================================================================ */
-
-// 1. Función para cargar estadísticas
-function cargarEstadisticasSitio() {
-  console.log("📊 Cargando estadísticas...");
-  
-  // Mostrar "cargando" en la UI
-  document.getElementById("stat-visitantes").textContent = "⌛ Cargando...";
-  document.getElementById("stat-tiempo").textContent = "⌛ Cargando...";
-  document.getElementById("stat-abandono").textContent = "⌛ Cargando...";
-  
-  // Usar JSONP para evitar CORS
-  const callbackName = 'jsonpCallback_' + Date.now();
-  
-  // Función que recibe los datos
-  window[callbackName] = function(data) {
-    console.log("📊 Datos recibidos:", data);
-    
-    if (data && !data.error) {
-      // Actualizar UI con los datos
-      document.getElementById("stat-visitantes").textContent = data.totalVisitantes || 0;
-      document.getElementById("stat-tiempo").textContent = formatDuracion(data.duracionPromedio || 0);
-      
-      const pctAbandono = data.sesionesConCarrito > 0
-        ? Math.round((data.carritosAbandonados / data.sesionesConCarrito) * 100)
-        : 0;
-      document.getElementById("stat-abandono").textContent = pctAbandono + "%";
-      
-      // Mostrar rankings
-      mostrarRanking("top-paises", data.topPaises || [], "visitas");
-      mostrarRanking("top-provincias", data.topProvincias || [], "visitas");
-      mostrarRanking("top-vistos", data.topProductosVistos || [], "vistas");
-      
-      // Gráfico de visitas
-      renderVisitsChart(data.visitasPorDia || {});
-      
-      siteStatsLoaded = true;
-    } else {
-      console.error("Error en datos:", data?.error);
-      document.getElementById("stat-visitantes").textContent = "⚠️ Error";
-    }
-    
-    // Limpiar
-    delete window[callbackName];
-    if (window._jsonp_script) {
-      document.body.removeChild(window._jsonp_script);
-      window._jsonp_script = null;
-    }
-  };
-  
-  // Crear script con JSONP
-  const script = document.createElement('script');
-  script.src = `${API_URL}?accion=stats&callback=${callbackName}`;
-  window._jsonp_script = script;
-  
-  script.onerror = function() {
-    console.error("❌ Error cargando JSONP");
-    document.getElementById("stat-visitantes").textContent = "⚠️ Error de conexión";
-    delete window[callbackName];
-    if (window._jsonp_script) {
-      document.body.removeChild(window._jsonp_script);
-      window._jsonp_script = null;
-    }
-  };
-  
-  document.body.appendChild(script);
-  console.log("📊 JSONP: Script enviado -", script.src);
-}
-
-// 2. Función para mostrar rankings
-function mostrarRanking(elId, entries, suffix) {
-  const el = document.getElementById(elId);
-  if (!el) return;
-  
-  el.innerHTML = "";
-  if (!entries || entries.length === 0) {
-    el.innerHTML = '<p class="empty">Sin datos aún.</p>';
-    return;
-  }
-  
-  const colors = ["#D9A62E","#a8a59c","#8a6c22","#565349","#565349"];
-  entries.forEach((entry, i) => {
-    const [nombre, valor] = entry;
-    const row = document.createElement("div");
-    row.className = "rank-row";
-    row.innerHTML = `
-      <div class="rank-num" style="background:${colors[i] || '#565349'}">${i+1}</div>
-      <div class="rank-info"><p class="rank-name">${nombre}</p></div>
-      <p class="rank-value">${valor} ${suffix}</p>
-    `;
-    el.appendChild(row);
-  });
-}
-
-// 3. Función para el gráfico de visitas
-function renderVisitsChart(data) {
-  const labels = Object.keys(data);
-  const values = Object.values(data);
-  
-  if (window.visitsChartInstance) {
-    window.visitsChartInstance.destroy();
-  }
-  
-  const ctx = document.getElementById("visitsChart");
-  if (!ctx) return;
-  
-  window.visitsChartInstance = new Chart(ctx, {
-    type: "bar",
-    data: { 
-      labels: labels, 
-      datasets: [{ 
-        data: values, 
-        backgroundColor: "#4a90d9", 
-        borderRadius: 4, 
-        maxBarThickness: 32 
-      }] 
-    },
-    options: { 
-      responsive: true, 
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        y: { ticks: { color: "#a8a59c" }, grid: { color: "#2c2c28" } },
-        x: { ticks: { color: "#a8a59c" }, grid: { display: false } }
-      }
-    }
-  });
-}
-
-// 4. Función para formatear duración
-function formatDuracion(seg) {
-  if (!seg || seg === 0) return "0m 0s";
-  const m = Math.floor(seg / 60);
-  const s = seg % 60;
-  return `${m}m ${s}s`;
-}
-
-// 5. Función para abrir el drawer
-function abrirDrawer() {
-  console.log("🔄 Abriendo drawer");
-  
-  const drawer = document.getElementById("drawer");
-  const overlay = document.getElementById("overlay");
-  
-  if (drawer) drawer.classList.add("open");
-  if (overlay) overlay.classList.add("open");
-  
-  // Cargar estadísticas si no están cargadas
-  if (!window.siteStatsLoaded) {
-    console.log("📊 Cargando estadísticas por primera vez...");
-    cargarEstadisticasSitio();
-  } else {
-    console.log("📊 Estadísticas ya cargadas");
-  }
-}
-
-// 6. Función para cerrar el drawer
-function cerrarDrawer() {
-  console.log("🔄 Cerrando drawer");
-  const drawer = document.getElementById("drawer");
-  const overlay = document.getElementById("overlay");
-  if (drawer) drawer.classList.remove("open");
-  if (overlay) overlay.classList.remove("open");
-}
-
 // ============================================================
 // EVENTOS DEL DOM
 // ============================================================
@@ -1098,49 +1076,6 @@ document.querySelectorAll("#date-chips .datechip").forEach(btn=>{
 });
 
 // ============================================================
-// ASIGNAR EVENTOS DEL DRAWER AL CARGAR LA PÁGINA
-// ============================================================
-document.addEventListener("DOMContentLoaded", function() {
-  console.log("📋 Asignando eventos del drawer...");
-  
-  // Botón hamburguesa
-  const menuToggle = document.getElementById("menu-toggle");
-  if (menuToggle) {
-    menuToggle.onclick = abrirDrawer;
-    console.log("✅ Evento asignado a menu-toggle");
-  } else {
-    console.error("❌ No se encontró menu-toggle");
-  }
-  
-  // Botón cerrar
-  const drawerClose = document.getElementById("drawer-close");
-  if (drawerClose) {
-    drawerClose.onclick = cerrarDrawer;
-    console.log("✅ Evento asignado a drawer-close");
-  }
-  
-  // Overlay (fondo)
-  const overlay = document.getElementById("overlay");
-  if (overlay) {
-    overlay.onclick = cerrarDrawer;
-    console.log("✅ Evento asignado a overlay");
-  }
-});
-
-// ============================================================
-// VARIABLES GLOBALES
-// ============================================================
-window.siteStatsLoaded = false;
-window.visitsChartInstance = null;
-
-// Exponer funciones globalmente
-window.abrirDrawer = abrirDrawer;
-window.cerrarDrawer = cerrarDrawer;
-window.cargarEstadisticasSitio = cargarEstadisticasSitio;
-
-console.log("✅ Funciones de estadísticas cargadas");
-
-// ============================================================
 // INICIALIZACIÓN
 // ============================================================
 async function init(){
@@ -1156,3 +1091,7 @@ if (document.readyState === 'loading') {
 } else {
   init();
 }
+</script>
+</body>
+</html>
+
