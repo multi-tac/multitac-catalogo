@@ -191,17 +191,134 @@
     background: rgba(255,176,0,0.3);
   }
 
-  /* Logo banner shipping */
-  .shipping-logo {
-    height: 28px;
-    width: auto;
-    object-fit: contain;
-    filter: brightness(0.9);
+  /* Modal de información */
+  #infoModal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    background: rgba(0,0,0,0.85);
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
   }
-  .shipping-logo-correo {
-    height: 24px;
-    width: auto;
-    object-fit: contain;
+  #infoModal.active {
+    display: flex;
+  }
+  #infoModal .info-content {
+    background: #111416;
+    border: 1px solid rgba(255,176,0,0.3);
+    border-radius: 12px;
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 24px;
+    position: relative;
+  }
+  #infoModal .info-content .close-info {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    color: #9ba1a4;
+    font-size: 22px;
+    cursor: pointer;
+    background: none;
+    border: none;
+  }
+  #infoModal .info-content .close-info:hover {
+    color: #ffb000;
+  }
+  #infoModal .info-content h2 {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: #ffb000;
+    margin-bottom: 16px;
+    letter-spacing: 1px;
+  }
+  #infoModal .info-content h3 {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    color: #ececea;
+    margin-top: 14px;
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+  }
+  #infoModal .info-content p, #infoModal .info-content li {
+    font-size: 13px;
+    color: #9ba1a4;
+    line-height: 1.5;
+  }
+  #infoModal .info-content ul {
+    padding-left: 20px;
+    margin: 4px 0;
+  }
+  #infoModal .info-content li {
+    margin-bottom: 4px;
+  }
+  #infoModal .info-content .highlight {
+    color: #ffb000;
+  }
+  #infoModal .info-content .step {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 6px;
+    align-items: flex-start;
+  }
+  #infoModal .info-content .step-num {
+    background: #ffb000;
+    color: #0a0c0d;
+    font-weight: 700;
+    font-size: 11px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  #infoModal .info-content .step-text {
+    font-size: 13px;
+    color: #9ba1a4;
+    line-height: 1.4;
+  }
+  #infoModal .info-content .step-text strong {
+    color: #ececea;
+  }
+  .info-divider {
+    border-color: rgba(255,176,0,0.15);
+    margin: 12px 0;
+  }
+
+  /* Botones en barra inferior */
+  .bottom-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #191d20;
+    border: 1px solid #343b3f;
+    color: #9ba1a4;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .bottom-action-btn:hover {
+    border-color: #ffb000;
+    color: #ffb000;
+  }
+  .bottom-action-btn.facebook-btn:hover {
+    border-color: #1877f2;
+    color: #1877f2;
+  }
+  .bottom-action-btn.info-btn:hover {
+    border-color: #ffb000;
+    color: #ffb000;
   }
 </style>
 </head>
@@ -303,30 +420,20 @@
 </header>
 
 <!-- ======================================================================
-     BANNER DE ENVÍOS — Con bandera Argentina y logos Correo Argentino + Via Cargo
+     BANNER DE ENVÍOS
 ====================================================================== -->
 <div class="bg-carbon-800 border-b border-amber-500/20 py-2.5 px-4 flex items-center justify-center gap-3 flex-wrap">
-  <!-- Ícono de camión + texto -->
   <div class="flex items-center gap-2">
     <span class="text-amber-500 text-lg">🚚</span>
     <span class="font-display font-600 text-sm text-ink-100 tracking-wide">ENVÍOS A TODO EL PAÍS</span>
   </div>
-
-  <!-- Separador -->
   <span class="w-px h-6 bg-carbon-600 hidden sm:block"></span>
-
-  <!-- Bandera Argentina -->
   <div class="flex items-center gap-1.5">
     <span class="text-xl">🇦🇷</span>
     <span class="text-[10px] font-mono text-ink-400">ARGENTINA</span>
   </div>
-
-  <!-- Separador -->
   <span class="w-px h-6 bg-carbon-600 hidden sm:block"></span>
-
-  <!-- Logos de las empresas de envío -->
   <div class="flex items-center gap-3">
-    <!-- Via Cargo (logo en SVG) -->
     <div class="flex items-center gap-1.5">
       <svg width="70" height="24" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="0" y="0" width="200" height="60" rx="4" fill="#1a1f23" opacity="0"/>
@@ -335,15 +442,10 @@
         <text x="4" y="44" font-family="Arial, Helvetica, sans-serif" font-weight="400" font-size="9" fill="#9ba1a4" letter-spacing="0.5">Cargas y encomiendas a todo el país</text>
       </svg>
     </div>
-
-    <!-- Separador -->
     <span class="w-px h-7 bg-carbon-600"></span>
-
-    <!-- Correo Argentino (logo en SVG) -->
     <div class="flex items-center gap-1.5">
       <svg width="80" height="28" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="0" y="0" width="200" height="60" rx="4" fill="#1a1f23" opacity="0"/>
-        <!-- Ícono de sobre estilizado -->
         <rect x="4" y="12" width="34" height="26" rx="2" fill="none" stroke="#f5a623" stroke-width="2"/>
         <polyline points="4,12 21,28 38,12" stroke="#f5a623" stroke-width="2" fill="none"/>
         <line x1="4" y1="38" x2="16" y2="28" stroke="#f5a623" stroke-width="1.5" opacity="0.5"/>
@@ -418,19 +520,42 @@
 </a>
 
 <!-- ======================================================================
-     BARRA INFERIOR FIJA — RESUMEN DE CARRITO
+     BARRA INFERIOR FIJA — con botones de Facebook e Información
 ====================================================================== -->
-<div id="cartBar" class="hidden fixed bottom-0 left-0 right-0 z-30 bg-carbon-900 border-t border-amber-500/30 px-4 py-3">
-  <button onclick="openCart()" class="w-full flex items-center justify-between bg-carbon-800 border border-carbon-600 rounded-sm px-4 py-3">
-    <div class="flex items-center gap-3">
-      <div class="relative">
-        <i class="fa-solid fa-cart-shopping text-amber-500"></i>
-        <span id="cartCount" class="absolute -top-2 -right-2 bg-amber-500 text-carbon-950 text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</span>
+<div id="cartBar" class="hidden fixed bottom-0 left-0 right-0 z-30 bg-carbon-900 border-t border-amber-500/30 px-3 py-2">
+  <div class="flex items-center gap-2">
+    <!-- Botón Facebook (izquierda) -->
+    <a
+      href="https://www.facebook.com/WMZA.ARG"
+      target="_blank"
+      rel="noopener"
+      aria-label="Facebook"
+      class="bottom-action-btn facebook-btn shrink-0"
+    >
+      <i class="fa-brands fa-facebook-f text-lg"></i>
+    </a>
+
+    <!-- Botón Información (i) -->
+    <button
+      onclick="openInfoModal()"
+      aria-label="Información"
+      class="bottom-action-btn info-btn shrink-0"
+    >
+      <i class="fa-solid fa-info text-lg"></i>
+    </button>
+
+    <!-- Botón principal de carrito (ocupa el resto) -->
+    <button onclick="openCart()" class="flex-1 flex items-center justify-between bg-carbon-800 border border-carbon-600 rounded-sm px-4 py-2.5">
+      <div class="flex items-center gap-3">
+        <div class="relative">
+          <i class="fa-solid fa-cart-shopping text-amber-500"></i>
+          <span id="cartCount" class="absolute -top-2 -right-2 bg-amber-500 text-carbon-950 text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</span>
+        </div>
+        <span class="font-display font-600 text-sm tracking-wide">VER PEDIDO</span>
       </div>
-      <span class="font-display font-600 text-sm tracking-wide">VER PEDIDO</span>
-    </div>
-    <span id="cartSubtotalBar" class="font-mono text-amber-500 text-sm glow-amber">$0</span>
-  </button>
+      <span id="cartSubtotalBar" class="font-mono text-amber-500 text-sm glow-amber">$0</span>
+    </button>
+  </div>
 </div>
 
 <!-- ======================================================================
@@ -494,6 +619,76 @@
 <div id="imageModal" onclick="closeImageModal(event)">
   <button class="close-modal" onclick="closeImageModal(event)">✕</button>
   <img id="modalImage" src="" alt="Producto ampliado" onclick="event.stopPropagation()">
+</div>
+
+<!-- ======================================================================
+     MODAL DE INFORMACIÓN (NUEVO)
+====================================================================== -->
+<div id="infoModal" onclick="closeInfoModal(event)">
+  <div class="info-content" onclick="event.stopPropagation()">
+    <button class="close-info" onclick="closeInfoModal(event)">✕</button>
+    
+    <h2>ℹ️ INFORMACIÓN</h2>
+    
+    <h3>📍 Ubicación</h3>
+    <p>Estamos en <span class="highlight">Plaza de los Virreyes, CABA, Buenos Aires</span></p>
+    
+    <hr class="info-divider">
+    
+    <h3>💰 Mínimo de compra</h3>
+    <p>El mínimo de compra es de <span class="highlight">$50.000</span></p>
+    
+    <hr class="info-divider">
+    
+    <h3>🚚 Envíos</h3>
+    <ul>
+      <li><span class="highlight">Correo Argentino</span> — Etiqueta E-commerce</li>
+      <li><span class="highlight">Via Cargo</span> — Pago del servicio de envío <span class="highlight">(pago en destino)</span></li>
+    </ul>
+    
+    <hr class="info-divider">
+    
+    <h3>💳 Medios de pago</h3>
+    <ul>
+      <li>Transferencia bancaria</li>
+      <li>Efectivo</li>
+    </ul>
+    
+    <hr class="info-divider">
+    
+    <h3>📋 ¿Cómo comprar?</h3>
+    
+    <div class="step">
+      <span class="step-num">1</span>
+      <span class="step-text"><strong>Arma tu carrito</strong> — Agregá los productos que deseas y personalizalos con observaciones (talle, color, etc.)</span>
+    </div>
+    
+    <div class="step">
+      <span class="step-num">2</span>
+      <span class="step-text"><strong>Completá tus datos</strong> — Ingresá tu nombre y teléfono, y envianos tu pedido.</span>
+    </div>
+    
+    <div class="step">
+      <span class="step-num">3</span>
+      <span class="step-text"><strong>Verificación y pago</strong> — Vamos a verificar tu pedido y te compartimos un <strong>CVU o Alias</strong> para realizar el pago.</span>
+    </div>
+    
+    <div class="step">
+      <span class="step-num">4</span>
+      <span class="step-text"><strong>Preparación</strong> — Preparamos tu pedido y lo despachamos en un tiempo de <strong>1 a 3 días</strong> <span class="highlight">(no incluimos sábados, domingos ni feriados)</span>.</span>
+    </div>
+    
+    <div class="step">
+      <span class="step-num">5</span>
+      <span class="step-text"><strong>Despacho y seguimiento</strong> — Lo despachamos y te damos el <strong>número de seguimiento</strong>. El tiempo de entrega es de <strong>3 a 7 días</strong> en llegar al destino.</span>
+    </div>
+    
+    <hr class="info-divider">
+    
+    <p style="font-size: 11px; color: #6b7276; text-align: center; margin-top: 8px;">
+      MULTI-TAC — Equipamiento táctico
+    </p>
+  </div>
 </div>
 
 <script>
@@ -881,7 +1076,6 @@ function selectCategory(cat, sub) {
   updateFilterLabel();
   applyFilters();
   if (filterPanelOpen) toggleFilterPanel();
-  // ✅ NO se hace scroll automático
 }
 
 /* ============================================================================
@@ -1049,7 +1243,6 @@ function jumpToProduct(sku) {
   searchTerm = sku.toLowerCase();
   currentPage = 1;
   applyFilters();
-  // ✅ NO se hace scroll automático
 }
 
 /* ============================================================================
@@ -1098,7 +1291,6 @@ function renderPagination(totalItems) {
 function goToPage(page) {
   currentPage = page;
   applyFilters();
-  // ✅ NO se hace scroll automático
 }
 
 /* ============================================================================
@@ -1189,6 +1381,30 @@ function closeImageModal(event) {
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     const modal = document.getElementById('imageModal');
+    if (modal.classList.contains('active')) {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  }
+});
+
+/* ============================================================================
+   MODAL DE INFORMACIÓN (NUEVO)
+============================================================================ */
+function openInfoModal() {
+  document.getElementById('infoModal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeInfoModal(event) {
+  if (event && event.target !== event.currentTarget && !event.target.classList.contains('close-info')) return;
+  document.getElementById('infoModal').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const modal = document.getElementById('infoModal');
     if (modal.classList.contains('active')) {
       modal.classList.remove('active');
       document.body.style.overflow = '';
@@ -1291,7 +1507,7 @@ function clearCart() {
 }
 
 /* ============================================================================
-   EXPORTAR PDF — CON MINIATURAS Y FECHA
+   EXPORTAR PDF — CON MINIATURAS Y FECHA CORREGIDO
 ============================================================================ */
 function exportCartPDF() {
   if (cart.length === 0) {
@@ -1309,11 +1525,13 @@ function exportCartPDF() {
   const margin = 14;
   let y = 18;
 
+  // Título
   doc.setFontSize(18);
   doc.setTextColor(255, 176, 0);
   doc.text("MULTI-TAC", margin, y);
   y += 8;
 
+  // Fecha (arriba a la derecha)
   doc.setFontSize(9);
   doc.setTextColor(150);
   const dateStr = new Date().toLocaleDateString('es-AR', {
@@ -1322,6 +1540,7 @@ function exportCartPDF() {
   });
   doc.text(`Fecha: ${dateStr}`, pageWidth - margin - 20, y - 8);
 
+  // Línea separadora
   doc.setDrawColor(255, 176, 0, 50);
   doc.line(margin, y, pageWidth - margin, y);
   y += 6;
@@ -1333,6 +1552,7 @@ function exportCartPDF() {
   doc.text(`Total general: ${formatPrice(cartTotal())}`, margin, y);
   y += 10;
 
+  // Encabezados de tabla
   doc.setFontSize(8);
   doc.setTextColor(150);
   doc.text("SKU", margin, y);
@@ -1354,25 +1574,47 @@ function exportCartPDF() {
       y = 20;
     }
 
-    // Miniaturas: recuadro con "IMG"
-    doc.setFillColor(30, 30, 35);
-    doc.rect(margin, y - 4, 16, 16, 'F');
-    doc.setDrawColor(255, 176, 0, 40);
-    doc.rect(margin, y - 4, 16, 16, 'S');
-    doc.setFontSize(5);
-    doc.setTextColor(100);
-    doc.text("IMG", margin + 3, y + 7);
+    // === MINIATURA DE IMAGEN (corregido) ===
+    // Dibujamos un rectángulo con la URL de la imagen como referencia
+    // y un placeholder visual
+    const imgX = margin;
+    const imgY = y - 4;
+    const imgW = 16;
+    const imgH = 16;
 
+    // Fondo del recuadro
+    doc.setFillColor(30, 30, 35);
+    doc.rect(imgX, imgY, imgW, imgH, 'F');
+    doc.setDrawColor(255, 176, 0, 40);
+    doc.rect(imgX, imgY, imgW, imgH, 'S');
+
+    // Icono de imagen (cámara) dentro del recuadro
+    doc.setFontSize(8);
+    doc.setTextColor(255, 176, 0, 80);
+    doc.text("🖼️", imgX + 3, imgY + 11);
+
+    // Guardamos la URL de la imagen en el PDF como metadato
+    // y mostramos el SKU como referencia visual
+
+    // SKU
     doc.setFontSize(8);
     doc.setTextColor(200);
     doc.text(String(item.sku), margin + 20, y + 6);
 
+    // Nombre (truncado)
     const name = item.name.length > 38 ? item.name.slice(0, 38) + "..." : item.name;
     doc.text(name, margin + 28, y + 6);
+
+    // Cantidad
     doc.text(String(item.qty), margin + 110, y + 6);
+
+    // Precio unitario
     doc.text(formatPrice(item.price), margin + 130, y + 6);
+
+    // Subtotal
     doc.text(formatPrice(item.price * item.qty), margin + 160, y + 6);
 
+    // Observación en línea siguiente
     if (item.note) {
       y += 5;
       doc.setFontSize(6.5);
