@@ -27,13 +27,17 @@ jobs:
           echo '${{ secrets.GOOGLE_CREDENTIALS }}' > scraper/credenciales.json
 
       - name: Test conectividad Pasteur86
+        continue-on-error: true
         run: |
           echo "===== DNS ====="
           nslookup pasteur86.com || true
 
           echo ""
-          echo "===== HTTPS ====="
-          curl -I -L --max-time 30 https://pasteur86.com
+          echo "===== HTTPS (con User-Agent de navegador) ====="
+          curl -I -L --max-time 30 \
+            -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36" \
+            -H "Accept-Language: es-AR,es;q=0.9" \
+            https://pasteur86.com || echo "⚠️ Test de conectividad falló, pero seguimos igual: el scraper reintenta por su cuenta."
 
       - name: Ejecutar Pasteur
         run: python scraper/scraper_pasteur86.py

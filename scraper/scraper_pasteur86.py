@@ -1,3 +1,4 @@
+import time
 import requests
 import csv
 import re
@@ -5,6 +6,45 @@ from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 
 BASE_URL = "https://pasteur86.com"
+
+# Headers de navegador real. Muchos WAFs (Cloudflare, Sucuri, etc.)
+# bloquean o cortan en silencio requests con el User-Agent por
+# defecto de curl/requests ("python-requests/x.y", "curl/8.x").
+HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/128.0.0.0 Safari/537.36"
+    ),
+    "Accept": (
+        "text/html,application/xhtml+xml,application/xml;q=0.9,"
+        "image/webp,*/*;q=0.8"
+    ),
+    "Accept-Language": "es-AR,es;q=0.9,en;q=0.8",
+    "Connection": "keep-alive",
+}
+
+session = requests.Session()
+session.headers.update(HEADERS)
+
+
+def get_con_reintentos(url, timeout=15, intentos=3, espera=3):
+    """
+    GET con headers de navegador y reintentos con backoff.
+    Ayuda quando el WAF del sitio corta la conexión de forma
+    intermitente (timeouts esporádicos) en vez de bloquear
+    siempre.
+    """
+    ultimo_error = None
+    for intento in range(1, intentos + 1):
+        try:
+            return session.get(url, timeout=timeout)
+        except requests.exceptions.RequestException as e:
+            ultimo_error = e
+            print(f"  Intento {intento}/{intentos} falló para {url}: {e}")
+            if intento < intentos:
+                time.sleep(espera * intento)
+    raise ultimo_error
 
 categorias = {
     "CUCHILLERIA": {
@@ -109,7 +149,7 @@ with open(
 
             try:
 
-                html = requests.get(
+                html = get_con_reintentos(
                     url,
                     timeout=15
                 ).text
@@ -175,7 +215,7 @@ with open(
 
                     if link and link.get("href"):
                         try:
-                            producto_html = requests.get(
+                            producto_html = get_con_reintentos(
                                 link.get("href"),
                                 timeout=15
                             ).text
