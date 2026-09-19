@@ -18,9 +18,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
 <script src="https://cdn.tailwindcss.com"></script>
-
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
@@ -28,21 +26,14 @@
     theme: {
       extend: {
         colors: {
-          carbon: {
-            950: '#0a0c0d', 900: '#111416', 800: '#191d20',
-            700: '#22272a', 600: '#343b3f', 500: '#4a5257'
-          },
-          amber: {
-            300: '#ffd166', 400: '#ffc233', 500: '#ffb000', 600: '#e0960a'
-          },
-          ink: {
-            100: '#ececea', 400: '#9ba1a4', 600: '#6b7276'
-          }
+          carbon: { 950:'#0a0c0d',900:'#111416',800:'#191d20',700:'#22272a',600:'#343b3f',500:'#4a5257' },
+          amber:  { 300:'#ffd166',400:'#ffc233',500:'#ffb000',600:'#e0960a' },
+          ink:    { 100:'#ececea',400:'#9ba1a4',600:'#6b7276' }
         },
         fontFamily: {
-          display: ['Rajdhani', 'sans-serif'],
-          mono: ['"Share Tech Mono"', 'monospace'],
-          body: ['Inter', 'sans-serif']
+          display: ['Rajdhani','sans-serif'],
+          mono: ['"Share Tech Mono"','monospace'],
+          body: ['Inter','sans-serif']
         }
       }
     }
@@ -56,10 +47,8 @@
   .scan-overlay {
     background-image: repeating-linear-gradient(
       to bottom,
-      rgba(255,176,0,0.025) 0px,
-      rgba(255,176,0,0.025) 1px,
-      transparent 1px,
-      transparent 3px
+      rgba(255,176,0,0.025) 0px, rgba(255,176,0,0.025) 1px,
+      transparent 1px, transparent 3px
     );
   }
   .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -67,31 +56,31 @@
   .glow-amber { text-shadow: 0 0 8px rgba(255,176,0,0.45); }
 
   .reticle { position: relative; }
-  .reticle::before, .reticle::after,
-  .reticle .c-tr, .reticle .c-bl {
+  .reticle::before, .reticle::after {
     content: ''; position: absolute; width: 14px; height: 14px;
     border-color: #ffb000; z-index: 10;
   }
   .reticle::before { top: -1px; left: -1px; border-top: 2px solid; border-left: 2px solid; }
   .reticle::after  { bottom: -1px; right: -1px; border-bottom: 2px solid; border-right: 2px solid; }
-  .reticle .c-tr { top: -1px; right: -1px; border-top: 2px solid #ffb000; border-right: 2px solid #ffb000; }
-  .reticle .c-bl { bottom: -1px; left: -1px; border-bottom: 2px solid #ffb000; border-left: 2px solid #ffb000; }
 
   #cartSheet { transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1); }
   #cartBackdrop { transition: opacity 0.28s ease; }
-
-  @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
-  .blink-cursor { animation: blink 1s step-start infinite; }
-
-  input:focus { outline: none; }
-
   #drawerBackdrop { transition: opacity 0.28s ease; }
   #drawerPanel { transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1); }
 
   .drawer-cat-item { transition: background 0.15s ease; }
   .drawer-cat-item:hover { background: #191d20; }
-  .drawer-sub-list { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
-  .drawer-sub-list.open { max-height: 600px; overflow-y: auto; }
+
+  /* Acordeón de subcategorías */
+  .drawer-sub-list {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+  .drawer-sub-list.open {
+    max-height: 800px;
+    overflow-y: auto;
+  }
   .drawer-chevron { transition: transform 0.2s ease; }
   .drawer-chevron.rotated { transform: rotate(180deg); }
 
@@ -112,9 +101,8 @@
     border-radius: 50%; background: rgba(255,176,0,0.15);
     border: 1px solid rgba(255,176,0,0.3); color: #ffb000; font-size: 22px;
     display: flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: background 0.2s; z-index: 101;
+    cursor: pointer; z-index: 101;
   }
-  #imageModal .close-modal:hover { background: rgba(255,176,0,0.3); }
 
   #infoModal { display: none; position: fixed; inset: 0; z-index: 90;
     background: rgba(0,0,0,0.85); justify-content: center; align-items: center; padding: 20px; }
@@ -129,14 +117,13 @@
     color: #9ba1a4; font-size: 22px; cursor: pointer;
     background: none; border: none;
   }
-  #infoModal .info-content .close-info:hover { color: #ffb000; }
   #infoModal .info-content h2 {
     font-family: 'Rajdhani', sans-serif; font-weight: 700;
     font-size: 20px; color: #ffb000; margin-bottom: 16px; letter-spacing: 1px;
   }
   #infoModal .info-content h3 {
     font-family: 'Rajdhani', sans-serif; font-weight: 600;
-    font-size: 14px; color: #ececea; margin-top: 14px; margin-bottom: 6px; letter-spacing: 0.5px;
+    font-size: 14px; color: #ececea; margin-top: 14px; margin-bottom: 6px;
   }
   #infoModal .info-content p, #infoModal .info-content li {
     font-size: 13px; color: #9ba1a4; line-height: 1.5;
@@ -166,20 +153,23 @@
 
   .header-right-group { display: flex; align-items: center; gap: 6px; }
 
-  /* Grilla de productos: SIEMPRE 3 columnas (2 en móvil muy chico) */
+  /* ============================================================
+     GRILLA DE PRODUCTOS — SIEMPRE 3 COLUMNAS
+     (mínimo 2 columnas solo en pantallas muy angostas < 360px)
+  ============================================================ */
   .grid-products {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.5rem;
   }
-  @media (max-width: 420px) {
-    .grid-products { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
-  }
   @media (min-width: 768px) {
     .grid-products { gap: 1rem; }
   }
+  @media (max-width: 359px) {
+    .grid-products { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
 
-  /* Mini cards de novedades/ofertas: 3 por fila con wrap */
+  /* Mini cards de novedades/ofertas: 3 columnas SIEMPRE */
   .home-mini-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -193,18 +183,12 @@
 
 <body class="bg-carbon-950 text-ink-100 font-body min-h-screen scan-overlay pb-24">
 
-<!-- ======================================================================
-     ENCABEZADO (sin botón de filtros separado)
-====================================================================== -->
+<!-- HEADER -->
 <header class="sticky top-0 z-30 bg-carbon-950/95 backdrop-blur border-b border-carbon-700">
   <div class="px-4 pt-4 pb-3">
     <div class="flex items-center justify-between">
-      <button
-        id="hamburgerBtn"
-        onclick="openDrawer()"
-        aria-label="Abrir menú de categorías"
-        class="w-9 h-9 rounded-sm border border-carbon-600 flex items-center justify-center shrink-0"
-      >
+      <button id="hamburgerBtn" onclick="openDrawer()" aria-label="Abrir menú"
+        class="w-9 h-9 rounded-sm border border-carbon-600 flex items-center justify-center shrink-0">
         <i class="fa-solid fa-bars text-amber-500 text-sm"></i>
       </button>
 
@@ -213,30 +197,15 @@
       </h1>
 
       <div class="header-right-group">
-        <a
-          href="https://www.facebook.com/WMZA.ARG"
-          target="_blank"
-          rel="noopener"
-          aria-label="Facebook"
-          class="header-action-btn facebook-btn"
-        >
+        <a href="https://www.facebook.com/WMZA.ARG" target="_blank" rel="noopener"
+          aria-label="Facebook" class="header-action-btn facebook-btn">
           <i class="fa-brands fa-facebook-f text-sm"></i>
         </a>
-
-        <button
-          onclick="openInfoModal()"
-          aria-label="Información"
-          class="header-action-btn info-btn"
-        >
+        <button onclick="openInfoModal()" aria-label="Información" class="header-action-btn">
           <i class="fa-solid fa-info text-sm"></i>
         </button>
-
-        <button
-          id="cartHeaderBtn"
-          onclick="openCart()"
-          aria-label="Ver carrito"
-          class="relative w-9 h-9 rounded-sm border border-amber-500/40 flex items-center justify-center shrink-0"
-        >
+        <button id="cartHeaderBtn" onclick="openCart()" aria-label="Ver carrito"
+          class="relative w-9 h-9 rounded-sm border border-amber-500/40 flex items-center justify-center shrink-0">
           <i class="fa-solid fa-cart-shopping text-amber-500 text-sm"></i>
           <span id="cartCountHeader" class="absolute -top-1.5 -right-1.5 bg-amber-500 text-carbon-950 text-[9px] font-bold min-w-[16px] h-4 px-0.5 rounded-full flex items-center justify-center">0</span>
         </button>
@@ -245,21 +214,14 @@
 
     <div class="mt-3 relative">
       <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-ink-600 text-sm"></i>
-      <input
-        id="searchInput"
-        type="text"
-        placeholder="Buscar por nombre o SKU..."
+      <input id="searchInput" type="text" placeholder="Buscar por nombre o SKU..."
         class="w-full bg-carbon-800 border border-carbon-600 rounded-sm py-2.5 pl-9 pr-3 text-sm font-mono text-ink-100 placeholder:text-ink-600"
-        autocomplete="off"
-      >
+        autocomplete="off">
     </div>
 
     <div class="mt-3 flex items-center gap-2">
-      <button
-        id="filterLabelBtn"
-        onclick="openDrawer()"
-        class="flex-1 min-w-0 flex items-center justify-between bg-carbon-800 border border-carbon-600 rounded-sm px-3 py-2.5"
-      >
+      <button onclick="openDrawer()"
+        class="flex-1 min-w-0 flex items-center justify-between bg-carbon-800 border border-carbon-600 rounded-sm px-3 py-2.5">
         <span class="flex items-center gap-2 min-w-0">
           <i class="fa-solid fa-sliders text-amber-500 text-xs shrink-0"></i>
           <span id="activeFilterLabel" class="font-mono text-xs text-ink-100 truncate">TODO EL CATÁLOGO</span>
@@ -267,12 +229,8 @@
         <i class="fa-solid fa-chevron-right text-ink-400 text-xs shrink-0"></i>
       </button>
 
-      <button
-        id="sortToggleBtn"
-        onclick="toggleSortOrder()"
-        aria-label="Ordenar por precio"
-        class="shrink-0 flex items-center gap-1.5 bg-carbon-800 border border-carbon-600 rounded-sm px-3 py-2.5"
-      >
+      <button onclick="toggleSortOrder()" aria-label="Ordenar por precio"
+        class="shrink-0 flex items-center gap-1.5 bg-carbon-800 border border-carbon-600 rounded-sm px-3 py-2.5">
         <i id="sortIcon" class="fa-solid fa-arrow-down-1-9 text-amber-500 text-xs"></i>
         <span id="sortLabel" class="font-mono text-[10px] text-ink-100 whitespace-nowrap">PRECIO</span>
       </button>
@@ -280,9 +238,7 @@
   </div>
 </header>
 
-<!-- ======================================================================
-     BANNER DE ENVÍOS
-====================================================================== -->
+<!-- BANNER -->
 <div class="bg-carbon-800 border-b border-amber-500/20 py-2.5 px-4 flex items-center justify-center gap-3 flex-wrap">
   <div class="flex items-center gap-2">
     <span class="text-amber-500 text-lg">🚚</span>
@@ -295,9 +251,7 @@
   </div>
 </div>
 
-<!-- ======================================================================
-     ESTADOS
-====================================================================== -->
+<!-- ESTADOS -->
 <div id="loadingState" class="flex flex-col items-center justify-center py-20 text-ink-400">
   <i class="fa-solid fa-satellite-dish fa-spin text-amber-500 text-2xl mb-3"></i>
   <p class="font-mono text-xs tracking-wider">CONECTANDO CON BASE DE DATOS...</p>
@@ -306,7 +260,6 @@
 <div id="errorState" class="hidden flex-col items-center justify-center py-20 px-6 text-center text-ink-400">
   <i class="fa-solid fa-triangle-exclamation text-amber-500 text-2xl mb-3"></i>
   <p class="font-mono text-xs tracking-wider mb-1">NO SE PUDO ESTABLECER CONEXIÓN</p>
-  <p class="text-xs text-ink-600 mb-4">Verificá el SHEET_ID / SHEET_NAME configurados.</p>
   <button onclick="init()" class="border border-amber-500/50 text-amber-500 text-xs font-mono px-4 py-2 rounded-sm">
     REINTENTAR
   </button>
@@ -317,10 +270,8 @@
   <p class="font-mono text-xs tracking-wider">SIN RESULTADOS PARA ESTE FILTRO</p>
 </div>
 
-<!-- ======================================================================
-     NOVEDADES — 3 arriba + 3 abajo
-====================================================================== -->
-<section id="newProductsSection" class="hidden px-4 pt-4">
+<!-- NOVEDADES -->
+<section id="newProductsSection" class="px-4 pt-4">
   <div class="flex items-center gap-2 mb-3">
     <i class="fa-solid fa-bolt text-amber-500 text-xs"></i>
     <span class="font-display font-600 text-sm tracking-wide text-ink-100">NOVEDADES</span>
@@ -329,10 +280,8 @@
   <div id="newProductsGrid" class="home-mini-grid"></div>
 </section>
 
-<!-- ======================================================================
-     OFERTAS — 3 arriba + 3 abajo
-====================================================================== -->
-<section id="offersSection" class="hidden px-4 pt-6">
+<!-- OFERTAS -->
+<section id="offersSection" class="px-4 pt-6">
   <div class="flex items-center gap-2 mb-3">
     <i class="fa-solid fa-tag text-amber-500 text-xs"></i>
     <span class="font-display font-600 text-sm tracking-wide text-ink-100">OFERTAS</span>
@@ -341,10 +290,8 @@
   <div id="offersGrid" class="home-mini-grid"></div>
 </section>
 
-<!-- ======================================================================
-     TÍTULO CATÁLOGO + GRILLA
-====================================================================== -->
-<div id="catalogHeader" class="hidden px-4 pt-6 pb-2">
+<!-- TÍTULO CATÁLOGO -->
+<div id="catalogHeader" class="px-4 pt-6 pb-2">
   <div class="flex items-center gap-2">
     <i class="fa-solid fa-grip text-amber-500 text-xs"></i>
     <span class="font-display font-600 text-sm tracking-wide text-ink-100">CATÁLOGO COMPLETO</span>
@@ -354,24 +301,14 @@
 <main id="productGrid" class="hidden grid-products px-4 pt-2"></main>
 <div id="pagination" class="hidden flex justify-center items-center gap-1.5 py-6 flex-wrap px-4"></div>
 
-<!-- ======================================================================
-     WHATSAPP FLOTANTE
-====================================================================== -->
-<a
-  id="whatsappFloat"
-  href="#"
-  target="_blank"
-  rel="noopener"
-  aria-label="Consultar por WhatsApp"
+<!-- WHATSAPP FLOTANTE -->
+<a id="whatsappFloat" href="#" target="_blank" rel="noopener" aria-label="WhatsApp"
   class="fixed right-4 z-40 w-14 h-14 rounded-full bg-[#25D366] flex items-center justify-center shadow-lg"
-  style="bottom: 1rem;"
->
+  style="bottom: 1rem;">
   <i class="fa-brands fa-whatsapp text-carbon-950 text-2xl"></i>
 </a>
 
-<!-- ======================================================================
-     BARRA INFERIOR CARRITO
-====================================================================== -->
+<!-- BARRA CARRITO -->
 <div id="cartBar" class="hidden fixed bottom-0 left-0 right-0 z-30 bg-carbon-900 border-t border-amber-500/30 px-4 py-3">
   <button onclick="openCart()" class="w-full flex items-center justify-between bg-carbon-800 border border-carbon-600 rounded-sm px-4 py-3">
     <div class="flex items-center gap-3">
@@ -385,16 +322,14 @@
   </button>
 </div>
 
-<!-- ======================================================================
-     DRAWER CATEGORÍAS
-====================================================================== -->
+<!-- DRAWER CATEGORÍAS -->
 <div id="drawerBackdrop" onclick="closeDrawer()" class="hidden fixed inset-0 bg-black/70 z-40 opacity-0"></div>
 
 <aside id="drawerPanel" class="fixed top-0 left-0 bottom-0 z-50 w-80 max-w-[85vw] bg-carbon-900 border-r border-amber-500/30 -translate-x-full flex flex-col">
   <div class="flex items-center justify-between px-5 pt-4 pb-3 border-b border-carbon-700">
     <div>
       <h2 class="font-display font-700 text-xl text-ink-100">Categorías</h2>
-      <p class="text-xs text-ink-400 font-mono">Filtrá el catálogo</p>
+      <p class="text-xs text-ink-400 font-mono">Tocá para desplegar</p>
     </div>
     <button onclick="closeDrawer()" class="w-8 h-8 flex items-center justify-center text-ink-400">
       <i class="fa-solid fa-xmark text-lg"></i>
@@ -410,13 +345,10 @@
   </div>
 </aside>
 
-<!-- ======================================================================
-     CARRITO MODAL
-====================================================================== -->
+<!-- CARRITO MODAL -->
 <div id="cartBackdrop" onclick="closeCart()" class="hidden fixed inset-0 bg-black/70 z-40 opacity-0"></div>
 
 <div id="cartSheet" class="fixed bottom-0 left-0 right-0 z-50 bg-carbon-900 border-t border-amber-500/40 rounded-t-xl translate-y-full max-h-[85vh] flex flex-col">
-
   <div class="flex items-center justify-between px-5 pt-4 pb-3 border-b border-carbon-700">
     <div>
       <h2 class="font-display font-700 text-xl text-ink-100">Carrito</h2>
@@ -453,85 +385,44 @@
       <i class="fa-brands fa-whatsapp text-lg"></i>
       ENVIAR PEDIDO POR WHATSAPP
     </button>
-    <p class="text-center text-[10px] text-ink-600 font-mono mt-2 tracking-wide">PARA COORDINAR PAGO Y ENVÍO</p>
+    <p class="text-center text-[10px] text-ink-600 font-mono mt-2">PARA COORDINAR PAGO Y ENVÍO</p>
   </div>
 </div>
 
-<!-- ======================================================================
-     MODAL IMAGEN
-====================================================================== -->
+<!-- MODAL IMAGEN -->
 <div id="imageModal" onclick="closeImageModal(event)">
   <button class="close-modal" onclick="closeImageModal(event)">✕</button>
   <img id="modalImage" src="" alt="Producto ampliado" onclick="event.stopPropagation()">
 </div>
 
-<!-- ======================================================================
-     MODAL INFO
-====================================================================== -->
+<!-- MODAL INFO -->
 <div id="infoModal" onclick="closeInfoModal(event)">
   <div class="info-content" onclick="event.stopPropagation()">
     <button class="close-info" onclick="closeInfoModal(event)">✕</button>
-
     <h2>ℹ️ INFORMACIÓN</h2>
-
     <h3>📍 Ubicación</h3>
     <p>Estamos en <span class="highlight">Plaza de los Virreyes, CABA, Buenos Aires</span></p>
-
     <hr class="info-divider">
-
     <h3>💰 Mínimo de compra</h3>
     <p>El mínimo de compra es de <span class="highlight">$50.000</span></p>
-
     <hr class="info-divider">
-
     <h3>🚚 Envíos</h3>
     <ul>
       <li><span class="highlight">Correo Argentino</span> — Etiqueta E-commerce</li>
       <li><span class="highlight">Via Cargo</span> — Pago del servicio de envío <span class="highlight">(pago en destino)</span></li>
     </ul>
-
     <hr class="info-divider">
-
     <h3>💳 Medios de pago</h3>
-    <ul>
-      <li>Transferencia bancaria</li>
-      <li>Efectivo</li>
-    </ul>
-
+    <ul><li>Transferencia bancaria</li><li>Efectivo</li></ul>
     <hr class="info-divider">
-
     <h3>📋 ¿Cómo comprar?</h3>
-
-    <div class="step">
-      <span class="step-num">1</span>
-      <span class="step-text"><strong>Arma tu carrito</strong> — Agregá los productos que deseas y personalizalos con observaciones (talle, color, etc.)</span>
-    </div>
-
-    <div class="step">
-      <span class="step-num">2</span>
-      <span class="step-text"><strong>Completá tus datos</strong> — Ingresá tu nombre y teléfono, y envianos tu pedido.</span>
-    </div>
-
-    <div class="step">
-      <span class="step-num">3</span>
-      <span class="step-text"><strong>Verificación y pago</strong> — Vamos a verificar tu pedido y te compartimos un <strong>CVU o Alias</strong> para realizar el pago.</span>
-    </div>
-
-    <div class="step">
-      <span class="step-num">4</span>
-      <span class="step-text"><strong>Preparación</strong> — Preparamos tu pedido y lo despachamos en un tiempo de <strong>1 a 3 días</strong> <span class="highlight">(no incluimos sábados, domingos ni feriados)</span>.</span>
-    </div>
-
-    <div class="step">
-      <span class="step-num">5</span>
-      <span class="step-text"><strong>Despacho y seguimiento</strong> — Lo despachamos y te damos el <strong>número de seguimiento</strong>. El tiempo de entrega es de <strong>3 a 7 días</strong> en llegar al destino.</span>
-    </div>
-
+    <div class="step"><span class="step-num">1</span><span class="step-text"><strong>Arma tu carrito</strong> — Agregá los productos y personalizalos con observaciones.</span></div>
+    <div class="step"><span class="step-num">2</span><span class="step-text"><strong>Completá tus datos</strong> — Nombre y teléfono, y envianos tu pedido.</span></div>
+    <div class="step"><span class="step-num">3</span><span class="step-text"><strong>Verificación y pago</strong> — Te compartimos un <strong>CVU o Alias</strong>.</span></div>
+    <div class="step"><span class="step-num">4</span><span class="step-text"><strong>Preparación</strong> — 1 a 3 días <span class="highlight">(sin sábados, domingos ni feriados)</span>.</span></div>
+    <div class="step"><span class="step-num">5</span><span class="step-text"><strong>Despacho y seguimiento</strong> — 3 a 7 días en llegar.</span></div>
     <hr class="info-divider">
-
-    <p style="font-size: 11px; color: #6b7276; text-align: center; margin-top: 8px;">
-      MULTI-TAC — Equipamiento táctico
-    </p>
+    <p style="font-size:11px;color:#6b7276;text-align:center;margin-top:8px;">MULTI-TAC — Equipamiento táctico</p>
   </div>
 </div>
 
@@ -555,32 +446,26 @@ let searchTerm = "";
 let cart = [];
 let currentPage = 1;
 const PRODUCTS_PER_PAGE = 24;
-const HOME_PREVIEW_COUNT = 6;   // 3 arriba + 3 abajo = 6
-const HOME_COLUMNS = 3;
+const HOME_PREVIEW_COUNT = 6;
 
-const CATEGORY_ORDER = [
-  "CUCHILLERIA", "CAMPING", "INDUMENTARIA", "ACCESORIOS",
-  "LINTERNA", "HERRAMIENTA", "ELECTRICOS", "BAZAR"
-];
+const CATEGORY_ORDER = ["CUCHILLERIA","CAMPING","INDUMENTARIA","ACCESORIOS","LINTERNA","HERRAMIENTA","ELECTRICOS","BAZAR"];
 
-let priceFilterMin = 0;
-let priceFilterMax = Infinity;
-let priceBoundsMin = 0;
-let priceBoundsMax = 0;
+let priceFilterMin = 0, priceFilterMax = Infinity;
+let priceBoundsMin = 0, priceBoundsMax = 0;
 let sortOrder = "none";
 
-function normalizeStr(str) {
-  return String(str).normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toUpperCase();
+function normalizeStr(s) {
+  return String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toUpperCase();
 }
 
 const FALLBACK_PRODUCTS = [
-  { sku: "CUC-101", name: "Cuchillo Táctico Ka-Bar Full Tang", category: "CUCHILLERIA", subcategory: "CUCHILLOS", price: 45000, image: "https://placehold.co/400x400/191d20/ffb000?text=CUC-101", inStock: true, nuevo: true, originalPrice: null },
-  { sku: "CUC-140", name: "Navaja BK Skull", category: "CUCHILLERIA", subcategory: "NAVAJAS", price: 22000, image: "https://placehold.co/400x400/191d20/ffb000?text=CUC-140", inStock: true, nuevo: false, originalPrice: 27000 },
-  { sku: "CAM-204", name: "Carpa Iglú 2 Personas 4 Estaciones", category: "CAMPING", subcategory: "CARPAS", price: 89000, image: "https://placehold.co/400x400/191d20/ffb000?text=CAM-204", inStock: true, nuevo: false, originalPrice: null },
-  { sku: "IND-330", name: "Campera Softshell Ripstop", category: "INDUMENTARIA", subcategory: "ROPA", price: 62000, image: "https://placehold.co/400x400/191d20/ffb000?text=IND-330", inStock: false, nuevo: false, originalPrice: null },
-  { sku: "ACC-410", name: "Chaleco Porta Cargadores Modular", category: "ACCESORIOS", subcategory: "DEFENSA", price: 38000, image: "https://placehold.co/400x400/191d20/ffb000?text=ACC-410", inStock: true, nuevo: true, originalPrice: null },
-  { sku: "CUC-105", name: "Multiherramienta Acero Inoxidable", category: "CUCHILLERIA", subcategory: "CUCHILLOS", price: 27000, image: "https://placehold.co/400x400/191d20/ffb000?text=CUC-105", inStock: true, nuevo: false, originalPrice: 32000 },
-  { sku: "CAM-210", name: "Bolsa de Dormir Momia -5°C", category: "CAMPING", subcategory: "CARPAS", price: 54000, image: "https://placehold.co/400x400/191d20/ffb000?text=CAM-210", inStock: true, nuevo: false, originalPrice: null }
+  { sku:"CUC-101", name:"Cuchillo Táctico Ka-Bar Full Tang", category:"CUCHILLERIA", subcategory:"CUCHILLOS", price:45000, image:"https://placehold.co/400x400/191d20/ffb000?text=CUC-101", inStock:true, nuevo:true, originalPrice:null },
+  { sku:"CUC-140", name:"Navaja BK Skull", category:"CUCHILLERIA", subcategory:"NAVAJAS", price:22000, image:"https://placehold.co/400x400/191d20/ffb000?text=CUC-140", inStock:true, nuevo:false, originalPrice:27000 },
+  { sku:"CAM-204", name:"Carpa Iglú 2 Personas", category:"CAMPING", subcategory:"CARPAS", price:89000, image:"https://placehold.co/400x400/191d20/ffb000?text=CAM-204", inStock:true, nuevo:false, originalPrice:null },
+  { sku:"IND-330", name:"Campera Softshell Ripstop", category:"INDUMENTARIA", subcategory:"ROPA", price:62000, image:"https://placehold.co/400x400/191d20/ffb000?text=IND-330", inStock:false, nuevo:false, originalPrice:null },
+  { sku:"ACC-410", name:"Chaleco Porta Cargadores", category:"ACCESORIOS", subcategory:"DEFENSA", price:38000, image:"https://placehold.co/400x400/191d20/ffb000?text=ACC-410", inStock:true, nuevo:true, originalPrice:null },
+  { sku:"CUC-105", name:"Multiherramienta Acero Inoxidable", category:"CUCHILLERIA", subcategory:"CUCHILLOS", price:27000, image:"https://placehold.co/400x400/191d20/ffb000?text=CUC-105", inStock:true, nuevo:false, originalPrice:32000 },
+  { sku:"CAM-210", name:"Bolsa de Dormir Momia -5°C", category:"CAMPING", subcategory:"CARPAS", price:54000, image:"https://placehold.co/400x400/191d20/ffb000?text=CAM-210", inStock:true, nuevo:false, originalPrice:null }
 ];
 
 /* ============================================================================
@@ -590,10 +475,7 @@ const STATS_API_URL = PEDIDOS_API_URL;
 
 function getSessionId() {
   let sid = localStorage.getItem("mt_sid");
-  if (!sid) {
-    sid = "sid_" + Date.now() + "_" + Math.random().toString(36).slice(2, 9);
-    localStorage.setItem("mt_sid", sid);
-  }
+  if (!sid) { sid = "sid_" + Date.now() + "_" + Math.random().toString(36).slice(2,9); localStorage.setItem("mt_sid", sid); }
   return sid;
 }
 
@@ -605,8 +487,8 @@ async function procesarTrackQueue() {
   trackProcessing = true;
   while (trackQueue.length > 0) {
     const url = trackQueue.shift();
-    try { await fetch(url, { method: "GET", mode: "no-cors", cache: "no-store" }); }
-    catch (err) { console.warn("Error tracking:", err); }
+    try { await fetch(url, { method:"GET", mode:"no-cors", cache:"no-store" }); }
+    catch(e){ console.warn("Track err:", e); }
     await new Promise(r => setTimeout(r, 1000));
   }
   trackProcessing = false;
@@ -614,7 +496,7 @@ async function procesarTrackQueue() {
 
 function trackEvent(params) {
   try {
-    const payload = { accion: "track", sid: getSessionId(), evt: params.evt || "" };
+    const payload = { accion:"track", sid:getSessionId(), evt:params.evt || "" };
     if (params.sku) payload.sku = encodeURIComponent(params.sku);
     if (params.prod) payload.prod = encodeURIComponent(params.prod);
     if (params.seg) payload.seg = params.seg;
@@ -626,39 +508,29 @@ function trackEvent(params) {
     for (const k in payload) qp.push(`${k}=${payload[k]}`);
     trackQueue.push(`${STATS_API_URL}?${qp.join('&')}`);
     procesarTrackQueue();
-  } catch (err) { console.warn("Error en trackEvent:", err); }
+  } catch(e){ console.warn(e); }
 }
 
 let sessionStartTime = Date.now();
-
 async function initTracking() {
-  let geo = { pais: "", prov: "", ciudad: "" };
+  let geo = { pais:"", prov:"" };
   try {
     const res = await fetch("https://ipwho.is/");
     const data = await res.json();
-    if (data && data.success !== false) {
-      geo = { pais: data.country || "", prov: data.region || "", ciudad: data.city || "" };
-    }
-  } catch (err) { console.warn(err); }
-  setTimeout(() => trackEvent({ evt: "visita", pais: geo.pais, prov: geo.prov }), 3000);
-  setInterval(() => {
-    const seg = Math.round((Date.now() - sessionStartTime) / 1000);
-    trackEvent({ evt: "duracion", seg });
-  }, 20000);
+    if (data && data.success !== false) geo = { pais:data.country||"", prov:data.region||"" };
+  } catch(e){ console.warn(e); }
+  setTimeout(() => trackEvent({ evt:"visita", pais:geo.pais, prov:geo.prov }), 3000);
+  setInterval(() => trackEvent({ evt:"duracion", seg: Math.round((Date.now()-sessionStartTime)/1000) }), 20000);
 }
 
 const vistosEnSesion = new Set();
-
 function trackProductoVisto(sku, nombre) {
   if (!sku || vistosEnSesion.has(sku)) return;
   vistosEnSesion.add(sku);
   if (typeof gtag === 'function') {
-    gtag('event', 'view_item', {
-      'currency': 'ARS',
-      'items': [{ 'item_id': sku, 'item_name': nombre }]
-    });
+    gtag('event', 'view_item', { 'currency':'ARS', 'items':[{ 'item_id':sku, 'item_name':nombre }] });
   }
-  trackEvent({ evt: "producto_visto", sku, prod: nombre });
+  trackEvent({ evt:"producto_visto", sku, prod:nombre });
 }
 
 let viewObserver = null;
@@ -667,9 +539,7 @@ function setupViewObserver() {
   viewObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
-        const sku = entry.target.getAttribute("data-sku");
-        const nombre = entry.target.getAttribute("data-name");
-        trackProductoVisto(sku, nombre);
+        trackProductoVisto(entry.target.getAttribute("data-sku"), entry.target.getAttribute("data-name"));
         viewObserver.unobserve(entry.target);
       }
     });
@@ -682,24 +552,21 @@ function setupViewObserver() {
 ============================================================================ */
 function isNewProduct(p) { return p.nuevo === true; }
 function hasDiscount(p) { return !!(p.originalPrice && p.originalPrice > p.price); }
-
-function escapeHtml(str) {
-  return String(str)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+function escapeHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
 }
-function escapeAttr(str) { return String(str).replace(/'/g, "\\'"); }
+function escapeAttr(s) { return String(s).replace(/'/g, "\\'"); }
 function formatPrice(n) {
-  return Number(n).toLocaleString('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 });
+  return Number(n).toLocaleString('es-AR', { style:'currency', currency:'ARS', maximumFractionDigits:0 });
 }
 
 /* ============================================================================
-   CARGA
+   CARGA DE DATOS
 ============================================================================ */
 async function fetchSheetData() {
   const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
   const res = await fetch(url);
-  if (!res.ok) throw new Error("No se pudo leer el Google Sheet");
+  if (!res.ok) throw new Error("No se pudo leer el Sheet");
   const text = await res.text();
   const jsonStr = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
   const data = JSON.parse(jsonStr);
@@ -741,9 +608,7 @@ async function fetchSheetData() {
         else if (nombre.includes("ENCENDEDOR")) subcategoria = "ENCENDEDORES";
         else if (/KUBOTAN|MANOPLA|GAS/.test(nombre)) subcategoria = "DEFENSA";
         else subcategoria = "HERRAMIENTAS";
-      } else {
-        subcategoria = "GENERAL";
-      }
+      } else subcategoria = "GENERAL";
     }
 
     return {
@@ -770,7 +635,7 @@ async function init() {
   setState("loading");
   try { allProducts = await fetchSheetData(); }
   catch (err) {
-    console.warn("Fallo conexión, usando fallback:", err);
+    console.warn("Fallback:", err);
     allProducts = FALLBACK_PRODUCTS;
   }
   setupPriceBounds();
@@ -797,8 +662,7 @@ function buildCategoryTree() {
     const cat = (p.category || "SIN CATEGORÍA").trim();
     if (!cat) return;
     if (!tree[cat]) tree[cat] = new Set();
-    const sub = (p.subcategory || "GENERAL").trim();
-    tree[cat].add(sub);
+    tree[cat].add((p.subcategory || "GENERAL").trim());
   });
   return tree;
 }
@@ -816,7 +680,6 @@ function openDrawer() {
   });
   document.body.style.overflow = 'hidden';
 }
-
 function closeDrawer() {
   const backdrop = document.getElementById('drawerBackdrop');
   const panel = document.getElementById('drawerPanel');
@@ -826,6 +689,13 @@ function closeDrawer() {
   document.body.style.overflow = '';
 }
 
+/* ============================================================================
+   BUILD DRAWER — ACORDEÓN REAL
+   ---------------------------------------------------------------
+   - Click en el botón de categoría: SOLO despliega/colapsa el submenú.
+   - Click en "TODAS": filtra por esa categoría (sin subcategoría).
+   - Click en una subcategoría: filtra por categoría + subcategoría.
+============================================================================ */
 function buildDrawer() {
   const tree = buildCategoryTree();
   const knownCats = CATEGORY_ORDER.filter(c => tree[c]);
@@ -839,8 +709,8 @@ function buildDrawer() {
   const isTodoActive = activeCategory === "TODO";
 
   let html = `
-    <button data-cat="TODO"
-      class="drawer-cat-btn w-full flex items-center justify-between px-3 py-3 rounded-sm border ${isTodoActive ? 'border-amber-500 bg-amber-500/10' : 'border-transparent'} drawer-cat-item">
+    <button type="button" data-action="select-todo"
+      class="w-full flex items-center justify-between px-3 py-3 rounded-sm border ${isTodoActive ? 'border-amber-500 bg-amber-500/10' : 'border-transparent'} drawer-cat-item">
       <span class="flex items-center gap-2">
         <i class="fa-solid fa-layer-group text-amber-500 text-xs"></i>
         <span class="font-display font-600 text-sm ${isTodoActive ? 'text-amber-500' : 'text-ink-100'}">TODO EL CATÁLOGO</span>
@@ -850,29 +720,31 @@ function buildDrawer() {
     <div class="h-px bg-carbon-700 my-1"></div>
   `;
 
-  orderedCats.forEach(cat => {
+  orderedCats.forEach((cat, i) => {
     const subs = Array.from(tree[cat]).sort();
     const catCount = allProducts.filter(p => normalizeStr(p.category) === normalizeStr(cat)).length;
     const isCatActive = activeCategory === cat && !activeSubcategory;
     const isOpen = activeCategory === cat;
-    const catId = 'cat_' + cat.replace(/[^a-zA-Z0-9]/g, '_');
+    const catId = 'cat_' + i + '_' + cat.replace(/[^a-zA-Z0-9]/g, '_');
 
     html += `
       <div class="mb-1">
-        <button data-cat="${escapeAttr(cat)}" data-toggle="${catId}"
-          class="drawer-cat-btn w-full flex items-center justify-between px-3 py-3 rounded-sm border ${isCatActive ? 'border-amber-500 bg-amber-500/10' : 'border-transparent'} drawer-cat-item">
-          <span class="flex items-center gap-2 min-w-0">
-            <i class="fa-solid fa-folder text-amber-500/70 text-xs"></i>
-            <span class="font-display font-600 text-sm ${isCatActive ? 'text-amber-500' : 'text-ink-100'} truncate">${escapeHtml(cat)}</span>
-          </span>
-          <span class="flex items-center gap-2 shrink-0">
-            <span class="font-mono text-[10px] text-ink-600">${catCount}</span>
-            <i class="fa-solid fa-chevron-down drawer-chevron ${isOpen ? 'rotated' : ''} text-ink-400 text-[10px]"></i>
-          </span>
-        </button>
+        <div class="flex items-stretch">
+          <button type="button" data-action="toggle-cat" data-target="${catId}"
+            class="flex-1 flex items-center justify-between px-3 py-3 rounded-sm border ${isCatActive ? 'border-amber-500 bg-amber-500/10' : 'border-transparent'} drawer-cat-item">
+            <span class="flex items-center gap-2 min-w-0">
+              <i class="fa-solid fa-folder text-amber-500/70 text-xs"></i>
+              <span class="font-display font-600 text-sm ${isCatActive ? 'text-amber-500' : 'text-ink-100'} truncate">${escapeHtml(cat)}</span>
+            </span>
+            <span class="flex items-center gap-2 shrink-0">
+              <span class="font-mono text-[10px] text-ink-600">${catCount}</span>
+              <i class="fa-solid fa-chevron-down drawer-chevron ${isOpen ? 'rotated' : ''} text-ink-400 text-[10px]"></i>
+            </span>
+          </button>
+        </div>
         <div id="${catId}" class="drawer-sub-list ${isOpen ? 'open' : ''} pl-4 pr-1">
-          <button data-cat="${escapeAttr(cat)}" data-sub=""
-            class="drawer-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-sm text-left ${isCatActive ? 'text-amber-500' : 'text-ink-400'} hover:bg-carbon-800">
+          <button type="button" data-action="select-cat" data-cat="${escapeAttr(cat)}" data-sub=""
+            class="w-full flex items-center justify-between px-3 py-2 rounded-sm text-left ${isCatActive ? 'text-amber-500 bg-amber-500/10' : 'text-ink-400'} hover:bg-carbon-800">
             <span class="font-mono text-xs">TODAS</span>
             <span class="font-mono text-[10px] text-ink-600">${catCount}</span>
           </button>
@@ -883,8 +755,8 @@ function buildDrawer() {
             ).length;
             const isSubActive = activeCategory === cat && activeSubcategory === sub;
             return `
-              <button data-cat="${escapeAttr(cat)}" data-sub="${escapeAttr(sub)}"
-                class="drawer-sub-btn w-full flex items-center justify-between px-3 py-2 rounded-sm text-left ${isSubActive ? 'text-amber-500 bg-amber-500/10' : 'text-ink-400'} hover:bg-carbon-800">
+              <button type="button" data-action="select-sub" data-cat="${escapeAttr(cat)}" data-sub="${escapeAttr(sub)}"
+                class="w-full flex items-center justify-between px-3 py-2 rounded-sm text-left ${isSubActive ? 'text-amber-500 bg-amber-500/10' : 'text-ink-400'} hover:bg-carbon-800">
                 <span class="font-mono text-xs truncate">${escapeHtml(sub)}</span>
                 <span class="font-mono text-[10px] text-ink-600">${subCount}</span>
               </button>
@@ -897,28 +769,46 @@ function buildDrawer() {
 
   container.innerHTML = html;
 
-  container.querySelectorAll('.drawer-cat-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const cat = btn.getAttribute('data-cat');
-      const toggleId = btn.getAttribute('data-toggle');
-      if (toggleId) {
-        const subList = document.getElementById(toggleId);
-        const chevron = btn.querySelector('.drawer-chevron');
+  // Delegación de eventos
+  container.querySelectorAll('[data-action]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      const action = el.getAttribute('data-action');
+
+      if (action === 'toggle-cat') {
+        // SOLO despliega/colapsa, NO filtra
+        e.preventDefault();
+        e.stopPropagation();
+        const targetId = el.getAttribute('data-target');
+        const subList = document.getElementById(targetId);
+        const chevron = el.querySelector('.drawer-chevron');
         if (subList) subList.classList.toggle('open');
         if (chevron) chevron.classList.toggle('rotated');
+        return;
       }
-      selectCategory(cat, null);
-      closeDrawer();
-    });
-  });
 
-  container.querySelectorAll('.drawer-sub-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const cat = btn.getAttribute('data-cat');
-      const sub = btn.getAttribute('data-sub') || null;
-      selectCategory(cat, sub);
-      closeDrawer();
+      if (action === 'select-todo') {
+        e.preventDefault();
+        selectCategory("TODO", null);
+        closeDrawer();
+        return;
+      }
+
+      if (action === 'select-cat') {
+        e.preventDefault();
+        const cat = el.getAttribute('data-cat');
+        selectCategory(cat, null);
+        closeDrawer();
+        return;
+      }
+
+      if (action === 'select-sub') {
+        e.preventDefault();
+        const cat = el.getAttribute('data-cat');
+        const sub = el.getAttribute('data-sub') || null;
+        selectCategory(cat, sub);
+        closeDrawer();
+        return;
+      }
     });
   });
 }
@@ -957,7 +847,7 @@ function updateFilterLabel() {
 }
 
 /* ============================================================================
-   PRECIO (bounds, sin sliders UI)
+   PRECIO
 ============================================================================ */
 function setupPriceBounds() {
   const prices = allProducts.map(p => p.price).filter(n => !isNaN(n) && n > 0);
@@ -975,16 +865,9 @@ function toggleSortOrder() {
   sortOrder = sortOrder === "none" ? "asc" : sortOrder === "asc" ? "desc" : "none";
   const icon = document.getElementById('sortIcon');
   const label = document.getElementById('sortLabel');
-  if (sortOrder === "asc") {
-    icon.className = "fa-solid fa-arrow-down-1-9 text-amber-500 text-xs";
-    label.textContent = "MENOR A MAYOR";
-  } else if (sortOrder === "desc") {
-    icon.className = "fa-solid fa-arrow-down-9-1 text-amber-500 text-xs";
-    label.textContent = "MAYOR A MENOR";
-  } else {
-    icon.className = "fa-solid fa-arrow-down-1-9 text-amber-500 text-xs";
-    label.textContent = "PRECIO";
-  }
+  if (sortOrder === "asc") { icon.className = "fa-solid fa-arrow-down-1-9 text-amber-500 text-xs"; label.textContent = "MENOR A MAYOR"; }
+  else if (sortOrder === "desc") { icon.className = "fa-solid fa-arrow-down-9-1 text-amber-500 text-xs"; label.textContent = "MAYOR A MENOR"; }
+  else { icon.className = "fa-solid fa-arrow-down-1-9 text-amber-500 text-xs"; label.textContent = "PRECIO"; }
   currentPage = 1;
   applyFilters();
 }
@@ -1022,8 +905,8 @@ function applyFilters() {
     );
   }
   list = list.filter(p => p.price >= priceFilterMin && p.price <= priceFilterMax);
-  if (sortOrder === "asc") list = [...list].sort((a, b) => a.price - b.price);
-  else if (sortOrder === "desc") list = [...list].sort((a, b) => b.price - a.price);
+  if (sortOrder === "asc") list = [...list].sort((a,b) => a.price - b.price);
+  else if (sortOrder === "desc") list = [...list].sort((a,b) => b.price - a.price);
 
   const totalPages = Math.max(1, Math.ceil(list.length / PRODUCTS_PER_PAGE));
   if (currentPage > totalPages) currentPage = totalPages;
@@ -1036,7 +919,7 @@ function applyFilters() {
 }
 
 /* ============================================================================
-   HOME — NOVEDADES (3+3) Y OFERTAS (3+3)
+   HOME — NOVEDADES Y OFERTAS (siempre visibles en home)
 ============================================================================ */
 function isHomeState() {
   return activeCategory === "TODO" && !activeSubcategory && !searchTerm;
@@ -1046,24 +929,38 @@ function renderHomeSections() {
   const newSection = document.getElementById('newProductsSection');
   const offersSection = document.getElementById('offersSection');
   const catalogHeader = document.getElementById('catalogHeader');
+  const newGrid = document.getElementById('newProductsGrid');
+  const offersGrid = document.getElementById('offersGrid');
 
-  if (!isHomeState()) {
-    newSection.classList.add('hidden');
-    offersSection.classList.add('hidden');
-    catalogHeader.classList.add('hidden');
+  // Siempre visibles si estamos en home
+  const isHome = isHomeState();
+
+  if (!isHome) {
+    newSection.style.display = 'none';
+    offersSection.style.display = 'none';
+    catalogHeader.style.display = 'none';
     return;
   }
 
-  catalogHeader.classList.remove('hidden');
+  catalogHeader.style.display = '';
 
   const nuevos = allProducts.filter(isNewProduct).slice(0, HOME_PREVIEW_COUNT);
   const ofertas = allProducts.filter(hasDiscount).slice(0, HOME_PREVIEW_COUNT);
 
-  newSection.classList.toggle('hidden', nuevos.length === 0);
-  offersSection.classList.toggle('hidden', ofertas.length === 0);
+  // Si no hay novedades, ocultar la sección
+  if (nuevos.length === 0) {
+    newSection.style.display = 'none';
+  } else {
+    newSection.style.display = '';
+    newGrid.innerHTML = nuevos.map(renderMiniCard).join('');
+  }
 
-  document.getElementById('newProductsGrid').innerHTML = nuevos.map(renderMiniCard).join('');
-  document.getElementById('offersGrid').innerHTML = ofertas.map(renderMiniCard).join('');
+  if (ofertas.length === 0) {
+    offersSection.style.display = 'none';
+  } else {
+    offersSection.style.display = '';
+    offersGrid.innerHTML = ofertas.map(renderMiniCard).join('');
+  }
 }
 
 function renderMiniCard(p) {
@@ -1074,7 +971,7 @@ function renderMiniCard(p) {
     ? `<span class="absolute top-1 right-1 z-10 bg-ink-100 text-carbon-950 text-[8px] font-bold px-1 py-0.5 rounded-sm">NEW</span>`
     : '';
   return `
-    <button onclick="jumpToProduct('${escapeAttr(p.sku)}')"
+    <button type="button" onclick="jumpToProduct('${escapeAttr(p.sku)}')"
       class="bg-carbon-800 border border-carbon-700 rounded-sm overflow-hidden text-left relative flex flex-col">
       ${discountBadge}${newBadge}
       <div class="aspect-square bg-carbon-900">
@@ -1159,23 +1056,18 @@ function renderProducts(list) {
     return `
     <div class="bg-carbon-800 border border-carbon-700 rounded-sm overflow-hidden flex flex-col ${outOfStock ? 'opacity-60' : ''}"
          data-sku="${escapeAttr(p.sku)}" data-name="${escapeAttr(p.name)}">
-
       <div class="reticle m-1.5 mb-0 aspect-square bg-carbon-900 overflow-hidden cursor-pointer relative"
            onclick="openImageModal('${escapeAttr(p.image)}')">
         <span class="c-tr"></span><span class="c-bl"></span>
         <img src="${p.image}" alt="${escapeHtml(p.name)}"
              class="w-full h-full object-cover ${outOfStock ? 'grayscale' : ''}" loading="lazy"
              onerror="this.src='https://placehold.co/400x400/191d20/4a5257?text=SIN+IMAGEN'">
-        ${hasDiscount(p) && !outOfStock ? `
-          <span class="absolute top-1 left-1 z-10 bg-amber-500 text-carbon-950 text-[8px] font-bold px-1 py-0.5 rounded-sm">-${Math.round((1 - p.price / p.originalPrice) * 100)}%</span>` : ''}
-        ${isNewProduct(p) && !outOfStock ? `
-          <span class="absolute top-1 right-1 z-10 bg-ink-100 text-carbon-950 text-[8px] font-bold px-1 py-0.5 rounded-sm">NEW</span>` : ''}
-        ${outOfStock ? `
-          <div class="absolute inset-0 flex items-center justify-center bg-carbon-950/50">
-            <span class="border border-amber-500 text-amber-500 font-display font-700 text-[10px] tracking-[0.1em] px-2 py-0.5 bg-carbon-950/80">AGOTADO</span>
-          </div>` : ''}
+        ${hasDiscount(p) && !outOfStock ? `<span class="absolute top-1 left-1 z-10 bg-amber-500 text-carbon-950 text-[8px] font-bold px-1 py-0.5 rounded-sm">-${Math.round((1 - p.price / p.originalPrice) * 100)}%</span>` : ''}
+        ${isNewProduct(p) && !outOfStock ? `<span class="absolute top-1 right-1 z-10 bg-ink-100 text-carbon-950 text-[8px] font-bold px-1 py-0.5 rounded-sm">NEW</span>` : ''}
+        ${outOfStock ? `<div class="absolute inset-0 flex items-center justify-center bg-carbon-950/50">
+          <span class="border border-amber-500 text-amber-500 font-display font-700 text-[10px] tracking-[0.1em] px-2 py-0.5 bg-carbon-950/80">AGOTADO</span>
+        </div>` : ''}
       </div>
-
       <div class="p-2 flex flex-col gap-1 flex-1">
         <span class="font-mono text-[8px] text-amber-500/80 tracking-wider truncate">${escapeHtml(p.category)}${p.subcategory ? ' · ' + escapeHtml(p.subcategory) : ''}</span>
         <span class="font-mono text-[9px] text-ink-600">SKU ${escapeHtml(p.sku)}</span>
@@ -1184,11 +1076,9 @@ function renderProducts(list) {
           <span class="font-mono text-amber-500 font-bold text-sm glow-amber">${formatPrice(p.price)}</span>
           ${hasDiscount(p) ? `<span class="font-mono text-ink-600 text-[9px] line-through">${formatPrice(p.originalPrice)}</span>` : ''}
         </div>
-
         <input id="note_${safeIdx}" type="text" placeholder="Talle, color..."
           ${outOfStock ? 'disabled' : ''}
           class="mt-1.5 w-full bg-carbon-900 border border-carbon-600 rounded-sm px-1.5 py-1.5 text-[11px] text-ink-100 placeholder:text-ink-600 font-body ${outOfStock ? 'cursor-not-allowed' : ''}">
-
         <button type="button"
           data-add-sku="${escapeAttr(p.sku)}"
           data-note-id="note_${safeIdx}"
@@ -1196,9 +1086,7 @@ function renderProducts(list) {
           class="add-to-cart-btn mt-1.5 w-full ${outOfStock
             ? 'bg-carbon-900 border border-carbon-600 text-ink-600 cursor-not-allowed'
             : 'bg-carbon-700 hover:bg-amber-500 hover:text-carbon-950 border border-amber-500/40 text-amber-500'} text-[10px] font-display font-700 tracking-wide py-2 rounded-sm transition-colors flex items-center justify-center gap-1">
-          ${outOfStock
-            ? '<i class="fa-solid fa-ban text-[9px]"></i> SIN STOCK'
-            : '<i class="fa-solid fa-plus text-[9px]"></i> AGREGAR'}
+          ${outOfStock ? '<i class="fa-solid fa-ban text-[9px]"></i> SIN STOCK' : '<i class="fa-solid fa-plus text-[9px]"></i> AGREGAR'}
         </button>
       </div>
     </div>
@@ -1220,10 +1108,10 @@ function renderProducts(list) {
 }
 
 /* ============================================================================
-   MODAL IMAGEN
+   MODAL IMAGEN / INFO
 ============================================================================ */
-function openImageModal(imageUrl) {
-  document.getElementById('modalImage').src = imageUrl;
+function openImageModal(url) {
+  document.getElementById('modalImage').src = url;
   document.getElementById('imageModal').classList.add('active');
   document.body.style.overflow = 'hidden';
 }
@@ -1232,10 +1120,6 @@ function closeImageModal(event) {
   document.getElementById('imageModal').classList.remove('active');
   document.body.style.overflow = '';
 }
-
-/* ============================================================================
-   MODAL INFO
-============================================================================ */
 function openInfoModal() {
   document.getElementById('infoModal').classList.add('active');
   document.body.style.overflow = 'hidden';
@@ -1256,21 +1140,13 @@ document.addEventListener('keydown', (e) => {
 });
 
 /* ============================================================================
-   CARRITO — VERSIÓN SIN LÍMITE
-   ---------------------------------------------------------------
-   Clave del arreglo:
-   - Cada item tiene un `uid` numérico único (no compuesto).
-   - La nota se guarda por `uid`, NO se usa para identificar el item.
-   - Al editar la nota NO se re-renderiza toda la lista (solo el estado).
-   - El render usa `data-uid` y delegación de eventos.
+   CARRITO SIN LÍMITE
 ============================================================================ */
 let cartUidCounter = 0;
 
 function addToCart(product, noteInputId) {
   const noteInput = document.getElementById(noteInputId);
   const note = noteInput ? noteInput.value.trim() : "";
-
-  // Si ya existe el mismo SKU + nota, sumar cantidad
   const existing = cart.find(i => i.sku === product.sku && i.note === note);
   if (existing) {
     existing.qty += 1;
@@ -1289,19 +1165,12 @@ function addToCart(product, noteInputId) {
 
   if (typeof gtag === 'function') {
     gtag('event', 'add_to_cart', {
-      'currency': 'ARS',
-      'value': product.price,
-      'items': [{
-        'item_id': product.sku,
-        'item_name': product.name,
-        'price': product.price,
-        'quantity': 1,
-        'item_category': product.category
-      }]
+      'currency':'ARS', 'value':product.price,
+      'items':[{ 'item_id':product.sku, 'item_name':product.name, 'price':product.price, 'quantity':1, 'item_category':product.category }]
     });
   }
 
-  trackEvent({ evt: "carrito", sku: product.sku, prod: product.name });
+  trackEvent({ evt:"carrito", sku:product.sku, prod:product.name });
   if (noteInput) noteInput.value = "";
   updateCartUI();
   flashAdded(noteInputId);
@@ -1327,12 +1196,10 @@ function changeQty(uid, delta) {
   updateCartUI();
 }
 
-// NOTA: esta función NO re-renderiza la lista, solo actualiza el estado.
-// Así el input no pierde el foco ni se rompe el carrito.
-function updateCartNoteByUid(uid, newNoteRaw) {
+function updateCartNoteByUid(uid, newNote) {
   const item = cart.find(i => i.uid === uid);
   if (!item) return;
-  item.note = newNoteRaw; // sin trim para no molestar mientras escribe
+  item.note = newNote;
 }
 
 function removeItem(uid) {
@@ -1352,104 +1219,64 @@ function clearCart() {
 ============================================================================ */
 function exportCartPDF() {
   if (cart.length === 0) { alert("El carrito está vacío."); return; }
-  if (!window.jspdf) { alert("No se pudo cargar el generador de PDF."); return; }
-
+  if (!window.jspdf) { alert("No se pudo cargar el PDF."); return; }
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF('p', 'mm', 'a4');
-  const pageWidth = 210;
-  const margin = 14;
+  const doc = new jsPDF('p','mm','a4');
+  const pageWidth = 210, margin = 14;
   let y = 18;
 
-  doc.setFontSize(18);
-  doc.setTextColor(255, 176, 0);
+  doc.setFontSize(18); doc.setTextColor(255,176,0);
   doc.text("MULTI-TAC", margin, y);
   y += 8;
-
-  doc.setFontSize(9);
-  doc.setTextColor(150);
-  const dateStr = new Date().toLocaleDateString('es-AR', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
-    hour: '2-digit', minute: '2-digit'
-  });
+  doc.setFontSize(9); doc.setTextColor(150);
+  const dateStr = new Date().toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
   doc.text(`Fecha: ${dateStr}`, pageWidth - margin - 20, y - 8);
-
-  doc.setDrawColor(255, 176, 0, 50);
-  doc.line(margin, y, pageWidth - margin, y);
+  doc.setDrawColor(255,176,0,50); doc.line(margin, y, pageWidth - margin, y);
   y += 6;
-
-  doc.setFontSize(10);
-  doc.setTextColor(200);
-  doc.text(`Total de productos: ${cartCount()}`, margin, y);
-  y += 6;
-  doc.text(`Total general: ${formatPrice(cartTotal())}`, margin, y);
-  y += 10;
-
-  doc.setFontSize(8);
-  doc.setTextColor(150);
+  doc.setFontSize(10); doc.setTextColor(200);
+  doc.text(`Total de productos: ${cartCount()}`, margin, y); y += 6;
+  doc.text(`Total general: ${formatPrice(cartTotal())}`, margin, y); y += 10;
+  doc.setFontSize(8); doc.setTextColor(150);
   doc.text("SKU", margin, y);
   doc.text("Producto", margin + 28, y);
   doc.text("Cant.", margin + 110, y);
   doc.text("P. Unit.", margin + 130, y);
   doc.text("Subtotal", margin + 160, y);
   y += 4;
-  doc.setDrawColor(255, 176, 0, 30);
-  doc.line(margin, y, pageWidth - margin, y);
+  doc.setDrawColor(255,176,0,30); doc.line(margin, y, pageWidth - margin, y);
   y += 6;
-
-  doc.setFontSize(8);
-  doc.setTextColor(220);
+  doc.setFontSize(8); doc.setTextColor(220);
 
   cart.forEach((item) => {
     if (y > 260) { doc.addPage(); y = 20; }
-
-    const imgX = margin;
-    const imgY = y - 4;
-    const imgW = 16;
-    const imgH = 16;
-
-    doc.setFillColor(30, 30, 35);
-    doc.rect(imgX, imgY, imgW, imgH, 'F');
-    doc.setDrawColor(255, 176, 0, 40);
-    doc.rect(imgX, imgY, imgW, imgH, 'S');
-    doc.setFontSize(8);
-    doc.setTextColor(255, 176, 0, 80);
-    doc.text("IMG", imgX + 5, imgY + 11);
-
-    doc.setFontSize(8);
-    doc.setTextColor(200);
+    doc.setFillColor(30,30,35); doc.rect(margin, y - 4, 16, 16, 'F');
+    doc.setDrawColor(255,176,0,40); doc.rect(margin, y - 4, 16, 16, 'S');
+    doc.setFontSize(8); doc.setTextColor(255,176,0,80);
+    doc.text("IMG", margin + 5, y + 7);
+    doc.setFontSize(8); doc.setTextColor(200);
     doc.text(String(item.sku), margin + 20, y + 6);
     const name = item.name.length > 38 ? item.name.slice(0, 38) + "..." : item.name;
     doc.text(name, margin + 28, y + 6);
     doc.text(String(item.qty), margin + 110, y + 6);
     doc.text(formatPrice(item.price), margin + 130, y + 6);
     doc.text(formatPrice(item.price * item.qty), margin + 160, y + 6);
-
     if (item.note) {
-      y += 5;
-      doc.setFontSize(6.5);
-      doc.setTextColor(120);
+      y += 5; doc.setFontSize(6.5); doc.setTextColor(120);
       doc.text(`Obs: ${item.note}`, margin + 20, y + 4);
-      doc.setFontSize(8);
-      doc.setTextColor(220);
-      y += 4;
+      doc.setFontSize(8); doc.setTextColor(220); y += 4;
     }
     y += 10;
   });
-
   y += 4;
-  doc.setDrawColor(255, 176, 0, 40);
-  doc.line(margin, y, pageWidth - margin, y);
+  doc.setDrawColor(255,176,0,40); doc.line(margin, y, pageWidth - margin, y);
   y += 8;
-
-  doc.setFontSize(12);
-  doc.setTextColor(255, 176, 0);
+  doc.setFontSize(12); doc.setTextColor(255,176,0);
   doc.text(`TOTAL: ${formatPrice(cartTotal())}`, pageWidth - margin - 40, y);
-
   doc.save(`pedido-multitac-${Date.now()}.pdf`);
 }
 
-function cartTotal() { return cart.reduce((s, i) => s + (i.price * i.qty), 0); }
-function cartCount() { return cart.reduce((s, i) => s + i.qty, 0); }
+function cartTotal() { return cart.reduce((s,i) => s + (i.price * i.qty), 0); }
+function cartCount() { return cart.reduce((s,i) => s + i.qty, 0); }
 
 /* ============================================================================
    UI CARRITO
@@ -1469,11 +1296,9 @@ function updateCartUI() {
 function renderCartItems() {
   const list = document.getElementById('cartItemsList');
   if (cart.length === 0) {
-    list.innerHTML = `
-      <div class="flex flex-col items-center justify-center py-10 text-ink-400">
-        <i class="fa-solid fa-box-open text-2xl mb-2 text-ink-600"></i>
-        <p class="font-mono text-xs">EL CARRITO ESTÁ VACÍO</p>
-      </div>`;
+    list.innerHTML = `<div class="flex flex-col items-center justify-center py-10 text-ink-400">
+      <i class="fa-solid fa-box-open text-2xl mb-2 text-ink-600"></i>
+      <p class="font-mono text-xs">EL CARRITO ESTÁ VACÍO</p></div>`;
     return;
   }
 
@@ -1481,7 +1306,6 @@ function renderCartItems() {
     <div class="bg-carbon-800 border border-carbon-700 rounded-sm p-3 flex gap-3" data-uid="${item.uid}">
       <img src="${item.image}" class="w-16 h-16 object-cover rounded-sm border border-carbon-600 shrink-0"
            onerror="this.src='https://placehold.co/100x100/191d20/4a5257?text=--'">
-
       <div class="flex-1 min-w-0">
         <div class="flex justify-between items-start gap-2">
           <div class="min-w-0">
@@ -1493,15 +1317,12 @@ function renderCartItems() {
             <i class="fa-solid fa-trash-can text-xs"></i>
           </button>
         </div>
-
         <div class="mt-1.5 relative">
           <i class="fa-solid fa-note-sticky absolute left-2 top-1/2 -translate-y-1/2 text-amber-500/70 text-[10px]"></i>
-          <input type="text" value="${escapeHtml(item.note)}"
-            placeholder="Sin observación — agregar aquí..."
+          <input type="text" value="${escapeHtml(item.note)}" placeholder="Sin observación — agregar aquí..."
             data-action="note" data-uid="${item.uid}"
             class="w-full bg-carbon-900 border border-carbon-600 rounded-sm pl-6 pr-2 py-1.5 text-xs text-amber-500 placeholder:text-ink-600 font-body">
         </div>
-
         <div class="flex items-center justify-between mt-2">
           <div class="flex items-center gap-2 bg-carbon-900 border border-carbon-600 rounded-sm">
             <button type="button" data-action="minus" data-uid="${item.uid}" class="w-7 h-7 flex items-center justify-center text-amber-500">
@@ -1518,23 +1339,13 @@ function renderCartItems() {
     </div>
   `).join('');
 
-  // Delegación de eventos
   list.querySelectorAll('[data-action]').forEach(el => {
     const action = el.getAttribute('data-action');
     const uid = parseInt(el.getAttribute('data-uid'), 10);
-
-    if (action === 'remove') {
-      el.addEventListener('click', () => removeItem(uid));
-    } else if (action === 'minus') {
-      el.addEventListener('click', () => changeQty(uid, -1));
-    } else if (action === 'plus') {
-      el.addEventListener('click', () => changeQty(uid, 1));
-    } else if (action === 'note') {
-      // Al escribir solo actualiza el estado, NO re-renderiza
-      el.addEventListener('input', (e) => {
-        updateCartNoteByUid(uid, e.target.value);
-      });
-    }
+    if (action === 'remove') el.addEventListener('click', () => removeItem(uid));
+    else if (action === 'minus') el.addEventListener('click', () => changeQty(uid, -1));
+    else if (action === 'plus') el.addEventListener('click', () => changeQty(uid, 1));
+    else if (action === 'note') el.addEventListener('input', (e) => updateCartNoteByUid(uid, e.target.value));
   });
 }
 
@@ -1561,24 +1372,15 @@ function closeCart() {
 ============================================================================ */
 async function guardarPedido(nombre, telefono) {
   const detalle = cart.map(item => ({
-    sku: item.sku,
-    producto: item.name,
-    cantidad: item.qty,
-    precio: item.price,
-    observacion: item.note || ""
+    sku: item.sku, producto: item.name, cantidad: item.qty,
+    precio: item.price, observacion: item.note || ""
   }));
-  const pedido = {
-    nombre, telefono,
-    total: cartTotal(),
-    observaciones: "",
-    detalle
-  };
   try {
     await fetch(PEDIDOS_API_URL, {
-      method: "POST", mode: "no-cors", redirect: "follow",
-      body: JSON.stringify(pedido)
+      method:"POST", mode:"no-cors", redirect:"follow",
+      body: JSON.stringify({ nombre, telefono, total:cartTotal(), observaciones:"", detalle })
     });
-  } catch (err) { console.error("Error al guardar pedido:", err); }
+  } catch(e){ console.error(e); }
 }
 
 async function sendToWhatsApp() {
@@ -1592,24 +1394,15 @@ async function sendToWhatsApp() {
 
   if (typeof gtag === 'function') {
     gtag('event', 'purchase', {
-      'currency': 'ARS',
-      'value': cartTotal(),
-      'transaction_id': 'pedido_' + Date.now(),
-      'items': cart.map(item => ({
-        'item_id': item.sku,
-        'item_name': item.name,
-        'price': item.price,
-        'quantity': item.qty,
-        'item_category': item.category
-      }))
+      'currency':'ARS', 'value':cartTotal(), 'transaction_id':'pedido_' + Date.now(),
+      'items': cart.map(item => ({ 'item_id':item.sku, 'item_name':item.name, 'price':item.price, 'quantity':item.qty, 'item_category':item.category }))
     });
   }
 
-  trackEvent({ evt: "pedido_enviado" });
+  trackEvent({ evt:"pedido_enviado" });
 
   let msg = `*🛒 NUEVO PEDIDO - MULTI-TAC*\n\n`;
-  msg += `*Cliente:* ${nombre}\n`;
-  msg += `*Teléfono:* ${telefono}\n\n`;
+  msg += `*Cliente:* ${nombre}\n*Teléfono:* ${telefono}\n\n`;
   msg += `*Listado de artículos:*\n\n`;
   cart.forEach((item, idx) => {
     const subtotal = item.price * item.qty;
