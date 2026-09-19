@@ -71,7 +71,6 @@
   .drawer-cat-item { transition: background 0.15s ease; }
   .drawer-cat-item:hover { background: #191d20; }
 
-  /* Acordeón de subcategorías */
   .drawer-sub-list {
     max-height: 0;
     overflow: hidden;
@@ -153,31 +152,22 @@
 
   .header-right-group { display: flex; align-items: center; gap: 6px; }
 
-  /* ============================================================
-     GRILLA DE PRODUCTOS — SIEMPRE 3 COLUMNAS
-     (mínimo 2 columnas solo en pantallas muy angostas < 360px)
-  ============================================================ */
+  /* GRILLA: 3 columnas siempre (excepto <360px) */
   .grid-products {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.5rem;
   }
-  @media (min-width: 768px) {
-    .grid-products { gap: 1rem; }
-  }
-  @media (max-width: 359px) {
-    .grid-products { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  }
+  @media (min-width: 768px) { .grid-products { gap: 1rem; } }
+  @media (max-width: 359px) { .grid-products { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
-  /* Mini cards de novedades/ofertas: 3 columnas SIEMPRE */
+  /* Mini cards novedades/ofertas: 3 columnas siempre */
   .home-mini-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.5rem;
   }
-  @media (min-width: 768px) {
-    .home-mini-grid { gap: 0.75rem; }
-  }
+  @media (min-width: 768px) { .home-mini-grid { gap: 0.75rem; } }
 </style>
 </head>
 
@@ -238,7 +228,7 @@
   </div>
 </header>
 
-<!-- BANNER -->
+<!-- BANNER ENVÍOS -->
 <div class="bg-carbon-800 border-b border-amber-500/20 py-2.5 px-4 flex items-center justify-center gap-3 flex-wrap">
   <div class="flex items-center gap-2">
     <span class="text-amber-500 text-lg">🚚</span>
@@ -335,9 +325,7 @@
       <i class="fa-solid fa-xmark text-lg"></i>
     </button>
   </div>
-
   <div class="overflow-y-auto flex-1 px-3 py-3" id="drawerContent"></div>
-
   <div class="px-5 py-3 border-t border-carbon-700 bg-carbon-900">
     <button onclick="resetFilters()" class="w-full border border-carbon-600 text-ink-100 font-mono text-xs py-2.5 rounded-sm hover:border-amber-500/50">
       <i class="fa-solid fa-rotate-left text-amber-500 mr-1.5"></i> LIMPIAR FILTROS
@@ -689,13 +677,6 @@ function closeDrawer() {
   document.body.style.overflow = '';
 }
 
-/* ============================================================================
-   BUILD DRAWER — ACORDEÓN REAL
-   ---------------------------------------------------------------
-   - Click en el botón de categoría: SOLO despliega/colapsa el submenú.
-   - Click en "TODAS": filtra por esa categoría (sin subcategoría).
-   - Click en una subcategoría: filtra por categoría + subcategoría.
-============================================================================ */
 function buildDrawer() {
   const tree = buildCategoryTree();
   const knownCats = CATEGORY_ORDER.filter(c => tree[c]);
@@ -729,21 +710,19 @@ function buildDrawer() {
 
     html += `
       <div class="mb-1">
-        <div class="flex items-stretch">
-          <button type="button" data-action="toggle-cat" data-target="${catId}"
-            class="flex-1 flex items-center justify-between px-3 py-3 rounded-sm border ${isCatActive ? 'border-amber-500 bg-amber-500/10' : 'border-transparent'} drawer-cat-item">
-            <span class="flex items-center gap-2 min-w-0">
-              <i class="fa-solid fa-folder text-amber-500/70 text-xs"></i>
-              <span class="font-display font-600 text-sm ${isCatActive ? 'text-amber-500' : 'text-ink-100'} truncate">${escapeHtml(cat)}</span>
-            </span>
-            <span class="flex items-center gap-2 shrink-0">
-              <span class="font-mono text-[10px] text-ink-600">${catCount}</span>
-              <i class="fa-solid fa-chevron-down drawer-chevron ${isOpen ? 'rotated' : ''} text-ink-400 text-[10px]"></i>
-            </span>
-          </button>
-        </div>
+        <button type="button" data-action="toggle-cat" data-target="${catId}"
+          class="w-full flex items-center justify-between px-3 py-3 rounded-sm border ${isCatActive ? 'border-amber-500 bg-amber-500/10' : 'border-transparent'} drawer-cat-item">
+          <span class="flex items-center gap-2 min-w-0">
+            <i class="fa-solid fa-folder text-amber-500/70 text-xs"></i>
+            <span class="font-display font-600 text-sm ${isCatActive ? 'text-amber-500' : 'text-ink-100'} truncate">${escapeHtml(cat)}</span>
+          </span>
+          <span class="flex items-center gap-2 shrink-0">
+            <span class="font-mono text-[10px] text-ink-600">${catCount}</span>
+            <i class="fa-solid fa-chevron-down drawer-chevron ${isOpen ? 'rotated' : ''} text-ink-400 text-[10px]"></i>
+          </span>
+        </button>
         <div id="${catId}" class="drawer-sub-list ${isOpen ? 'open' : ''} pl-4 pr-1">
-          <button type="button" data-action="select-cat" data-cat="${escapeAttr(cat)}" data-sub=""
+          <button type="button" data-action="select-cat" data-cat="${escapeAttr(cat)}"
             class="w-full flex items-center justify-between px-3 py-2 rounded-sm text-left ${isCatActive ? 'text-amber-500 bg-amber-500/10' : 'text-ink-400'} hover:bg-carbon-800">
             <span class="font-mono text-xs">TODAS</span>
             <span class="font-mono text-[10px] text-ink-600">${catCount}</span>
@@ -769,15 +748,11 @@ function buildDrawer() {
 
   container.innerHTML = html;
 
-  // Delegación de eventos
   container.querySelectorAll('[data-action]').forEach(el => {
     el.addEventListener('click', (e) => {
       const action = el.getAttribute('data-action');
-
       if (action === 'toggle-cat') {
-        // SOLO despliega/colapsa, NO filtra
-        e.preventDefault();
-        e.stopPropagation();
+        e.preventDefault(); e.stopPropagation();
         const targetId = el.getAttribute('data-target');
         const subList = document.getElementById(targetId);
         const chevron = el.querySelector('.drawer-chevron');
@@ -785,30 +760,9 @@ function buildDrawer() {
         if (chevron) chevron.classList.toggle('rotated');
         return;
       }
-
-      if (action === 'select-todo') {
-        e.preventDefault();
-        selectCategory("TODO", null);
-        closeDrawer();
-        return;
-      }
-
-      if (action === 'select-cat') {
-        e.preventDefault();
-        const cat = el.getAttribute('data-cat');
-        selectCategory(cat, null);
-        closeDrawer();
-        return;
-      }
-
-      if (action === 'select-sub') {
-        e.preventDefault();
-        const cat = el.getAttribute('data-cat');
-        const sub = el.getAttribute('data-sub') || null;
-        selectCategory(cat, sub);
-        closeDrawer();
-        return;
-      }
+      if (action === 'select-todo') { e.preventDefault(); selectCategory("TODO", null); closeDrawer(); return; }
+      if (action === 'select-cat') { e.preventDefault(); selectCategory(el.getAttribute('data-cat'), null); closeDrawer(); return; }
+      if (action === 'select-sub') { e.preventDefault(); selectCategory(el.getAttribute('data-cat'), el.getAttribute('data-sub') || null); closeDrawer(); return; }
     });
   });
 }
@@ -919,7 +873,7 @@ function applyFilters() {
 }
 
 /* ============================================================================
-   HOME — NOVEDADES Y OFERTAS (siempre visibles en home)
+   HOME — NOVEDADES Y OFERTAS
 ============================================================================ */
 function isHomeState() {
   return activeCategory === "TODO" && !activeSubcategory && !searchTerm;
@@ -932,7 +886,6 @@ function renderHomeSections() {
   const newGrid = document.getElementById('newProductsGrid');
   const offersGrid = document.getElementById('offersGrid');
 
-  // Siempre visibles si estamos en home
   const isHome = isHomeState();
 
   if (!isHome) {
@@ -947,7 +900,6 @@ function renderHomeSections() {
   const nuevos = allProducts.filter(isNewProduct).slice(0, HOME_PREVIEW_COUNT);
   const ofertas = allProducts.filter(hasDiscount).slice(0, HOME_PREVIEW_COUNT);
 
-  // Si no hay novedades, ocultar la sección
   if (nuevos.length === 0) {
     newSection.style.display = 'none';
   } else {
@@ -1058,7 +1010,6 @@ function renderProducts(list) {
          data-sku="${escapeAttr(p.sku)}" data-name="${escapeAttr(p.name)}">
       <div class="reticle m-1.5 mb-0 aspect-square bg-carbon-900 overflow-hidden cursor-pointer relative"
            onclick="openImageModal('${escapeAttr(p.image)}')">
-        <span class="c-tr"></span><span class="c-bl"></span>
         <img src="${p.image}" alt="${escapeHtml(p.name)}"
              class="w-full h-full object-cover ${outOfStock ? 'grayscale' : ''}" loading="lazy"
              onerror="this.src='https://placehold.co/400x400/191d20/4a5257?text=SIN+IMAGEN'">
@@ -1368,21 +1319,51 @@ function closeCart() {
 }
 
 /* ============================================================================
-   PEDIDO
+   GUARDAR PEDIDO — FIX CORS/APPS SCRIPT
+   ---------------------------------------------------------------
+   El header Content-Type: text/plain evita el preflight CORS
+   y hace que Apps Script reciba bien el body con e.postData.contents.
+   Las cantidades y precios van como Number() para que lleguen como números.
 ============================================================================ */
 async function guardarPedido(nombre, telefono) {
   const detalle = cart.map(item => ({
-    sku: item.sku, producto: item.name, cantidad: item.qty,
-    precio: item.price, observacion: item.note || ""
+    sku: String(item.sku),
+    producto: String(item.name),
+    cantidad: Number(item.qty),
+    precio: Number(item.price),
+    observacion: String(item.note || ""),
+    imagen: String(item.image || ""),
+    proveedor: ""
   }));
+
+  const pedido = {
+    nombre: String(nombre),
+    telefono: String(telefono),
+    total: Number(cartTotal()),
+    observaciones: "",
+    detalle: detalle
+  };
+
+  const jsonStr = JSON.stringify(pedido);
+  console.log("📦 PEDIDO A ENVIAR:", jsonStr);
+
   try {
     await fetch(PEDIDOS_API_URL, {
-      method:"POST", mode:"no-cors", redirect:"follow",
-      body: JSON.stringify({ nombre, telefono, total:cartTotal(), observaciones:"", detalle })
+      method: "POST",
+      mode: "no-cors",
+      redirect: "follow",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: jsonStr
     });
-  } catch(e){ console.error(e); }
+    console.log("✅ Pedido enviado al servidor");
+  } catch (err) {
+    console.error("❌ Error al guardar pedido:", err);
+  }
 }
 
+/* ============================================================================
+   WHATSAPP
+============================================================================ */
 async function sendToWhatsApp() {
   const nombre = document.getElementById("customerName").value.trim();
   const telefono = document.getElementById("customerPhone").value.trim();
